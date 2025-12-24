@@ -13,6 +13,9 @@ import AdminWithdraw from "./pages/AdminWithdraw";
 import AdminPasswordReset from "./pages/AdminPasswordReset";
 import AdminLogoCustomize from "./pages/AdminLogoCustomize";
 import AdminCompletedOffers from "./pages/AdminCompletedOffers";
+import AdminOfferwallCustomize from "./pages/AdminOfferwallCustomize";
+import AdminSoundCustomize from "./pages/AdminSoundCustomize";
+import AdminBackgroundCustomize from "./pages/AdminBackgroundCustomize";
 import ProfileSettings from "./pages/ProfileSettings";
 import Leaderboard from "./pages/Leaderboard";
 import Withdraw from "./pages/Withdraw";
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/admin/password" element={<ProtectedRoute requireAdmin><AdminPasswordReset /></ProtectedRoute>} />
             <Route path="/admin/logo" element={<ProtectedRoute requireAdmin><AdminLogoCustomize /></ProtectedRoute>} />
             <Route path="/admin/offers" element={<ProtectedRoute requireAdmin><AdminCompletedOffers /></ProtectedRoute>} />
+            <Route path="/admin/offerwall" element={<ProtectedRoute requireAdmin><AdminOfferwallCustomize /></ProtectedRoute>} />
+            <Route path="/admin/sound" element={<ProtectedRoute requireAdmin><AdminSoundCustomize /></ProtectedRoute>} />
+            <Route path="/admin/background" element={<ProtectedRoute requireAdmin><AdminBackgroundCustomize /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
             <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />

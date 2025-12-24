@@ -4,7 +4,7 @@ import {
   Shield, Users, DollarSign, Home, 
   TrendingUp, AlertCircle, CheckCircle, Clock,
   RefreshCw, Menu, X, ArrowLeft,
-  Wallet, Palette, Key, LogOut
+  Wallet, Palette, Key, LogOut, FileCheck, Layers, Volume2, Image
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -177,7 +177,11 @@ const AdminPanel = () => {
     { icon: Home, label: 'Dashboard', path: '/admin', active: true },
     { icon: Users, label: 'All Users', path: '/admin/users' },
     { icon: Wallet, label: 'Withdraw', path: '/admin/withdraw' },
+    { icon: FileCheck, label: 'Completed Offers', path: '/admin/offers' },
     { icon: Palette, label: 'Logo Customize', path: '/admin/logo' },
+    { icon: Layers, label: 'Offerwall', path: '/admin/offerwall' },
+    { icon: Volume2, label: 'Sound', path: '/admin/sound' },
+    { icon: Image, label: 'Background', path: '/admin/background' },
     { icon: Key, label: 'Password Reset', path: '/admin/password' },
   ];
 

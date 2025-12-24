@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Palette, ArrowLeft, Menu, Home, Users, Wallet, Key, LogOut, Save, RotateCcw, Eye, Upload, FileCheck, Image } from 'lucide-react';
+import { Palette, ArrowLeft, Menu, Home, Users, Wallet, Key, LogOut, Save, RotateCcw, Eye, Upload, FileCheck, Image, Layers, Volume2 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const AdminLogoCustomize = () => {
@@ -17,25 +18,34 @@ const AdminLogoCustomize = () => {
   const [logoImage, setLogoImage] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [logoType, setLogoType] = useState<'text' | 'image'>('text');
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const savedText = localStorage.getItem('siteLogo');
-    const savedImage = localStorage.getItem('siteLogoImage');
-    const savedType = localStorage.getItem('siteLogoType') as 'text' | 'image' | null;
-    
-    if (savedText) {
-      setLogoText(savedText);
-      setPreviewText(savedText);
-    }
-    if (savedImage) {
-      setLogoImage(savedImage);
-      setPreviewImage(savedImage);
-    }
-    if (savedType) {
-      setLogoType(savedType);
-    }
+    loadSettings();
   }, []);
+
+  const loadSettings = async () => {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('logo_type, logo_text, logo_image_url')
+      .eq('id', 'default')
+      .maybeSingle();
+    
+    if (data) {
+      if (data.logo_text) {
+        setLogoText(data.logo_text);
+        setPreviewText(data.logo_text);
+      }
+      if (data.logo_image_url) {
+        setLogoImage(data.logo_image_url);
+        setPreviewImage(data.logo_image_url);
+      }
+      if (data.logo_type) {
+        setLogoType(data.logo_type as 'text' | 'image');
+      }
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,28 +64,53 @@ const AdminLogoCustomize = () => {
     }
   };
 
-  const handleSave = () => {
-    localStorage.setItem('siteLogo', logoText);
-    localStorage.setItem('siteLogoType', logoType);
-    if (logoImage) {
-      localStorage.setItem('siteLogoImage', logoImage);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .update({ 
+          logo_type: logoType,
+          logo_text: logoText,
+          logo_image_url: logoImage,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', 'default');
+      
+      if (error) throw error;
+      setPreviewText(logoText);
+      setPreviewImage(logoImage);
+      toast.success('Logo saved to database!');
+    } catch (error) {
+      console.error('Error saving logo:', error);
+      toast.error('Failed to save logo');
+    } finally {
+      setIsSaving(false);
     }
-    setPreviewText(logoText);
-    setPreviewImage(logoImage);
-    toast.success('Logo updated! Refresh other pages to see changes.');
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     const defaultLogo = 'BILLUCASH';
     setLogoText(defaultLogo);
     setPreviewText(defaultLogo);
     setLogoImage(null);
     setPreviewImage(null);
     setLogoType('text');
-    localStorage.setItem('siteLogo', defaultLogo);
-    localStorage.setItem('siteLogoType', 'text');
-    localStorage.removeItem('siteLogoImage');
-    toast.success('Logo reset to default');
+    
+    try {
+      await supabase
+        .from('site_settings')
+        .update({ 
+          logo_type: 'text',
+          logo_text: defaultLogo,
+          logo_image_url: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', 'default');
+      toast.success('Logo reset to default');
+    } catch (error) {
+      toast.error('Failed to reset');
+    }
   };
 
   const sidebarItems = [
@@ -84,6 +119,9 @@ const AdminLogoCustomize = () => {
     { icon: Wallet, label: 'Withdraw', path: '/admin/withdraw' },
     { icon: FileCheck, label: 'Completed Offers', path: '/admin/offers' },
     { icon: Palette, label: 'Logo Customize', path: '/admin/logo', active: true },
+    { icon: Layers, label: 'Offerwall', path: '/admin/offerwall' },
+    { icon: Volume2, label: 'Sound', path: '/admin/sound' },
+    { icon: Image, label: 'Background', path: '/admin/background' },
     { icon: Key, label: 'Password Reset', path: '/admin/password' },
   ];
 
@@ -208,9 +246,10 @@ const AdminLogoCustomize = () => {
               <div className="flex gap-1.5">
                 <button
                   onClick={handleSave}
-                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold text-[10px]"
+                  disabled={isSaving}
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold text-[10px] disabled:opacity-50"
                 >
-                  <Save className="w-3 h-3" /> Save
+                  <Save className="w-3 h-3" /> {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button
                   onClick={handleReset}

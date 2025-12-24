@@ -41,6 +41,39 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          background_settings: Json | null
+          id: string
+          logo_image_url: string | null
+          logo_text: string | null
+          logo_type: string
+          offerwall_settings: Json | null
+          sound_settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          background_settings?: Json | null
+          id?: string
+          logo_image_url?: string | null
+          logo_text?: string | null
+          logo_type?: string
+          offerwall_settings?: Json | null
+          sound_settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          background_settings?: Json | null
+          id?: string
+          logo_image_url?: string | null
+          logo_text?: string | null
+          logo_type?: string
+          offerwall_settings?: Json | null
+          sound_settings?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

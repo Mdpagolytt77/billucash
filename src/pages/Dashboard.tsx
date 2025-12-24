@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Settings, Gift, Bell, LogOut, Menu, X, User, Snowflake,
-  Shield, ChevronDown, Coins, Wallet
+  Gift, Bell, LogOut, Menu, X, User, Snowflake,
+  Shield, ChevronDown, Coins, Wallet, Trophy
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -72,28 +72,10 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Simulate realtime notifications
-  useEffect(() => {
-    const messages = [
-      'New high-paying offer just added!',
-      'Complete 3 offers today for bonus!',
-      'Flash sale: 2x rewards for 1 hour!',
-      'Your referral earned you $0.50!',
-    ];
-    const interval = setInterval(() => {
-      const newNotif: Notification = {
-        id: Date.now().toString(),
-        message: messages[Math.floor(Math.random() * messages.length)],
-        type: 'offer',
-        read: false,
-        time: 'Just now',
-        created_at: new Date(),
-      };
-      setNotifications(prev => [newNotif, ...prev.slice(0, 4)]);
-      toast.info(newNotif.message, { duration: 3000 });
-    }, 15000);
-    return () => clearInterval(interval);
-  }, []);
+  // Clear all notifications
+  const clearAllNotifications = () => {
+    setNotifications([]);
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -214,7 +196,13 @@ const Dashboard = () => {
                 onClick={() => { setSidebarOpen(false); }}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"
               >
-                <Settings className="w-5 h-5 text-primary" /> Profile Settings
+                <User className="w-5 h-5 text-primary" /> Profile Settings
+              </button>
+              <button 
+                onClick={() => { setSidebarOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"
+              >
+                <Trophy className="w-5 h-5 text-primary" /> Leaderboard
               </button>
               {isAdmin && (
                 <Link 
@@ -262,29 +250,32 @@ const Dashboard = () => {
               </button>
               
               {showNotifications && (
-                <div className="absolute right-0 top-12 w-80 glass-card p-4 max-h-96 overflow-auto z-50">
-                  <div className="flex justify-between items-center mb-3 pb-2 border-b border-border">
-                    <span className="font-semibold text-primary">Notifications</span>
-                    <div className="flex gap-2">
-                      <button onClick={markAllRead} className="text-xs text-muted-foreground hover:text-primary transition-colors">
-                        Mark all read
+                <div className="absolute right-0 top-12 w-72 bg-background border border-border rounded-xl shadow-xl p-3 max-h-80 overflow-auto z-50">
+                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-border">
+                    <span className="font-semibold text-primary text-sm">Notifications</span>
+                    <div className="flex gap-2 items-center">
+                      <button onClick={markAllRead} className="text-[10px] px-2 py-1 rounded bg-white/10 hover:bg-white/20 transition-colors">
+                        Read
+                      </button>
+                      <button onClick={clearAllNotifications} className="text-[10px] px-2 py-1 rounded bg-destructive/20 text-destructive hover:bg-destructive/30 transition-colors">
+                        Clear
                       </button>
                       <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
-                        <X className="w-4 h-4" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {notifications.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-4">No notifications</p>
+                      <p className="text-center text-muted-foreground py-3 text-sm">No notifications</p>
                     ) : (
                       notifications.map(notif => (
                         <div 
                           key={notif.id} 
-                          className={`p-3 rounded-lg transition-all ${notif.read ? 'bg-white/5' : 'bg-primary/10 border-l-2 border-primary'}`}
+                          className={`p-2 rounded-lg transition-all text-xs ${notif.read ? 'bg-muted/50' : 'bg-primary/10 border-l-2 border-primary'}`}
                         >
-                          <p className="text-sm">{notif.message}</p>
-                          <span className="text-xs text-primary/70 mt-1 block">{notif.time}</span>
+                          <p>{notif.message}</p>
+                          <span className="text-[10px] text-primary/70 mt-0.5 block">{notif.time}</span>
                         </div>
                       ))
                     )}

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { X, LogIn, UserPlus } from 'lucide-react';
 
 interface LoginPopupProps {
@@ -53,10 +54,14 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
         </form>
 
         <div className="flex justify-center mt-6">
-          <a href="#" className="text-primary text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1">
+          <Link 
+            to="/signup" 
+            onClick={onClose}
+            className="text-primary text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1"
+          >
             <UserPlus className="w-4 h-4" />
             Create Account
-          </a>
+          </Link>
         </div>
       </div>
     </div>

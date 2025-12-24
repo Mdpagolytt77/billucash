@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { LogIn, UserPlus } from 'lucide-react';
 
 const LoginBox = () => {
@@ -42,10 +43,10 @@ const LoginBox = () => {
 
       {/* Link */}
       <div className="flex justify-center mt-5">
-        <a href="#" className="text-primary text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1">
+        <Link to="/signup" className="text-primary text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1">
           <UserPlus className="w-4 h-4" />
           Create Account
-        </a>
+        </Link>
       </div>
     </div>
   );

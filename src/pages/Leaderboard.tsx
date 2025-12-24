@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trophy, Medal, Crown, Star, TrendingUp, Users, Menu, X, Home, User, Wallet, Shield, LogOut } from 'lucide-react';
+import { Trophy, Medal, Crown, Star, TrendingUp, Users, Menu, Home, User, Wallet, Shield, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
+import SnowEffect from '@/components/SnowEffect';
+import SnowToggle from '@/components/SnowToggle';
+import { useSnowEffect } from '@/hooks/useSnowEffect';
 import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
 
@@ -17,22 +20,23 @@ interface LeaderboardUser {
 const Leaderboard = () => {
   const navigate = useNavigate();
   const { profile, isLoading, isAdmin, signOut } = useAuth();
+  const { snowEnabled, toggleSnow } = useSnowEffect();
   const [showLoading, setShowLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [timeFilter, setTimeFilter] = useState<'daily' | 'weekly' | 'monthly' | 'alltime'>('weekly');
 
-  const [leaderboardData] = useState<LeaderboardUser[]>([
-    { rank: 1, username: 'hafizur_vai', earnings: 125.50, tasks: 450, level: 'Diamond' },
-    { rank: 2, username: 'rana_pro', earnings: 98.25, tasks: 380, level: 'Platinum' },
-    { rank: 3, username: 'nure_alam', earnings: 87.00, tasks: 320, level: 'Gold' },
-    { rank: 4, username: 'akash_99', earnings: 76.50, tasks: 290, level: 'Gold' },
-    { rank: 5, username: 'somnath_x', earnings: 65.75, tasks: 250, level: 'Silver' },
-    { rank: 6, username: 'sakib_bd', earnings: 54.00, tasks: 210, level: 'Silver' },
-    { rank: 7, username: 'arafat_01', earnings: 48.25, tasks: 185, level: 'Silver' },
-    { rank: 8, username: 'rifat_boss', earnings: 42.00, tasks: 160, level: 'Bronze' },
-    { rank: 9, username: 'karim_007', earnings: 38.50, tasks: 145, level: 'Bronze' },
-    { rank: 10, username: 'joy_earner', earnings: 35.00, tasks: 130, level: 'Bronze' },
-  ]);
+  // Generate 50 users for compact view
+  const [leaderboardData] = useState<LeaderboardUser[]>(() => {
+    const names = ['hafizur_vai', 'rana_pro', 'nure_alam', 'akash_99', 'somnath_x', 'sakib_bd', 'arafat_01', 'rifat_boss', 'karim_007', 'joy_earner', 'user_pro', 'earner_99', 'cash_king', 'money_maker', 'top_player', 'winner_x', 'lucky_one', 'star_user', 'pro_gamer', 'bd_legend'];
+    const levels = ['Diamond', 'Platinum', 'Gold', 'Silver', 'Bronze'];
+    return Array.from({ length: 50 }, (_, i) => ({
+      rank: i + 1,
+      username: names[i % names.length] + (i > 19 ? `_${i}` : ''),
+      earnings: Math.max(5, 150 - i * 2.5 + Math.random() * 10),
+      tasks: Math.max(10, 500 - i * 8),
+      level: levels[Math.min(4, Math.floor(i / 10))],
+    }));
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setShowLoading(false), 1000);
@@ -75,7 +79,7 @@ const Leaderboard = () => {
 
   return (
     <>
-      {/* Sidebar Overlay */}
+      {snowEnabled && <SnowEffect />}
       <div 
         className={`fixed inset-0 bg-black/70 z-40 transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setSidebarOpen(false)}
@@ -144,17 +148,15 @@ const Leaderboard = () => {
         }}
       >
         {/* Header */}
-        <header className="sticky top-0 z-30 px-4 md:px-[5%] py-4 bg-background/95 border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setSidebarOpen(!sidebarOpen)} 
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              <Menu className="w-6 h-6" />
+        <header className="sticky top-0 z-30 px-4 py-3 bg-background/95 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-muted rounded-lg">
+              <Menu className="w-5 h-5" />
             </button>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-lg">B</div>
-            <div className="logo-3d text-xl">BILLUCASH</div>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-sm">B</div>
+            <span className="logo-3d text-base">Leaderboard</span>
           </div>
+          <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
         </header>
 
         {/* Main Content */}
@@ -203,43 +205,32 @@ const Leaderboard = () => {
             ))}
           </div>
 
-          {/* Leaderboard Table */}
-          <div className="bg-background/90 border border-border rounded-xl overflow-hidden">
-            {/* Header */}
-            <div className="grid grid-cols-[60px_1fr_100px_80px_80px] gap-2 px-4 py-3 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase">
-              <div>Rank</div>
+          {/* Compact Leaderboard Table */}
+          <div className="bg-background/90 border border-border rounded-xl overflow-hidden max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-[40px_1fr_70px_50px] gap-1 px-3 py-2 bg-muted/50 text-[10px] font-semibold text-muted-foreground uppercase sticky top-0">
+              <div>#</div>
               <div>User</div>
-              <div className="text-right">Earnings</div>
-              <div className="text-right">Tasks</div>
-              <div className="text-right">Level</div>
+              <div className="text-right">Earned</div>
+              <div className="text-right">Lvl</div>
             </div>
-
-            {/* Rows */}
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-border/50">
               {leaderboardData.map((user) => (
                 <div 
                   key={user.rank}
-                  className={`grid grid-cols-[60px_1fr_100px_80px_80px] gap-2 px-4 py-3 items-center border-l-2 ${getRankBg(user.rank)} ${
-                    user.username === profile?.username ? 'ring-2 ring-primary ring-inset' : ''
-                  }`}
+                  className={`grid grid-cols-[40px_1fr_70px_50px] gap-1 px-3 py-1.5 items-center text-xs ${
+                    user.rank <= 3 ? getRankBg(user.rank) : ''
+                  } ${user.username === profile?.username ? 'ring-1 ring-primary ring-inset bg-primary/5' : ''}`}
                 >
-                  <div className="flex items-center justify-center">
-                    {getRankIcon(user.rank)}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-sm font-bold">
+                  <div className="flex items-center">{getRankIcon(user.rank)}</div>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-[9px] font-bold flex-shrink-0">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-medium truncate">{user.username}</span>
+                    <span className="truncate font-medium">{user.username}</span>
                   </div>
-                  <div className="text-right font-semibold text-green-400">
-                    ${user.earnings.toFixed(2)}
-                  </div>
-                  <div className="text-right text-muted-foreground">
-                    {user.tasks}
-                  </div>
-                  <div className={`text-right text-sm font-medium ${getLevelColor(user.level)}`}>
-                    {user.level}
+                  <div className="text-right text-green-400 font-semibold">${user.earnings.toFixed(0)}</div>
+                  <div className={`text-right text-[10px] font-medium ${getLevelColor(user.level)}`}>
+                    {user.level.substring(0, 3)}
                   </div>
                 </div>
               ))}

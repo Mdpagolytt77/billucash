@@ -59,6 +59,51 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawal_requests: {
+        Row: {
+          account: string
+          amount: number
+          approved_at: string | null
+          created_at: string
+          id: string
+          method: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          account: string
+          amount: number
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          method: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          account?: string
+          amount?: number
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          method?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

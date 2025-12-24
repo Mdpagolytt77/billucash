@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Shield, Users, DollarSign, Settings, Home, 
+  Shield, Users, DollarSign, Home, 
   TrendingUp, AlertCircle, CheckCircle, Clock,
-  Search, Filter, Download, RefreshCw, Menu, X,
-  Wallet, Image, Palette, Volume2, Key, LogOut,
-  LayoutGrid, Trophy, User
+  RefreshCw, Menu, X, ArrowLeft,
+  Wallet, Palette, Key, LogOut
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
-import LoadingScreen from '@/components/LoadingScreen';
+import SnowToggle from '@/components/SnowToggle';
+import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -34,9 +34,8 @@ interface Stats {
 
 const AdminPanel = () => {
   const { profile, isAdmin, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showLoading, setShowLoading] = useState(true);
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [stats, setStats] = useState<Stats>({
@@ -45,11 +44,6 @@ const AdminPanel = () => {
     totalTasks: 0,
     todaySignups: 0,
   });
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Fetch withdrawal requests
   const fetchWithdrawals = async () => {
@@ -172,10 +166,6 @@ const AdminPanel = () => {
     );
   }
 
-  if (showLoading) {
-    return <LoadingScreen isLoading={true} />;
-  }
-
   const statCards = [
     { label: 'Total Accounts', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'text-blue-400' },
     { label: 'Total Earnings', value: `৳ ${stats.totalEarnings.toFixed(2)}`, icon: DollarSign, color: 'text-green-400' },
@@ -184,15 +174,11 @@ const AdminPanel = () => {
   ];
 
   const sidebarItems = [
-    { icon: Home, label: 'Dashboard', active: true },
-    { icon: Users, label: 'All Users' },
-    { icon: Wallet, label: 'Withdraw' },
-    { icon: CheckCircle, label: 'Completed Offers' },
-    { icon: LayoutGrid, label: 'Offerwall Customize' },
-    { icon: Volume2, label: 'Sound Customize' },
-    { icon: Image, label: 'Background Customize' },
-    { icon: Palette, label: 'Logo Customize' },
-    { icon: Key, label: 'Admin Password Reset' },
+    { icon: Home, label: 'Dashboard', path: '/admin', active: true },
+    { icon: Users, label: 'All Users', path: '/admin/users' },
+    { icon: Wallet, label: 'Withdraw', path: '/admin/withdraw' },
+    { icon: Palette, label: 'Logo Customize', path: '/admin/logo' },
+    { icon: Key, label: 'Password Reset', path: '/admin/password' },
   ];
 
   const handleApprove = async (id: string, username: string, amount: number) => {
@@ -263,7 +249,7 @@ const AdminPanel = () => {
 
   return (
     <>
-      <SnowEffect />
+      {snowEnabled && <SnowEffect />}
       
       {/* Sidebar Overlay */}
       <div 
@@ -272,32 +258,30 @@ const AdminPanel = () => {
       />
 
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-background border-r border-border z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-5 pt-20">
-          <div className="text-center mb-8 pb-5 border-b border-border">
-            <div className="logo-3d text-2xl">BILLUCASH</div>
+      <aside className={`fixed top-0 left-0 h-full w-56 bg-background border-r border-border z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-4 pt-20">
+          <div className="text-center mb-6 pb-4 border-b border-border">
+            <div className="logo-3d text-lg">BILLUCASH</div>
           </div>
           <nav className="space-y-1">
             {sidebarItems.map((item, i) => (
-              <button
+              <Link
                 key={i}
+                to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                  item.active 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground hover:translate-x-1'
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  item.active ? 'bg-primary/20 text-primary font-medium' : 'hover:bg-muted text-muted-foreground'
                 }`}
               >
-                <item.icon className="w-5 h-5 text-primary" />
-                {item.label}
-              </button>
+                <item.icon className="w-4 h-4" /> {item.label}
+              </Link>
             ))}
-            <div className="pt-4 border-t border-border mt-4">
+            <div className="pt-3 border-t border-border mt-3">
               <button 
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10"
               >
-                <LogOut className="w-5 h-5" /> Logout
+                <LogOut className="w-4 h-4" /> Logout
               </button>
             </div>
           </nav>
@@ -312,16 +296,19 @@ const AdminPanel = () => {
         }}
       >
         {/* Header */}
-        <header className="sticky top-0 z-30 px-4 md:px-[5%] py-4 bg-background/95 backdrop-blur-lg border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setSidebarOpen(!sidebarOpen)} 
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              <Menu className="w-6 h-6" />
+        <header className="sticky top-0 z-30 px-4 py-3 bg-background/95 backdrop-blur-lg border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-muted rounded-lg">
+              <Menu className="w-5 h-5" />
             </button>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-lg">W</div>
-            <div className="logo-3d text-xl">BILLUCASH Admin</div>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-sm">B</div>
+            <span className="logo-3d text-base">Admin</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
+            <Link to="/dashboard" className="p-2 hover:bg-muted rounded-lg text-primary" title="Back to Dashboard">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
           </div>
         </header>
 

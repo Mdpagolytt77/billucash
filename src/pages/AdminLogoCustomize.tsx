@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Palette, Menu, Save, RotateCcw, Eye, Upload, Image } from 'lucide-react';
+import { Palette, Menu, Save, RotateCcw, Eye, Upload, Image, Loader2 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -20,6 +20,8 @@ const AdminLogoCustomize = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [logoType, setLogoType] = useState<'text' | 'image'>('text');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { loadSettings(); }, []);
@@ -33,31 +35,129 @@ const AdminLogoCustomize = () => {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) { toast.error('Max 2MB'); return; }
-      const reader = new FileReader();
-      reader.onload = (event) => { const base64 = event.target?.result as string; setLogoImage(base64); setPreviewImage(base64); };
-      reader.readAsDataURL(file);
+      if (file.size > 2 * 1024 * 1024) { 
+        toast.error('Max file size is 2MB'); 
+        return; 
+      }
+      
+      // Store the file for later upload
+      setSelectedFile(file);
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewImage(previewUrl);
+    }
+  };
+
+  const uploadToStorage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      const filePath = `logos/${fileName}`;
+
+      // Delete old logo if exists
+      if (logoImage && logoImage.includes('site-assets')) {
+        const oldPath = logoImage.split('/site-assets/')[1];
+        if (oldPath) {
+          await supabase.storage.from('site-assets').remove([oldPath]);
+        }
+      }
+
+      // Upload new logo
+      const { error: uploadError } = await supabase.storage
+        .from('site-assets')
+        .upload(filePath, file, { 
+          cacheControl: '3600',
+          upsert: true 
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('site-assets')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Failed to upload:', error);
+      return null;
     }
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { error } = await supabase.from('site_settings').update({ logo_type: logoType, logo_text: logoText, logo_image_url: logoImage, updated_at: new Date().toISOString() }).eq('id', 'default');
+      let imageUrl = logoImage;
+
+      // If there's a new file selected, upload it
+      if (selectedFile && logoType === 'image') {
+        setIsUploading(true);
+        const uploadedUrl = await uploadToStorage(selectedFile);
+        if (!uploadedUrl) {
+          toast.error('Failed to upload logo');
+          setIsSaving(false);
+          setIsUploading(false);
+          return;
+        }
+        imageUrl = uploadedUrl;
+        setIsUploading(false);
+      }
+
+      const { error } = await supabase
+        .from('site_settings')
+        .update({ 
+          logo_type: logoType, 
+          logo_text: logoText, 
+          logo_image_url: logoType === 'image' ? imageUrl : null, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', 'default');
+      
       if (error) throw error;
-      setPreviewText(logoText); setPreviewImage(logoImage);
+      
+      setLogoImage(imageUrl);
+      setPreviewText(logoText); 
+      setPreviewImage(imageUrl);
+      setSelectedFile(null);
       toast.success('Logo saved!');
-    } catch { toast.error('Failed'); }
+    } catch (err) { 
+      console.error(err);
+      toast.error('Failed to save'); 
+    }
     finally { setIsSaving(false); }
   };
 
   const handleReset = async () => {
-    setLogoText('BILLUCASH'); setPreviewText('BILLUCASH'); setLogoImage(null); setPreviewImage(null); setLogoType('text');
-    await supabase.from('site_settings').update({ logo_type: 'text', logo_text: 'BILLUCASH', logo_image_url: null, updated_at: new Date().toISOString() }).eq('id', 'default');
-    toast.success('Reset!');
+    // Delete current logo from storage if exists
+    if (logoImage && logoImage.includes('site-assets')) {
+      const oldPath = logoImage.split('/site-assets/')[1];
+      if (oldPath) {
+        await supabase.storage.from('site-assets').remove([oldPath]);
+      }
+    }
+
+    setLogoText('BILLUCASH'); 
+    setPreviewText('BILLUCASH'); 
+    setLogoImage(null); 
+    setPreviewImage(null); 
+    setLogoType('text');
+    setSelectedFile(null);
+    
+    await supabase.from('site_settings').update({ 
+      logo_type: 'text', 
+      logo_text: 'BILLUCASH', 
+      logo_image_url: null, 
+      updated_at: new Date().toISOString() 
+    }).eq('id', 'default');
+    
+    toast.success('Reset to default!');
   };
 
   if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
@@ -105,16 +205,25 @@ const AdminLogoCustomize = () => {
                 </div>
               ) : (
                 <div>
-                  <input ref={fileInputRef} type="file" accept="image/png,image/jpeg" onChange={handleImageUpload} className="hidden" />
+                  <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImageSelect} className="hidden" />
                   <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-muted border border-dashed border-border rounded-lg text-[10px] hover:border-primary">
-                    <Upload className="w-3.5 h-3.5" /> {logoImage ? 'Change' : 'Upload PNG'}
+                    <Upload className="w-3.5 h-3.5" /> {previewImage ? 'Change Image' : 'Upload Logo (PNG/JPG)'}
                   </button>
+                  {selectedFile && (
+                    <p className="text-[9px] text-primary mt-1 text-center">
+                      New file selected: {selectedFile.name}
+                    </p>
+                  )}
                 </div>
               )}
 
               <div className="flex gap-1.5">
-                <button onClick={handleSave} disabled={isSaving} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold text-[10px] disabled:opacity-50">
-                  <Save className="w-3 h-3" /> {isSaving ? 'Saving...' : 'Save'}
+                <button onClick={handleSave} disabled={isSaving || isUploading} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold text-[10px] disabled:opacity-50">
+                  {isSaving || isUploading ? (
+                    <><Loader2 className="w-3 h-3 animate-spin" /> {isUploading ? 'Uploading...' : 'Saving...'}</>
+                  ) : (
+                    <><Save className="w-3 h-3" /> Save</>
+                  )}
                 </button>
                 <button onClick={handleReset} className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-muted border border-border text-muted-foreground font-semibold text-[10px]">
                   <RotateCcw className="w-3 h-3" /> Reset

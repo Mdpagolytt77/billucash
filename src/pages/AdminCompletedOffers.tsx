@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Menu, Search } from 'lucide-react';
+import { CheckCircle, Menu, Search, Loader2 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -7,19 +7,18 @@ import AdminSidebar from '@/components/AdminSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompletedOffer {
-  id: number;
+  id: string;
   username: string;
   offerwall: string;
-  offerName: string;
-  coin: string;
-  amount: string;
-  revenue: string;
-  transactionId: string;
-  ip: string;
-  country: string;
-  time: string;
+  offer_name: string;
+  coin: number;
+  transaction_id: string | null;
+  ip: string | null;
+  country: string | null;
+  created_at: string;
 }
 
 const AdminCompletedOffers = () => {
@@ -29,38 +28,63 @@ const AdminCompletedOffers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
+  const [offers, setOffers] = useState<CompletedOffer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [allData] = useState<CompletedOffer[]>(() => {
-    const countries = ['Unknown', 'USA', 'UK', 'Germany', 'France', 'Canada'];
-    const offerwalls = ['Adtowall', 'Tapjoy', 'OfferToro', 'Adgate', 'Pubscale', 'Monlix'];
-    const offerNames = ['Amazon Prime Video', 'Netflix Premium', 'Disney+ Plan', 'Survey - Gaming', 'Mobile Game Level 25', 'App Download'];
-    const ips = ['us', 'gb', 'de', 'fr', 'ca', 'au'];
-    return Array.from({ length: 200 }, (_, i) => {
-      const coinValue = Math.floor(Math.random() * 1000) + 100;
-      // 300 coin = $0.60 (coin / 500 = amount in dollars)
-      const amountDollar = coinValue / 500;
-      // Revenue = amount * 2 (so $0.60 = $1.20 revenue)
-      const revenueValue = amountDollar * 2;
-      return {
-        id: 1475 + i,
-        username: `user${1000 + i}`,
-        offerwall: offerwalls[Math.floor(Math.random() * offerwalls.length)],
-        offerName: offerNames[Math.floor(Math.random() * offerNames.length)],
-        coin: coinValue.toString(),
-        amount: `$${amountDollar.toFixed(2)}`,
-        revenue: `$${revenueValue.toFixed(2)}`,
-        transactionId: Math.random().toString(36).substring(2, 14),
-        ip: ips[Math.floor(Math.random() * ips.length)],
-        country: countries[Math.floor(Math.random() * countries.length)],
-        time: `${Math.floor(Math.random() * 28) + 1} Dec 2024`
-      };
-    });
-  });
+  // Calculate amount and revenue
+  // 400 coin = $0.40 (coin / 1000)
+  // Revenue = amount * 2 (so $0.80)
+  const calculateAmount = (coin: number) => (coin / 1000).toFixed(2);
+  const calculateRevenue = (coin: number) => ((coin / 1000) * 2).toFixed(2);
 
-  const filteredData = allData.filter(row =>
+  // Load completed offers from database
+  useEffect(() => {
+    const loadOffers = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('completed_offers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading offers:', error);
+      } else {
+        setOffers(data || []);
+      }
+      setIsLoading(false);
+    };
+
+    loadOffers();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel('completed-offers-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'completed_offers',
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setOffers(prev => [payload.new as CompletedOffer, ...prev]);
+          } else if (payload.eventType === 'DELETE') {
+            setOffers(prev => prev.filter(o => o.id !== (payload.old as { id: string }).id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const filteredData = offers.filter(row =>
     row.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     row.offerwall.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    row.country.toLowerCase().includes(searchTerm.toLowerCase())
+    (row.country || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -68,6 +92,11 @@ const AdminCompletedOffers = () => {
   const pageData = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
   useEffect(() => { setCurrentPage(1); }, [searchTerm, rowsPerPage]);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
 
   if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
@@ -103,47 +132,58 @@ const AdminCompletedOffers = () => {
               </div>
             </div>
 
-            <div className="overflow-auto max-h-[55vh] border border-border rounded-lg">
-              <table className="w-full text-[9px] min-w-[800px]">
-                <thead className="sticky top-0 bg-muted/90">
-                  <tr>
-                    <th className="text-left p-1.5 text-muted-foreground">ID</th>
-                    <th className="text-left p-1.5 text-muted-foreground">User</th>
-                    <th className="text-left p-1.5 text-muted-foreground">Offerwall</th>
-                    <th className="text-left p-1.5 text-muted-foreground">Offer</th>
-                    <th className="text-center p-1.5 text-muted-foreground">Coin</th>
-                    <th className="text-center p-1.5 text-muted-foreground">Amount</th>
-                    <th className="text-center p-1.5 text-muted-foreground">Revenue</th>
-                    <th className="text-left p-1.5 text-muted-foreground">Country</th>
-                    <th className="text-left p-1.5 text-muted-foreground">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageData.map((row) => (
-                    <tr key={row.id} className="border-t border-border/50 hover:bg-primary/5">
-                      <td className="p-1.5">{row.id}</td>
-                      <td className="p-1.5 font-medium">{row.username}</td>
-                      <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>
-                      <td className="p-1.5 max-w-[100px] truncate">{row.offerName}</td>
-                      <td className="p-1.5 text-center">{row.coin}</td>
-                      <td className="p-1.5 text-center text-green-400">{row.amount}</td>
-                      <td className="p-1.5 text-center text-primary">{row.revenue}</td>
-                      <td className="p-1.5 text-muted-foreground">{row.country}</td>
-                      <td className="p-1.5 text-muted-foreground">{row.time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex items-center justify-between mt-3 text-[10px]">
-              <span className="text-muted-foreground">Showing {startIndex + 1}-{Math.min(startIndex + rowsPerPage, filteredData.length)} of {filteredData.length}</span>
-              <div className="flex gap-1">
-                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-2 py-1 rounded bg-muted disabled:opacity-40">← Prev</button>
-                <span className="px-2 py-1 rounded bg-primary text-white">{currentPage}</span>
-                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-2 py-1 rounded bg-muted disabled:opacity-40">Next →</button>
+            {isLoading ? (
+              <div className="h-40 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
-            </div>
+            ) : filteredData.length === 0 ? (
+              <div className="h-40 flex flex-col items-center justify-center text-muted-foreground">
+                <CheckCircle className="w-8 h-8 mb-2 opacity-50" />
+                <p className="text-xs">No completed offers yet</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-auto max-h-[55vh] border border-border rounded-lg">
+                  <table className="w-full text-[9px] min-w-[800px]">
+                    <thead className="sticky top-0 bg-muted/90">
+                      <tr>
+                        <th className="text-left p-1.5 text-muted-foreground">User</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Offerwall</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Offer</th>
+                        <th className="text-center p-1.5 text-muted-foreground">Coin</th>
+                        <th className="text-center p-1.5 text-muted-foreground">Amount</th>
+                        <th className="text-center p-1.5 text-muted-foreground">Revenue</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Country</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pageData.map((row) => (
+                        <tr key={row.id} className="border-t border-border/50 hover:bg-primary/5">
+                          <td className="p-1.5 font-medium">{row.username}</td>
+                          <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>
+                          <td className="p-1.5 max-w-[100px] truncate">{row.offer_name}</td>
+                          <td className="p-1.5 text-center">{row.coin}</td>
+                          <td className="p-1.5 text-center text-green-400">${calculateAmount(row.coin)}</td>
+                          <td className="p-1.5 text-center text-primary">${calculateRevenue(row.coin)}</td>
+                          <td className="p-1.5 text-muted-foreground">{row.country || 'Unknown'}</td>
+                          <td className="p-1.5 text-muted-foreground">{formatDate(row.created_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex items-center justify-between mt-3 text-[10px]">
+                  <span className="text-muted-foreground">Showing {startIndex + 1}-{Math.min(startIndex + rowsPerPage, filteredData.length)} of {filteredData.length}</span>
+                  <div className="flex gap-1">
+                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-2 py-1 rounded bg-muted disabled:opacity-40">← Prev</button>
+                    <span className="px-2 py-1 rounded bg-primary text-white">{currentPage}</span>
+                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-2 py-1 rounded bg-muted disabled:opacity-40">Next →</button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </main>
       </div>

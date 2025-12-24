@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Home, Settings, Trophy, Wallet, Gift, ChevronRight, 
-  Bell, LogOut, Menu, X, User, Snowflake,
-  Shield, ChevronDown, DollarSign, Coins
+  Settings, Gift, Bell, LogOut, Menu, X, User, Snowflake,
+  Shield, ChevronDown, Coins, Wallet
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -37,6 +36,7 @@ const Dashboard = () => {
   const [snowEnabled, setSnowEnabled] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string} | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: '1', message: 'Welcome to Billucash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
     { id: '2', message: 'New offers available! Earn up to $5.', type: 'offer', read: false, time: '2m ago', created_at: new Date(Date.now() - 120000) },
@@ -146,29 +146,82 @@ const Dashboard = () => {
           backgroundSize: 'cover',
         }}
       >
-        {/* Sidebar */}
+        {/* Offerwall Popup */}
+        {selectedOfferwall && (
+          <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4" onClick={() => setSelectedOfferwall(null)}>
+            <div 
+              className="bg-background/98 backdrop-blur-xl rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden border border-white/20 shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b border-border" style={{ borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
+                <div className="flex items-center gap-3">
+                  <Gift className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-bold">{selectedOfferwall.name} Offerwall</h2>
+                </div>
+                <button 
+                  onClick={() => setSelectedOfferwall(null)}
+                  className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <Gift className="w-10 h-10" />
+                  </div>
+                </div>
+                <div className="text-center mb-6">
+                  <p className="text-muted-foreground mb-4">Complete offers from {selectedOfferwall.name} to earn rewards!</p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30">
+                    <Coins className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400 font-semibold">Earn up to $5.00 per offer</span>
+                  </div>
+                </div>
+                <div className="h-64 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
+                  <div className="text-center text-muted-foreground">
+                    <Gift className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Offerwall content loading...</p>
+                    <p className="text-sm mt-1">Complete tasks to earn rewards</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sidebar - Only 3 items */}
         <div 
           className={`fixed inset-0 bg-black/70 z-40 transition-opacity lg:hidden ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setSidebarOpen(false)}
         />
-        <aside className={`fixed top-0 left-0 h-full w-72 bg-background/95 backdrop-blur-xl z-50 transition-transform duration-300 border-r border-border ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:hidden'}`}>
+        <aside className={`fixed top-0 left-0 h-full w-72 bg-background/95 backdrop-blur-xl z-50 transition-transform duration-300 border-r border-border ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="p-6">
-            <div className="logo-3d text-2xl mb-8 text-center">BILLUCASH</div>
-            <nav className="space-y-2">
-              <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/20 text-primary font-medium">
-                <Home className="w-5 h-5" /> Dashboard
-              </Link>
-              <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors">
-                <Wallet className="w-5 h-5 text-primary" /> Withdraw
-              </Link>
-              <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors">
-                <Trophy className="w-5 h-5 text-primary" /> Leaderboard
-              </Link>
-              <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors">
-                <Settings className="w-5 h-5 text-primary" /> Profile
-              </Link>
+            <div className="flex items-center justify-between mb-8">
+              <div className="logo-3d text-2xl">BILLUCASH</div>
+              <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-white/10 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <nav className="space-y-3">
+              <button 
+                onClick={() => { setSidebarOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/20 text-primary font-medium hover:bg-primary/30 transition-colors"
+              >
+                <Gift className="w-5 h-5" /> Complete Offers
+              </button>
+              <button 
+                onClick={() => { setSidebarOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"
+              >
+                <Settings className="w-5 h-5 text-primary" /> Profile Settings
+              </button>
               {isAdmin && (
-                <Link to="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-yellow-400">
+                <Link 
+                  to="/admin" 
+                  onClick={() => setSidebarOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-yellow-500/20 text-yellow-400 font-medium hover:bg-yellow-500/30 transition-colors"
+                >
                   <Shield className="w-5 h-5" /> Admin Panel
                 </Link>
               )}
@@ -290,73 +343,27 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content - Full Width */}
         <main className="px-4 md:px-[5%] py-8">
-          <div className="grid lg:grid-cols-[300px_1fr] gap-8">
-            {/* Sidebar Content */}
-            <div className="glass-card p-6 h-fit lg:sticky lg:top-28">
-              <div className="text-center pb-6 border-b border-border mb-6">
-                <h2 className="text-2xl font-display font-bold text-gradient mb-2">Welcome Back! 👋</h2>
-                <p className="text-muted-foreground">Ready to earn more today?</p>
+          <h2 className="text-3xl font-display font-bold text-gradient mb-6 flex items-center gap-3">
+            <Gift className="w-8 h-8" /> Our Partners
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {offerwalls.map(offer => (
+              <div 
+                key={offer.id}
+                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color })}
+                className="glass-card p-5 text-center hover:-translate-y-1 hover:border-primary cursor-pointer transition-all group"
+                style={{ borderLeft: `4px solid ${offer.color}` }}
+              >
+                <h3 className="text-base font-bold mb-2 group-hover:text-primary transition-colors">{offer.name}</h3>
+                <div className="flex justify-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className={`text-xs ${i < offer.rating ? 'text-yellow-400' : 'text-muted-foreground/50'}`}>★</span>
+                  ))}
+                </div>
               </div>
-
-              <div className="space-y-3">
-                <button className="w-full flex items-center justify-between p-4 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 hover:translate-x-1 transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                      <Gift className="w-5 h-5" />
-                    </div>
-                    <span className="font-semibold text-primary">Complete Offers</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
-                <button className="w-full flex items-center justify-between p-4 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 hover:translate-x-1 transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                      <Settings className="w-5 h-5" />
-                    </div>
-                    <span className="font-semibold text-primary">Profile Settings</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
-                {isAdmin && (
-                  <Link to="/admin" className="w-full flex items-center justify-between p-4 rounded-xl bg-yellow-500/20 border border-yellow-500/30 hover:bg-yellow-500/30 hover:translate-x-1 transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-                        <Shield className="w-5 h-5" />
-                      </div>
-                      <span className="font-semibold text-yellow-400">Admin Panel</span>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-yellow-400" />
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            {/* Offers Grid */}
-            <div>
-              <h2 className="text-3xl font-display font-bold text-gradient mb-6 flex items-center gap-3">
-                <Gift className="w-8 h-8" /> Our Partners
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {offerwalls.map(offer => (
-                  <div 
-                    key={offer.id}
-                    className="glass-card p-6 text-center hover:-translate-y-1 hover:border-primary cursor-pointer transition-all"
-                    style={{ borderLeft: `4px solid ${offer.color}` }}
-                  >
-                    <h3 className="text-lg font-bold mb-3">{offer.name}</h3>
-                    <div className="flex justify-center gap-1 mb-3">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={`text-sm ${i < offer.rating ? 'text-yellow-400' : 'text-muted-foreground'}`}>★</span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </main>
 

@@ -30,7 +30,7 @@ const defaultSettings: SoundSettings = {
 const SOUND_URLS = {
   login: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
   signup: 'https://assets.mixkit.co/active_storage/sfx/2867/2867-preview.mp3',
-  balance: 'https://assets.mixkit.co/active_storage/sfx/2868/2868-preview.mp3',
+  balance: 'https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3', // Coin drop sound
 };
 
 const SoundContext = createContext<SoundContextType | undefined>(undefined);

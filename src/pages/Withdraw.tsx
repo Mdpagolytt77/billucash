@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Wallet, Menu, Home, User, Trophy, Shield, LogOut, ArrowRight, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Wallet, Menu, ArrowRight, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
+import AppSidebar from '@/components/AppSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
@@ -21,7 +23,7 @@ interface WithdrawalHistory {
 
 const Withdraw = () => {
   const navigate = useNavigate();
-  const { user, profile, isLoading, isAdmin, signOut } = useAuth();
+  const { user, profile, isLoading, signOut } = useAuth();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [showLoading, setShowLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -87,17 +89,11 @@ const Withdraw = () => {
     setSubmitting(false);
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    toast.success('Logged out');
-    navigate('/');
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'approved': return <CheckCircle className="w-3.5 h-3.5 text-green-400" />;
-      case 'rejected': return <XCircle className="w-3.5 h-3.5 text-red-400" />;
-      default: return <Clock className="w-3.5 h-3.5 text-yellow-400" />;
+      case 'approved': return <CheckCircle className="w-3 h-3 text-green-400" />;
+      case 'rejected': return <XCircle className="w-3 h-3 text-red-400" />;
+      default: return <Clock className="w-3 h-3 text-yellow-400" />;
     }
   };
 
@@ -115,51 +111,18 @@ const Withdraw = () => {
   return (
     <>
       {snowEnabled && <SnowEffect />}
-      <div className={`fixed inset-0 bg-black/70 z-40 transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
-
-      <aside className={`fixed top-0 left-0 h-full w-52 bg-background border-r border-border z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-3 pt-16">
-          <div className="text-center mb-4 pb-3 border-b border-border">
-            <div className="logo-3d text-base">BILLUCASH</div>
-          </div>
-          <nav className="space-y-1">
-            <Link to="/dashboard" onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-muted text-xs transition-colors">
-              <Home className="w-3.5 h-3.5 text-primary" /> Dashboard
-            </Link>
-            <Link to="/profile" onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-muted text-xs transition-colors">
-              <User className="w-3.5 h-3.5 text-primary" /> Profile
-            </Link>
-            <Link to="/leaderboard" onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-muted text-xs transition-colors">
-              <Trophy className="w-3.5 h-3.5 text-primary" /> Leaderboard
-            </Link>
-            <button onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-primary/20 text-primary text-xs font-medium">
-              <Wallet className="w-3.5 h-3.5" /> Withdraw
-            </button>
-            {isAdmin && (
-              <Link to="/admin" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-yellow-500/20 text-yellow-400 text-xs font-medium">
-                <Shield className="w-3.5 h-3.5" /> Admin
-              </Link>
-            )}
-            <div className="pt-2 border-t border-border mt-2">
-              <button onClick={handleLogout} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-destructive hover:bg-destructive/10 text-xs">
-                <LogOut className="w-3.5 h-3.5" /> Logout
-              </button>
-            </div>
-          </nav>
-        </div>
-      </aside>
+      <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="min-h-screen" style={{ background: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url(${heroBg}) no-repeat center center fixed`, backgroundSize: 'cover' }}>
-        <header className="sticky top-0 z-30 px-3 py-2.5 bg-background/95 border-b border-border flex items-center justify-between">
+        <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg">
               <Menu className="w-4 h-4" />
             </button>
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-xs">B</div>
-            <span className="logo-3d text-sm">Withdraw</span>
+            <SiteLogo size="sm" />
           </div>
           <div className="flex items-center gap-2">
-            <div className="px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold">
+            <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold">
               ${profile?.balance?.toFixed(2) || '0.00'}
             </div>
             <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
@@ -169,7 +132,7 @@ const Withdraw = () => {
         <main className="px-3 md:px-[5%] py-4 max-w-md mx-auto">
           {/* Withdraw Form */}
           <div className="glass-card p-4 mb-4">
-            <h2 className="text-base font-bold text-primary flex items-center gap-2 mb-3">
+            <h2 className="text-sm font-bold text-primary flex items-center gap-2 mb-3">
               <Wallet className="w-4 h-4" /> Withdraw Funds
             </h2>
 

@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { Facebook, Send, MessageCircle, Youtube, Instagram } from 'lucide-react';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
 
@@ -9,9 +10,9 @@ const socialLinks = [
   { icon: Instagram, href: '#' },
 ];
 
-const Footer = () => {
+const Footer = forwardRef<HTMLElement>((_, ref) => {
   return (
-    <footer className="bg-background/90 border-t border-border py-12 px-4 md:px-[5%] mt-16">
+    <footer ref={ref} className="bg-background/90 border-t border-border py-12 px-4 md:px-[5%] mt-16">
       <div className="max-w-4xl mx-auto text-center">
         {/* Logo */}
         <div className="text-3xl md:text-4xl font-display font-black text-gradient mb-4">
@@ -45,6 +46,8 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
+});
+
+Footer.displayName = 'Footer';
 
 export default Footer;

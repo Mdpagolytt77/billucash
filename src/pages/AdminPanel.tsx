@@ -11,18 +11,151 @@ import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+interface WithdrawalRequest {
+  id: string;
+  user_id: string;
+  username: string;
+  amount: number;
+  method: string;
+  account: string;
+  status: string;
+  created_at: string;
+}
+
+interface Stats {
+  totalUsers: number;
+  totalEarnings: number;
+  totalTasks: number;
+  todaySignups: number;
+}
 
 const AdminPanel = () => {
   const { profile, isAdmin, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showLoading, setShowLoading] = useState(true);
+  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [stats, setStats] = useState<Stats>({
+    totalUsers: 0,
+    totalEarnings: 0,
+    totalTasks: 0,
+    todaySignups: 0,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setShowLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Fetch withdrawal requests
+  const fetchWithdrawals = async () => {
+    setIsLoadingData(true);
+    try {
+      const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setWithdrawalRequests(data || []);
+    } catch (error: any) {
+      console.error('Error fetching withdrawals:', error);
+      toast.error('Failed to load withdrawals');
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  // Fetch stats
+  const fetchStats = async () => {
+    try {
+      // Get total users
+      const { count: userCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Get total earnings (sum of all balances)
+      const { data: balanceData } = await supabase
+        .from('profiles')
+        .select('balance');
+
+      const totalEarnings = balanceData?.reduce((sum, p) => sum + (Number(p.balance) || 0), 0) || 0;
+
+      // Get today's signups
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const { count: todayCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', today.toISOString());
+
+      setStats({
+        totalUsers: userCount || 0,
+        totalEarnings: totalEarnings,
+        totalTasks: 0, // Would need tasks table
+        todaySignups: todayCount || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    if (isAdmin) {
+      fetchWithdrawals();
+      fetchStats();
+    }
+  }, [isAdmin]);
+
+  // Real-time subscription for withdrawal requests
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const channel = supabase
+      .channel('withdrawal-requests-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'withdrawal_requests'
+        },
+        (payload) => {
+          console.log('Realtime update:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            const newRequest = payload.new as WithdrawalRequest;
+            if (newRequest.status === 'pending') {
+              setWithdrawalRequests(prev => [newRequest, ...prev]);
+              toast.info(`New withdrawal request from ${newRequest.username}`);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updated = payload.new as WithdrawalRequest;
+            if (updated.status !== 'pending') {
+              setWithdrawalRequests(prev => prev.filter(w => w.id !== updated.id));
+            } else {
+              setWithdrawalRequests(prev => 
+                prev.map(w => w.id === updated.id ? updated : w)
+              );
+            }
+          } else if (payload.eventType === 'DELETE') {
+            const deleted = payload.old as WithdrawalRequest;
+            setWithdrawalRequests(prev => prev.filter(w => w.id !== deleted.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin]);
 
   if (!isAdmin) {
     return (
@@ -43,28 +176,12 @@ const AdminPanel = () => {
     return <LoadingScreen isLoading={true} />;
   }
 
-  const stats = [
-    { label: 'Total Accounts', value: '12,458', icon: Users, color: 'text-blue-400' },
-    { label: 'Total Earnings', value: '৳ 45,290', icon: DollarSign, color: 'text-green-400' },
-    { label: 'Tasks Completed', value: '3,847', icon: TrendingUp, color: 'text-purple-400' },
-    { label: "Today's Signups", value: '156', icon: Clock, color: 'text-yellow-400' },
+  const statCards = [
+    { label: 'Total Accounts', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'text-blue-400' },
+    { label: 'Total Earnings', value: `৳ ${stats.totalEarnings.toFixed(2)}`, icon: DollarSign, color: 'text-green-400' },
+    { label: 'Tasks Completed', value: stats.totalTasks.toLocaleString(), icon: TrendingUp, color: 'text-purple-400' },
+    { label: "Today's Signups", value: stats.todaySignups.toLocaleString(), icon: Clock, color: 'text-yellow-400' },
   ];
-
-  const recentUsers = [
-    { id: 1, username: 'john_doe', email: 'john@email.com', balance: 125.50, status: 'active' },
-    { id: 2, username: 'jane_smith', email: 'jane@email.com', balance: 89.20, status: 'active' },
-    { id: 3, username: 'mike_wilson', email: 'mike@email.com', balance: 234.00, status: 'pending' },
-    { id: 4, username: 'sarah_jones', email: 'sarah@email.com', balance: 56.75, status: 'active' },
-    { id: 5, username: 'alex_brown', email: 'alex@email.com', balance: 178.30, status: 'suspended' },
-  ];
-
-  const withdrawalRequests = [
-    { id: 1, user: 'john_doe', amount: 50.00, method: 'Bkash', account: '01712345678', status: 'pending', date: '2024-12-24' },
-    { id: 2, user: 'jane_smith', amount: 25.00, method: 'Nagad', account: '01887654321', status: 'pending', date: '2024-12-23' },
-    { id: 3, user: 'mike_wilson', amount: 100.00, method: 'Bkash', account: '01912345678', status: 'pending', date: '2024-12-23' },
-  ];
-
-  const pendingCount = withdrawalRequests.filter(w => w.status === 'pending').length;
 
   const sidebarItems = [
     { icon: Home, label: 'Dashboard', active: true },
@@ -78,18 +195,71 @@ const AdminPanel = () => {
     { icon: Key, label: 'Admin Password Reset' },
   ];
 
-  const handleApprove = (id: number, user: string, amount: number) => {
-    toast.success(`Approved ৳${amount.toFixed(2)} for ${user}`);
+  const handleApprove = async (id: string, username: string, amount: number) => {
+    try {
+      const { error } = await supabase
+        .from('withdrawal_requests')
+        .update({ 
+          status: 'approved', 
+          approved_at: new Date().toISOString() 
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success(`Approved ৳${amount.toFixed(2)} for ${username}`);
+    } catch (error: any) {
+      console.error('Error approving:', error);
+      toast.error('Failed to approve withdrawal');
+    }
   };
 
-  const handleReject = (id: number, user: string) => {
-    toast.error(`Rejected withdrawal from ${user}`);
+  const handleReject = async (id: string, username: string) => {
+    try {
+      const { error } = await supabase
+        .from('withdrawal_requests')
+        .update({ 
+          status: 'rejected', 
+          rejected_at: new Date().toISOString(),
+          rejection_reason: 'Admin rejected request'
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success(`Rejected withdrawal from ${username}`);
+    } catch (error: any) {
+      console.error('Error rejecting:', error);
+      toast.error('Failed to reject withdrawal');
+    }
+  };
+
+  const handleApproveAll = async () => {
+    if (withdrawalRequests.length === 0) {
+      toast.error('No pending withdrawals');
+      return;
+    }
+
+    for (const req of withdrawalRequests) {
+      await handleApprove(req.id, req.username, req.amount);
+    }
+  };
+
+  const handleRejectAll = async () => {
+    if (withdrawalRequests.length === 0) {
+      toast.error('No pending withdrawals');
+      return;
+    }
+
+    for (const req of withdrawalRequests) {
+      await handleReject(req.id, req.username);
+    }
   };
 
   const handleLogout = async () => {
     await signOut();
     toast.success('Logged out');
   };
+
+  const pendingCount = withdrawalRequests.length;
 
   return (
     <>
@@ -155,11 +325,9 @@ const AdminPanel = () => {
           </div>
         </header>
 
-        {/* Toast styled component for this page would go here in a real implementation */}
-
         {/* Stats Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 px-4 md:px-[5%] py-6">
-          {stats.map((stat, i) => (
+          {statCards.map((stat, i) => (
             <div 
               key={i} 
               className="glass-card p-6 text-center hover:-translate-y-1 transition-transform relative overflow-hidden"
@@ -180,14 +348,21 @@ const AdminPanel = () => {
             <h2 className="text-xl font-bold text-primary mb-5 flex items-center gap-2">
               <DollarSign className="w-6 h-6" /> Withdrawal Requests
               <span className="text-sm text-muted-foreground ml-2">({pendingCount} Pending)</span>
+              {isLoadingData && <RefreshCw className="w-4 h-4 animate-spin ml-2" />}
             </h2>
 
             {/* Bulk Actions */}
             <div className="flex flex-wrap gap-3 mb-5 p-4 rounded-xl bg-muted/50 border border-border items-center">
-              <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-sm hover:-translate-y-0.5 transition-transform shadow-lg">
+              <button 
+                onClick={handleApproveAll}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-sm hover:-translate-y-0.5 transition-transform shadow-lg"
+              >
                 <CheckCircle className="w-4 h-4" /> Approve All
               </button>
-              <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm hover:-translate-y-0.5 transition-transform shadow-lg">
+              <button 
+                onClick={handleRejectAll}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm hover:-translate-y-0.5 transition-transform shadow-lg"
+              >
                 <X className="w-4 h-4" /> Reject All
               </button>
               <div className="flex items-center gap-2 ml-auto text-sm text-primary font-semibold">
@@ -195,8 +370,12 @@ const AdminPanel = () => {
                 <span>Pending:</span>
                 <span className="bg-primary text-white px-2.5 py-0.5 rounded-full text-xs font-bold">{pendingCount}</span>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-500 text-white font-semibold text-sm hover:-translate-y-0.5 transition-transform">
-                <RefreshCw className="w-4 h-4" /> Refresh
+              <button 
+                onClick={fetchWithdrawals}
+                disabled={isLoadingData}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-500 text-white font-semibold text-sm hover:-translate-y-0.5 transition-transform disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoadingData ? 'animate-spin' : ''}`} /> Refresh
               </button>
             </div>
 
@@ -225,11 +404,18 @@ const AdminPanel = () => {
                   ) : (
                     withdrawalRequests.map(req => (
                       <tr key={req.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                        <td className="py-3 px-3 font-semibold">{req.user}</td>
+                        <td className="py-3 px-3 font-semibold">{req.username}</td>
                         <td className="py-3 px-3">{req.method}</td>
                         <td className="py-3 px-3 text-muted-foreground max-w-[120px] truncate">{req.account}</td>
-                        <td className="py-3 px-3 text-green-400 font-semibold">৳ {req.amount.toFixed(2)}</td>
-                        <td className="py-3 px-3 text-muted-foreground">{req.date}</td>
+                        <td className="py-3 px-3 text-green-400 font-semibold">৳ {Number(req.amount).toFixed(2)}</td>
+                        <td className="py-3 px-3 text-muted-foreground">
+                          {new Date(req.created_at).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </td>
                         <td className="py-3 px-3">
                           <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                             {req.status}
@@ -238,13 +424,13 @@ const AdminPanel = () => {
                         <td className="py-3 px-3">
                           <div className="flex gap-1">
                             <button 
-                              onClick={() => handleApprove(req.id, req.user, req.amount)}
+                              onClick={() => handleApprove(req.id, req.username, req.amount)}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-green-500 text-white text-xs font-semibold hover:bg-green-600 transition-colors"
                             >
                               <CheckCircle className="w-3 h-3" /> Approve
                             </button>
                             <button 
-                              onClick={() => handleReject(req.id, req.user)}
+                              onClick={() => handleReject(req.id, req.username)}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors"
                             >
                               <X className="w-3 h-3" /> Reject

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Gift, Bell, LogOut, Menu, X, User, Snowflake,
-  Shield, ChevronDown, Coins, Wallet, Trophy
+  Shield, ChevronDown, Coins, Wallet, Trophy, Home
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -172,45 +172,45 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Sidebar - Only 3 items */}
+        {/* Sidebar - Compact */}
         <div 
           className={`fixed inset-0 bg-black/70 z-40 transition-opacity lg:hidden ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setSidebarOpen(false)}
         />
-        <aside className={`fixed top-0 left-0 h-full w-72 bg-background/95 backdrop-blur-xl z-50 transition-transform duration-300 border-r border-border ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-8">
-              <div className="logo-3d text-2xl">BILLUCASH</div>
-              <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-white/10 rounded-lg">
-                <X className="w-5 h-5" />
+        <aside className={`fixed top-0 left-0 h-full w-56 bg-background border-r border-border z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-6">
+              <div className="logo-3d text-lg">BILLUCASH</div>
+              <button onClick={() => setSidebarOpen(false)} className="p-1.5 hover:bg-muted rounded-lg">
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <nav className="space-y-3">
+            <nav className="space-y-2">
               <button 
                 onClick={() => { setSidebarOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/20 text-primary font-medium hover:bg-primary/30 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/20 text-primary text-sm font-medium"
               >
-                <Gift className="w-5 h-5" /> Complete Offers
+                <Home className="w-4 h-4" /> Dashboard
               </button>
               <button 
                 onClick={() => { setSidebarOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm transition-colors"
               >
-                <User className="w-5 h-5 text-primary" /> Profile Settings
+                <User className="w-4 h-4 text-primary" /> Profile Settings
               </button>
               <button 
                 onClick={() => { setSidebarOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm transition-colors"
               >
-                <Trophy className="w-5 h-5 text-primary" /> Leaderboard
+                <Trophy className="w-4 h-4 text-primary" /> Leaderboard
               </button>
               {isAdmin && (
                 <Link 
                   to="/admin" 
                   onClick={() => setSidebarOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-yellow-500/20 text-yellow-400 font-medium hover:bg-yellow-500/30 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-500/20 text-yellow-400 text-sm font-medium"
                 >
-                  <Shield className="w-5 h-5" /> Admin Panel
+                  <Shield className="w-4 h-4" /> Admin Panel
                 </Link>
               )}
             </nav>
@@ -298,15 +298,15 @@ const Dashboard = () => {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 top-12 w-48 glass-card py-2">
-                  <button className="w-full px-4 py-2 flex items-center gap-3 hover:bg-white/10 transition-colors">
+                <div className="absolute right-0 top-12 w-40 bg-background border border-border rounded-xl shadow-xl py-1.5 z-50">
+                  <button className="w-full px-3 py-2 flex items-center gap-2 hover:bg-muted transition-colors text-sm">
                     <Wallet className="w-4 h-4" /> Balance
                   </button>
-                  <button className="w-full px-4 py-2 flex items-center gap-3 hover:bg-white/10 transition-colors">
+                  <button className="w-full px-3 py-2 flex items-center gap-2 hover:bg-muted transition-colors text-sm">
                     <User className="w-4 h-4" /> Profile
                   </button>
                   <div className="h-px bg-border my-1" />
-                  <button onClick={handleLogout} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-white/10 transition-colors text-destructive">
+                  <button onClick={handleLogout} className="w-full px-3 py-2 flex items-center gap-2 hover:bg-muted transition-colors text-sm text-destructive">
                     <LogOut className="w-4 h-4" /> Logout
                   </button>
                 </div>

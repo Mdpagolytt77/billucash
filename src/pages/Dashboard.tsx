@@ -80,15 +80,59 @@ const Dashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Register balance increase callback for sound
+  // Register balance increase callback for sound and notification
   useEffect(() => {
     onBalanceIncrease(() => {
       playBalanceSound();
       toast.success('Balance updated! 💰');
+      // Add notification when balance increases
+      const newNotif: Notification = {
+        id: Date.now().toString(),
+        message: `Your balance has been updated!`,
+        type: 'balance',
+        read: false,
+        time: 'Just now',
+        created_at: new Date(),
+      };
+      setNotifications(prev => [newNotif, ...prev]);
     });
   }, [onBalanceIncrease, playBalanceSound]);
 
-  // Simulate realtime earnings updates
+  // Real-time earnings from all profile updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('live-earnings-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+        },
+        (payload) => {
+          const oldData = payload.old as { balance?: number; username?: string };
+          const newData = payload.new as { balance?: number; username?: string };
+          
+          if (newData.balance && oldData.balance && newData.balance > oldData.balance) {
+            const earnedAmount = newData.balance - oldData.balance;
+            const newEarning: EarningEvent = {
+              id: Date.now().toString(),
+              username: newData.username || 'user',
+              amount: earnedAmount,
+              created_at: new Date(),
+            };
+            setLiveEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Fallback: Simulate realtime earnings if no real updates
   useEffect(() => {
     const names = ['user_pro', 'earner_99', 'cash_king', 'money_maker', 'top_player', 'winner_x', 'lucky_one', 'star_user'];
     const interval = setInterval(() => {
@@ -99,7 +143,7 @@ const Dashboard = () => {
         created_at: new Date(),
       };
       setLiveEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
-    }, 5000);
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
@@ -239,11 +283,7 @@ const Dashboard = () => {
               <div className="p-4">
                 {popupLoading ? (
                   <div className="h-64 flex flex-col items-center justify-center">
-                    <img 
-                      src="https://cdn-icons-png.flaticon.com/512/2173/2173478.png" 
-                      alt="Loading" 
-                      className="w-16 h-16 animate-bounce mb-3"
-                    />
+                    <SiteLogo size="lg" className="animate-bounce mb-3" />
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   </div>
                 ) : selectedOfferwall.iframeUrl ? (

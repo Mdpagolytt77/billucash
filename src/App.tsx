@@ -19,6 +19,7 @@ import AdminOfferwallCustomize from "./pages/AdminOfferwallCustomize";
 import AdminSocialLinksCustomize from "./pages/AdminSocialLinksCustomize";
 import AdminSoundCustomize from "./pages/AdminSoundCustomize";
 import AdminBackgroundCustomize from "./pages/AdminBackgroundCustomize";
+import AdminRoleManagement from "./pages/AdminRoleManagement";
 import ProfileSettings from "./pages/ProfileSettings";
 import Leaderboard from "./pages/Leaderboard";
 import Withdraw from "./pages/Withdraw";
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/admin/social" element={<ProtectedRoute requireAdmin><AdminSocialLinksCustomize /></ProtectedRoute>} />
                 <Route path="/admin/sound" element={<ProtectedRoute requireAdmin><AdminSoundCustomize /></ProtectedRoute>} />
                 <Route path="/admin/background" element={<ProtectedRoute requireAdmin><AdminBackgroundCustomize /></ProtectedRoute>} />
+                <Route path="/admin/roles" element={<ProtectedRoute requireAdmin><AdminRoleManagement /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
                 <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />

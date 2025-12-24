@@ -206,6 +206,13 @@ const Dashboard = () => {
               >
                 <Trophy className="w-4 h-4 text-primary" /> Leaderboard
               </Link>
+              <Link 
+                to="/withdraw"
+                onClick={() => setSidebarOpen(false)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm transition-colors"
+              >
+                <Wallet className="w-4 h-4 text-primary" /> Withdraw
+              </Link>
               {isAdmin && (
                 <Link 
                   to="/admin" 

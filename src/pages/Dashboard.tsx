@@ -239,8 +239,12 @@ const Dashboard = () => {
               <div className="p-4">
                 {popupLoading ? (
                   <div className="h-64 flex flex-col items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
-                    <p className="text-sm text-muted-foreground">Loading...</p>
+                    <img 
+                      src="https://cdn-icons-png.flaticon.com/512/2173/2173478.png" 
+                      alt="Loading" 
+                      className="w-16 h-16 animate-bounce mb-3"
+                    />
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   </div>
                 ) : selectedOfferwall.iframeUrl ? (
                   <iframe 

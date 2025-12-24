@@ -37,16 +37,18 @@ const AdminCompletedOffers = () => {
     const ips = ['us', 'gb', 'de', 'fr', 'ca', 'au'];
     return Array.from({ length: 200 }, (_, i) => {
       const coinValue = Math.floor(Math.random() * 1000) + 100;
-      const amountSen = coinValue / 10; // 200 coins = 20 sen
-      const revenueValue = coinValue * 2; // 400 coins = 800 revenue
+      // 300 coin = $0.60 (coin / 500 = amount in dollars)
+      const amountDollar = coinValue / 500;
+      // Revenue = amount * 2 (so $0.60 = $1.20 revenue)
+      const revenueValue = amountDollar * 2;
       return {
         id: 1475 + i,
         username: `user${1000 + i}`,
         offerwall: offerwalls[Math.floor(Math.random() * offerwalls.length)],
         offerName: offerNames[Math.floor(Math.random() * offerNames.length)],
         coin: coinValue.toString(),
-        amount: `${amountSen.toFixed(0)} sen`,
-        revenue: revenueValue.toString(),
+        amount: `$${amountDollar.toFixed(2)}`,
+        revenue: `$${revenueValue.toFixed(2)}`,
         transactionId: Math.random().toString(36).substring(2, 14),
         ip: ips[Math.floor(Math.random() * ips.length)],
         country: countries[Math.floor(Math.random() * countries.length)],

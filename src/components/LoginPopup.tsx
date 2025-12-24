@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, LogIn, UserPlus, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +14,18 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Load saved credentials on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('billucash_email');
+    const savedRemember = localStorage.getItem('billucash_remember');
+    if (savedRemember === 'true' && savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   if (!isOpen) return null;
 
@@ -28,10 +39,19 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
 
     setIsLoading(true);
 
+    // Save to localStorage if remember me is checked
+    if (rememberMe) {
+      localStorage.setItem('billucash_email', email);
+      localStorage.setItem('billucash_remember', 'true');
+    } else {
+      localStorage.removeItem('billucash_email');
+      localStorage.removeItem('billucash_remember');
+    }
+
     const { error } = await signIn(email, password);
 
     if (error) {
-      toast.error(error.message || 'Login failed');
+      toast.error(error.message || 'Login failed. Check your email and password.');
       setIsLoading(false);
       return;
     }
@@ -46,67 +66,77 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-lg flex justify-center items-center z-[1000] animate-fade-in"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[1000] animate-fade-in"
       onClick={onClose}
     >
       <div 
-        className="glass-card p-8 w-[90%] max-w-md animate-scale-in relative overflow-hidden"
+        className="bg-background border border-border rounded-xl p-6 w-[90%] max-w-sm animate-scale-in relative shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Gradient line at top */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
-        
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/10 to-primary/5 rounded-2xl -z-10" />
-
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-display font-extrabold text-gradient">
-            Login to BILLUCASH
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-display font-bold text-gradient">
+            Login
           </h2>
           <button 
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-lg flex items-center justify-center transition-all hover:bg-white/20 hover:rotate-90"
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <p className="text-xs text-muted-foreground mb-4">
+          Enter your email and password to login
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="email"
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-input-custom"
+            className="w-full px-4 py-2.5 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="form-input-custom"
+            className="w-full px-4 py-2.5 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
+          
+          {/* Remember Me */}
+          <label className="flex items-center gap-2 text-xs cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="accent-primary w-4 h-4"
+            />
+            <span className="text-muted-foreground">Remember me</span>
+          </label>
+
           <button 
             type="submit" 
             disabled={isLoading}
-            className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-2.5 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isLoading ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Logging in...</>
             ) : (
-              <><LogIn className="w-4 h-4" /> Login to Account</>
+              <><LogIn className="w-4 h-4" /> Login</>
             )}
           </button>
         </form>
 
-        <div className="flex justify-center mt-6">
+        <div className="text-center mt-4 text-xs text-muted-foreground">
+          Don't have an account?{' '}
           <Link 
             to="/signup" 
             onClick={onClose}
-            className="text-primary text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1"
+            className="text-primary font-semibold hover:underline"
           >
-            <UserPlus className="w-4 h-4" />
-            Create Account
+            Sign up
           </Link>
         </div>
       </div>

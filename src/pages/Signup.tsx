@@ -6,10 +6,12 @@ import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import LoginPopup from '@/components/LoginPopup';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { user, signUp, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,6 +39,13 @@ const Signup = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/dashboard');
+    }
+  }, [user, authLoading, navigate]);
+
   // Username validation
   useEffect(() => {
     if (formData.username.length < 3) {
@@ -44,7 +53,7 @@ const Signup = () => {
       return;
     }
 
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    const usernameRegex = /^[a-zA-Z0-9_.]{3,20}$/;
     if (!usernameRegex.test(formData.username)) {
       setUsernameStatus('invalid');
       return;
@@ -80,9 +89,9 @@ const Signup = () => {
       return;
     }
 
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    const usernameRegex = /^[a-zA-Z0-9_.]{3,20}$/;
     if (!usernameRegex.test(formData.username)) {
-      toast.error('Username must be 3-20 characters (letters, numbers, underscore only)');
+      toast.error('Username must be 3-20 characters (letters, numbers, underscore, dot only)');
       return;
     }
 
@@ -108,15 +117,19 @@ const Signup = () => {
 
     setIsSubmitting(true);
 
-    // Simulate signup
-    setTimeout(() => {
-      toast.success('Account created successfully! Redirecting to dashboard...');
+    const { error } = await signUp(formData.email, formData.password, formData.username);
+
+    if (error) {
+      toast.error(error.message || 'Failed to create account');
       setIsSubmitting(false);
-      
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
-    }, 1000);
+      return;
+    }
+
+    toast.success('Account created successfully! Redirecting to dashboard...');
+    
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 1500);
   };
 
   const features = [
@@ -125,6 +138,10 @@ const Signup = () => {
     { icon: TrendingUp, text: 'Growth opportunities' },
     { icon: Headphones, text: '24/7 Customer support' },
   ];
+
+  if (authLoading) {
+    return <LoadingScreen isLoading={true} />;
+  }
 
   return (
     <>

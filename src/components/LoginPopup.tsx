@@ -1,5 +1,8 @@
-import { Link } from 'react-router-dom';
-import { X, LogIn, UserPlus } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { X, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface LoginPopupProps {
   isOpen: boolean;
@@ -7,7 +10,39 @@ interface LoginPopupProps {
 }
 
 const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      toast.error('Please enter email and password');
+      return;
+    }
+
+    setIsLoading(true);
+
+    const { error } = await signIn(email, password);
+
+    if (error) {
+      toast.error(error.message || 'Login failed');
+      setIsLoading(false);
+      return;
+    }
+
+    toast.success('Login successful! Redirecting...');
+    onClose();
+    
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 500);
+  };
 
   return (
     <div 
@@ -36,20 +71,31 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
           </button>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <input
-            type="text"
-            placeholder="Username or Email"
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="form-input-custom"
           />
           <input
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="form-input-custom"
           />
-          <button type="button" className="btn-primary w-full flex items-center justify-center gap-2">
-            <LogIn className="w-4 h-4" />
-            Login to Account
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Logging in...</>
+            ) : (
+              <><LogIn className="w-4 h-4" /> Login to Account</>
+            )}
           </button>
         </form>
 

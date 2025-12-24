@@ -195,9 +195,9 @@
     animation: float 3s ease-in-out infinite;
   }
 
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(var(--glow-primary)); }
-    50% { box-shadow: 0 0 40px hsl(145 63% 49% / 0.5); }
+  @keyframes moveLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
   .animate-pulse-glow {

@@ -12,8 +12,10 @@ import AdminAllUsers from "./pages/AdminAllUsers";
 import AdminWithdraw from "./pages/AdminWithdraw";
 import AdminPasswordReset from "./pages/AdminPasswordReset";
 import AdminLogoCustomize from "./pages/AdminLogoCustomize";
+import AdminCompletedOffers from "./pages/AdminCompletedOffers";
 import ProfileSettings from "./pages/ProfileSettings";
 import Leaderboard from "./pages/Leaderboard";
+import Withdraw from "./pages/Withdraw";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -35,8 +37,10 @@ const App = () => (
             <Route path="/admin/withdraw" element={<ProtectedRoute requireAdmin><AdminWithdraw /></ProtectedRoute>} />
             <Route path="/admin/password" element={<ProtectedRoute requireAdmin><AdminPasswordReset /></ProtectedRoute>} />
             <Route path="/admin/logo" element={<ProtectedRoute requireAdmin><AdminLogoCustomize /></ProtectedRoute>} />
+            <Route path="/admin/offers" element={<ProtectedRoute requireAdmin><AdminCompletedOffers /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+            <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

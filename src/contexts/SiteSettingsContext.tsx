@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, forwardRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface BackgroundSettings {
@@ -116,22 +116,28 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Helper component for rendering logo
-export const SiteLogo = ({ className = '', size = 'md' }: { className?: string; size?: 'sm' | 'md' | 'lg' }) => {
-  const { logoType, logoText, logoImageUrl } = useSiteSettings();
-  
-  const sizeClasses = {
-    sm: 'text-sm max-h-6',
-    md: 'text-lg max-h-8',
-    lg: 'text-2xl max-h-12',
-  };
 
-  if (logoType === 'image' && logoImageUrl) {
-    return <img src={logoImageUrl} alt="Logo" className={`object-contain ${sizeClasses[size]} ${className}`} />;
+
+// Helper component for rendering logo
+export const SiteLogo = forwardRef<HTMLSpanElement, { className?: string; size?: 'sm' | 'md' | 'lg' }>(
+  ({ className = '', size = 'md' }, ref) => {
+    const { logoType, logoText, logoImageUrl } = useSiteSettings();
+    
+    const sizeClasses = {
+      sm: 'text-sm max-h-6',
+      md: 'text-lg max-h-8',
+      lg: 'text-2xl max-h-12',
+    };
+
+    if (logoType === 'image' && logoImageUrl) {
+      return <img src={logoImageUrl} alt="Logo" className={`object-contain ${sizeClasses[size]} ${className}`} />;
+    }
+    
+    return <span ref={ref} className={`logo-3d ${sizeClasses[size]} ${className}`}>{logoText}</span>;
   }
-  
-  return <span className={`logo-3d ${sizeClasses[size]} ${className}`}>{logoText}</span>;
-};
+);
+
+SiteLogo.displayName = 'SiteLogo';
 
 // Helper function for background style (returns CSS properties)
 export const getBackgroundStyle = (background: BackgroundSettings, heroBgUrl?: string) => {

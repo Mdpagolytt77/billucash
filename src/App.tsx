@@ -16,6 +16,7 @@ import AdminPasswordReset from "./pages/AdminPasswordReset";
 import AdminLogoCustomize from "./pages/AdminLogoCustomize";
 import AdminCompletedOffers from "./pages/AdminCompletedOffers";
 import AdminOfferwallCustomize from "./pages/AdminOfferwallCustomize";
+import AdminSocialLinksCustomize from "./pages/AdminSocialLinksCustomize";
 import AdminSoundCustomize from "./pages/AdminSoundCustomize";
 import AdminBackgroundCustomize from "./pages/AdminBackgroundCustomize";
 import ProfileSettings from "./pages/ProfileSettings";
@@ -46,6 +47,7 @@ const App = () => (
                 <Route path="/admin/logo" element={<ProtectedRoute requireAdmin><AdminLogoCustomize /></ProtectedRoute>} />
                 <Route path="/admin/offers" element={<ProtectedRoute requireAdmin><AdminCompletedOffers /></ProtectedRoute>} />
                 <Route path="/admin/offerwall" element={<ProtectedRoute requireAdmin><AdminOfferwallCustomize /></ProtectedRoute>} />
+                <Route path="/admin/social" element={<ProtectedRoute requireAdmin><AdminSocialLinksCustomize /></ProtectedRoute>} />
                 <Route path="/admin/sound" element={<ProtectedRoute requireAdmin><AdminSoundCustomize /></ProtectedRoute>} />
                 <Route path="/admin/background" element={<ProtectedRoute requireAdmin><AdminBackgroundCustomize /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />

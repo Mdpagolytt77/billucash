@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ImageIcon, ArrowLeft, Menu, Home, Users, Wallet, Key, LogOut, Save, RotateCcw, Upload, FileCheck, Palette, Layers, Volume2 } from 'lucide-react';
+import { ImageIcon, ArrowLeft, Menu, Home, Users, Wallet, Key, LogOut, Save, RotateCcw, Upload, FileCheck, Palette, Layers, Volume2, LinkIcon } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -37,6 +38,7 @@ const AdminBackgroundCustomize = () => {
     imageUrl: '',
     overlay: 85,
   });
+  const [imageUrlInput, setImageUrlInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,7 +54,18 @@ const AdminBackgroundCustomize = () => {
       .maybeSingle();
     
     if (data?.background_settings && typeof data.background_settings === 'object') {
-      setSettings(prev => ({ ...prev, ...(data.background_settings as unknown as BackgroundSettings) }));
+      const bgData = data.background_settings as Record<string, unknown>;
+      setSettings(prev => ({
+        ...prev,
+        type: (bgData.type as BackgroundSettings['type']) || prev.type,
+        color: (bgData.color as string) || prev.color,
+        gradient: (bgData.gradient as string) || prev.gradient,
+        imageUrl: (bgData.imageUrl as string) || prev.imageUrl,
+        overlay: typeof bgData.overlay === 'number' ? bgData.overlay : prev.overlay,
+      }));
+      if (bgData.imageUrl) {
+        setImageUrlInput(bgData.imageUrl as string);
+      }
     }
   };
 
@@ -65,10 +78,21 @@ const AdminBackgroundCustomize = () => {
       }
       const reader = new FileReader();
       reader.onload = (event) => {
-        setSettings({ ...settings, imageUrl: event.target?.result as string, type: 'image' });
+        const url = event.target?.result as string;
+        setSettings({ ...settings, imageUrl: url, type: 'image' });
+        setImageUrlInput(url);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleImageUrlApply = () => {
+    if (!imageUrlInput.trim()) {
+      toast.error('Please enter an image URL');
+      return;
+    }
+    setSettings({ ...settings, imageUrl: imageUrlInput, type: 'image' });
+    toast.success('Image URL applied!');
   };
 
   const handleSave = async () => {
@@ -110,7 +134,7 @@ const AdminBackgroundCustomize = () => {
       <aside className={`fixed top-0 left-0 h-full w-48 bg-background border-r border-border z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-3 pt-14">
           <div className="text-center mb-4 pb-3 border-b border-border">
-            <div className="logo-3d text-sm">BILLUCASH</div>
+            <SiteLogo size="sm" />
           </div>
           <nav className="space-y-0.5">
             {sidebarItems.map((item, i) => (
@@ -203,19 +227,51 @@ const AdminBackgroundCustomize = () => {
               </div>
             )}
 
-            {/* Image Upload */}
+            {/* Image Upload & URL */}
             {settings.type === 'image' && (
-              <div className="mb-4">
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex items-center justify-center gap-1.5 px-3 py-3 bg-muted border border-dashed border-border rounded-lg text-[10px] hover:border-primary"
-                >
-                  <Upload className="w-4 h-4" />
-                  {settings.imageUrl ? 'Change Image' : 'Upload Image'}
-                </button>
+              <div className="mb-4 space-y-3">
+                {/* URL Input */}
+                <div>
+                  <label className="text-[10px] text-muted-foreground block mb-1">Image URL</label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={imageUrlInput}
+                      onChange={(e) => setImageUrlInput(e.target.value)}
+                      placeholder="https://example.com/image.jpg"
+                      className="flex-1 px-2 py-1.5 bg-muted border border-border rounded text-xs"
+                    />
+                    <button
+                      onClick={handleImageUrlApply}
+                      className="px-2 py-1.5 bg-primary text-white rounded text-[10px] flex items-center gap-1"
+                    >
+                      <LinkIcon className="w-3 h-3" /> Apply
+                    </button>
+                  </div>
+                </div>
+
+                {/* Or Divider */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[9px] text-muted-foreground">OR</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+
+                {/* File Upload */}
+                <div>
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-1.5 px-3 py-3 bg-muted border border-dashed border-border rounded-lg text-[10px] hover:border-primary"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload from Device
+                  </button>
+                </div>
+
+                {/* Preview */}
                 {settings.imageUrl && (
-                  <div className="mt-2 rounded-lg overflow-hidden h-20">
+                  <div className="rounded-lg overflow-hidden h-20">
                     <img src={settings.imageUrl} alt="Preview" className="w-full h-full object-cover" />
                   </div>
                 )}

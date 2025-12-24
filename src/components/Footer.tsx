@@ -1,4 +1,5 @@
 import { Facebook, Send, MessageCircle, Youtube, Instagram } from 'lucide-react';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 
 const socialLinks = [
   { icon: Facebook, href: '#' },
@@ -14,12 +15,12 @@ const Footer = () => {
       <div className="max-w-4xl mx-auto text-center">
         {/* Logo */}
         <div className="text-3xl md:text-4xl font-display font-black text-gradient mb-4">
-          BILLUCASH
+          <SiteLogo size="lg" />
         </div>
 
         {/* Description */}
         <p className="opacity-80 leading-relaxed mb-8 max-w-xl mx-auto">
-          BILLUCASH is a trusted platform for earning real money online. With instant payments, 24/7 support,
+          A trusted platform for earning real money online. With instant payments, 24/7 support,
           and thousands of earning opportunities, your financial freedom starts here.
         </p>
 
@@ -39,7 +40,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="text-sm opacity-60">
-          © 2024 BILLUCASH. All rights reserved.
+          © 2024 All rights reserved.
         </div>
       </div>
     </footer>

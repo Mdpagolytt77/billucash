@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { LogIn, UserPlus } from 'lucide-react';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 
 const LoginBox = () => {
   return (
@@ -9,7 +10,9 @@ const LoginBox = () => {
 
       {/* Logo */}
       <div className="text-center mb-4">
-        <div className="logo-3d text-3xl inline-block mb-1">BILLUCASH</div>
+        <div className="text-3xl inline-block mb-1">
+          <SiteLogo size="lg" />
+        </div>
         <div className="text-primary text-xs tracking-[0.2em] font-semibold uppercase">
           earn & grow
         </div>
@@ -20,7 +23,7 @@ const LoginBox = () => {
         Welcome Back!
       </h2>
       <p className="text-center opacity-80 mb-6 text-sm">
-        Login to your BILLUCASH account
+        Login to your account
       </p>
 
       {/* Form */}

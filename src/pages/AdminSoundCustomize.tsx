@@ -1,21 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Volume2, ArrowLeft, Menu, Home, Users, Wallet, Key, LogOut, Save, RotateCcw, VolumeX, FileCheck, Palette, Layers, Image } from 'lucide-react';
+import { Volume2, ArrowLeft, Menu, Home, Users, Wallet, Key, LogOut, Save, RotateCcw, VolumeX, FileCheck, Palette, Layers, Image, Play } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface SoundSettings {
   enabled: boolean;
-  clickSound: boolean;
-  notificationSound: boolean;
-  successSound: boolean;
+  loginSound: boolean;
+  signupSound: boolean;
+  balanceSound: boolean;
   volume: number;
 }
+
+const SOUND_URLS = {
+  login: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
+  signup: 'https://assets.mixkit.co/active_storage/sfx/2867/2867-preview.mp3',
+  balance: 'https://assets.mixkit.co/active_storage/sfx/2868/2868-preview.mp3',
+};
 
 const AdminSoundCustomize = () => {
   const { isAdmin, signOut } = useAuth();
@@ -23,9 +30,9 @@ const AdminSoundCustomize = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<SoundSettings>({
     enabled: true,
-    clickSound: true,
-    notificationSound: true,
-    successSound: true,
+    loginSound: true,
+    signupSound: true,
+    balanceSound: true,
     volume: 70,
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -42,7 +49,15 @@ const AdminSoundCustomize = () => {
       .maybeSingle();
     
     if (data?.sound_settings && typeof data.sound_settings === 'object') {
-      setSettings(prev => ({ ...prev, ...(data.sound_settings as unknown as SoundSettings) }));
+      const soundData = data.sound_settings as Record<string, unknown>;
+      setSettings(prev => ({
+        ...prev,
+        enabled: soundData.enabled !== undefined ? Boolean(soundData.enabled) : prev.enabled,
+        loginSound: soundData.loginSound !== undefined ? Boolean(soundData.loginSound) : prev.loginSound,
+        signupSound: soundData.signupSound !== undefined ? Boolean(soundData.signupSound) : prev.signupSound,
+        balanceSound: soundData.balanceSound !== undefined ? Boolean(soundData.balanceSound) : prev.balanceSound,
+        volume: typeof soundData.volume === 'number' ? soundData.volume : prev.volume,
+      }));
     }
   };
 
@@ -61,6 +76,12 @@ const AdminSoundCustomize = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const playTestSound = (type: 'login' | 'signup' | 'balance') => {
+    const audio = new Audio(SOUND_URLS[type]);
+    audio.volume = settings.volume / 100;
+    audio.play().catch(err => console.log('Audio play prevented:', err));
   };
 
   const sidebarItems = [
@@ -85,7 +106,7 @@ const AdminSoundCustomize = () => {
       <aside className={`fixed top-0 left-0 h-full w-48 bg-background border-r border-border z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-3 pt-14">
           <div className="text-center mb-4 pb-3 border-b border-border">
-            <div className="logo-3d text-sm">BILLUCASH</div>
+            <SiteLogo size="sm" />
           </div>
           <nav className="space-y-0.5">
             {sidebarItems.map((item, i) => (
@@ -155,18 +176,27 @@ const AdminSoundCustomize = () => {
             {/* Sound Options */}
             <div className="space-y-2 mb-4">
               {[
-                { key: 'clickSound', label: 'Click Sound' },
-                { key: 'notificationSound', label: 'Notification Sound' },
-                { key: 'successSound', label: 'Success Sound' },
-              ].map(({ key, label }) => (
+                { key: 'loginSound', label: 'Login Success Sound', soundKey: 'login' as const },
+                { key: 'signupSound', label: 'Signup Success Sound', soundKey: 'signup' as const },
+                { key: 'balanceSound', label: 'Balance Add Sound', soundKey: 'balance' as const },
+              ].map(({ key, label, soundKey }) => (
                 <div key={key} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
                   <span className="text-xs">{label}</span>
-                  <button
-                    onClick={() => setSettings({ ...settings, [key]: !settings[key as keyof SoundSettings] })}
-                    className={`px-2 py-0.5 rounded text-[9px] font-semibold ${settings[key as keyof SoundSettings] ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}
-                  >
-                    {settings[key as keyof SoundSettings] ? 'ON' : 'OFF'}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => playTestSound(soundKey)}
+                      className="p-1 text-primary hover:bg-primary/10 rounded"
+                      title="Test sound"
+                    >
+                      <Play className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={() => setSettings({ ...settings, [key]: !settings[key as keyof SoundSettings] })}
+                      className={`px-2 py-0.5 rounded text-[9px] font-semibold ${settings[key as keyof SoundSettings] ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}
+                    >
+                      {settings[key as keyof SoundSettings] ? 'ON' : 'OFF'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

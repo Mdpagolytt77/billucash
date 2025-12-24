@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, LogIn, UserPlus, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSoundContext } from '@/contexts/SoundContext';
 import { toast } from 'sonner';
 
 interface LoginPopupProps {
@@ -12,6 +13,7 @@ interface LoginPopupProps {
 const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
   const navigate = useNavigate();
   const { signIn } = useAuth();
+  const { playLoginSound } = useSoundContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -56,6 +58,9 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
       return;
     }
 
+    // Play login success sound
+    playLoginSound();
+    
     toast.success('Login successful! Redirecting...');
     onClose();
     

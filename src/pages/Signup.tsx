@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Mail, Lock, UserPlus, Home, LogIn, Shield, Zap, TrendingUp, Headphones, Check, X, Loader2 } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import LoginPopup from '@/components/LoginPopup';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { useSoundContext } from '@/contexts/SoundContext';
 import { toast } from 'sonner';
+import heroBg from '@/assets/hero-bg.jpg';
 
 const Signup = () => {
   const navigate = useNavigate();
   const { user, signUp, isLoading: authLoading } = useAuth();
+  const { background } = useSiteSettings();
+  const { playSignupSound } = useSoundContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,6 +129,9 @@ const Signup = () => {
       return;
     }
 
+    // Play signup success sound
+    playSignupSound();
+    
     toast.success('Account created successfully! Redirecting to dashboard...');
     
     setTimeout(() => {
@@ -143,6 +150,8 @@ const Signup = () => {
     return <LoadingScreen isLoading={true} />;
   }
 
+  const backgroundStyle = getBackgroundStyle(background, heroBg);
+
   return (
     <>
       <LoadingScreen isLoading={isLoading} />
@@ -151,15 +160,12 @@ const Signup = () => {
 
       <div 
         className={`min-h-screen transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        style={{
-          background: `linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url(${heroBg}) no-repeat center center fixed`,
-          backgroundSize: 'cover',
-        }}
+        style={backgroundStyle}
       >
         {/* Header */}
         <header className="px-4 md:px-[5%] py-4 flex justify-between items-center bg-background/90 backdrop-blur-lg border-b border-border sticky top-0 z-50">
           <div className="flex items-center gap-3">
-            <div className="logo-3d text-xl md:text-2xl">BILLUCASH</div>
+            <SiteLogo size="md" />
           </div>
           
           <div className="flex gap-3 items-center">
@@ -192,7 +198,9 @@ const Signup = () => {
             {/* Left Side - Hero Content */}
             <div className="animate-fade-in text-center lg:text-left" style={{ animationDelay: '0.2s' }}>
               <div className="mb-6">
-                <div className="logo-3d text-4xl md:text-5xl inline-block mb-1">BILLUCASH</div>
+                <div className="text-4xl md:text-5xl inline-block mb-1">
+                  <SiteLogo size="lg" />
+                </div>
                 <div className="text-primary text-sm tracking-[0.2em] font-semibold uppercase">
                   earn & grow
                 </div>
@@ -225,7 +233,9 @@ const Signup = () => {
 
                 {/* Logo */}
                 <div className="text-center mb-4">
-                  <div className="logo-3d text-3xl inline-block mb-1">BILLUCASH</div>
+                  <div className="text-3xl inline-block mb-1">
+                    <SiteLogo size="lg" />
+                  </div>
                   <div className="text-primary text-xs tracking-[0.2em] font-semibold uppercase">
                     earn & grow
                   </div>
@@ -235,7 +245,7 @@ const Signup = () => {
                   Create Account
                 </h2>
                 <p className="text-center opacity-80 mb-6 text-sm">
-                  Join Billucash and start earning today!
+                  Join and start earning today!
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-5">

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useRef, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,6 +19,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  onBalanceIncrease: (callback: () => void) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +38,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Callback for balance increase
+  const balanceCallbackRef = useRef<(() => void) | null>(null);
+  const previousBalanceRef = useRef<number | null>(null);
+
+  const onBalanceIncrease = useCallback((callback: () => void) => {
+    balanceCallbackRef.current = callback;
+  }, []);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -52,7 +61,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data) {
-        setProfile(data as Profile);
+        const newProfile = data as Profile;
+        
+        // Check if balance increased
+        if (previousBalanceRef.current !== null && 
+            newProfile.balance > previousBalanceRef.current &&
+            balanceCallbackRef.current) {
+          balanceCallbackRef.current();
+        }
+        
+        previousBalanceRef.current = newProfile.balance;
+        setProfile(newProfile);
       }
     } catch (err) {
       console.error('Error in fetchProfile:', err);
@@ -104,6 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setProfile(null);
           setIsAdmin(false);
+          previousBalanceRef.current = null;
         }
       }
     );
@@ -123,6 +143,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Subscribe to real-time profile changes for balance updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('profile-balance-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`
+        },
+        (payload) => {
+          const newData = payload.new as Profile;
+          
+          // Check if balance increased
+          if (previousBalanceRef.current !== null && 
+              newData.balance > previousBalanceRef.current &&
+              balanceCallbackRef.current) {
+            balanceCallbackRef.current();
+          }
+          
+          previousBalanceRef.current = newData.balance;
+          setProfile(newData);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const signUp = async (email: string, password: string, username: string) => {
     const redirectUrl = `${window.location.origin}/dashboard`;
@@ -156,6 +211,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSession(null);
     setProfile(null);
     setIsAdmin(false);
+    previousBalanceRef.current = null;
   };
 
   return (
@@ -170,6 +226,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signIn,
         signOut,
         refreshProfile,
+        onBalanceIncrease,
       }}
     >
       {children}

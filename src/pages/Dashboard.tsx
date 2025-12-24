@@ -10,6 +10,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { useSoundContext } from '@/contexts/SoundContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -31,8 +32,9 @@ interface EarningEvent {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, profile, isAdmin, signOut, isLoading } = useAuth();
+  const { user, profile, isAdmin, signOut, isLoading, onBalanceIncrease } = useAuth();
   const { background } = useSiteSettings();
+  const { playBalanceSound } = useSoundContext();
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [snowEnabled, setSnowEnabled] = useState(true);
@@ -58,6 +60,14 @@ const Dashboard = () => {
     const timer = setTimeout(() => setShowLoadingScreen(false), 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Register balance increase callback for sound
+  useEffect(() => {
+    onBalanceIncrease(() => {
+      playBalanceSound();
+      toast.success('Balance updated! 💰');
+    });
+  }, [onBalanceIncrease, playBalanceSound]);
 
   // Simulate realtime earnings updates
   useEffect(() => {

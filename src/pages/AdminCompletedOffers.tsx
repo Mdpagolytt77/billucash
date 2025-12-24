@@ -35,19 +35,24 @@ const AdminCompletedOffers = () => {
     const offerwalls = ['Adtowall', 'Tapjoy', 'OfferToro', 'Adgate', 'Pubscale', 'Monlix'];
     const offerNames = ['Amazon Prime Video', 'Netflix Premium', 'Disney+ Plan', 'Survey - Gaming', 'Mobile Game Level 25', 'App Download'];
     const ips = ['us', 'gb', 'de', 'fr', 'ca', 'au'];
-    return Array.from({ length: 200 }, (_, i) => ({
-      id: 1475 + i,
-      username: `user${1000 + i}`,
-      offerwall: offerwalls[Math.floor(Math.random() * offerwalls.length)],
-      offerName: offerNames[Math.floor(Math.random() * offerNames.length)],
-      coin: (Math.floor(Math.random() * 1000) + 100).toFixed(2),
-      amount: `$${(Math.random() * 2).toFixed(2)}`,
-      revenue: `$${(Math.random() * 3).toFixed(2)}`,
-      transactionId: Math.random().toString(36).substring(2, 14),
-      ip: ips[Math.floor(Math.random() * ips.length)],
-      country: countries[Math.floor(Math.random() * countries.length)],
-      time: `${Math.floor(Math.random() * 28) + 1} Dec 2024`
-    }));
+    return Array.from({ length: 200 }, (_, i) => {
+      const coinValue = Math.floor(Math.random() * 1000) + 100;
+      const amountSen = coinValue / 10; // 200 coins = 20 sen
+      const revenueValue = coinValue * 2; // 400 coins = 800 revenue
+      return {
+        id: 1475 + i,
+        username: `user${1000 + i}`,
+        offerwall: offerwalls[Math.floor(Math.random() * offerwalls.length)],
+        offerName: offerNames[Math.floor(Math.random() * offerNames.length)],
+        coin: coinValue.toString(),
+        amount: `${amountSen.toFixed(0)} sen`,
+        revenue: revenueValue.toString(),
+        transactionId: Math.random().toString(36).substring(2, 14),
+        ip: ips[Math.floor(Math.random() * ips.length)],
+        country: countries[Math.floor(Math.random() * countries.length)],
+        time: `${Math.floor(Math.random() * 28) + 1} Dec 2024`
+      };
+    });
   });
 
   const filteredData = allData.filter(row =>
@@ -61,15 +66,6 @@ const AdminCompletedOffers = () => {
   const pageData = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
   useEffect(() => { setCurrentPage(1); }, [searchTerm, rowsPerPage]);
-
-  const getOfferwallColor = (name: string) => {
-    const colors: Record<string, string> = {
-      'Adtowall': 'from-yellow-400 to-orange-500', 'Tapjoy': 'from-blue-400 to-blue-600',
-      'OfferToro': 'from-green-400 to-emerald-600', 'Adgate': 'from-pink-400 to-rose-500',
-      'Pubscale': 'from-cyan-400 to-teal-500', 'Monlix': 'from-purple-400 to-violet-600',
-    };
-    return colors[name] || 'from-gray-400 to-gray-600';
-  };
 
   if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
@@ -115,6 +111,7 @@ const AdminCompletedOffers = () => {
                     <th className="text-left p-1.5 text-muted-foreground">Offer</th>
                     <th className="text-center p-1.5 text-muted-foreground">Coin</th>
                     <th className="text-center p-1.5 text-muted-foreground">Amount</th>
+                    <th className="text-center p-1.5 text-muted-foreground">Revenue</th>
                     <th className="text-left p-1.5 text-muted-foreground">Country</th>
                     <th className="text-left p-1.5 text-muted-foreground">Time</th>
                   </tr>
@@ -124,12 +121,11 @@ const AdminCompletedOffers = () => {
                     <tr key={row.id} className="border-t border-border/50 hover:bg-primary/5">
                       <td className="p-1.5">{row.id}</td>
                       <td className="p-1.5 font-medium">{row.username}</td>
-                      <td className="p-1.5">
-                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold text-black bg-gradient-to-r ${getOfferwallColor(row.offerwall)}`}>{row.offerwall}</span>
-                      </td>
+                      <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>
                       <td className="p-1.5 max-w-[100px] truncate">{row.offerName}</td>
                       <td className="p-1.5 text-center">{row.coin}</td>
                       <td className="p-1.5 text-center text-green-400">{row.amount}</td>
+                      <td className="p-1.5 text-center text-primary">{row.revenue}</td>
                       <td className="p-1.5 text-muted-foreground">{row.country}</td>
                       <td className="p-1.5 text-muted-foreground">{row.time}</td>
                     </tr>

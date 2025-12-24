@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [snowEnabled, setSnowEnabled] = useState(true);
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string} | null>(null);
@@ -57,7 +58,13 @@ const Dashboard = () => {
   ]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowLoadingScreen(false), 1500);
+    const timer = setTimeout(() => {
+      setShowLoadingScreen(false);
+      // Show welcome popup after loading screen
+      setShowWelcomePopup(true);
+      // Hide popup after 2 seconds
+      setTimeout(() => setShowWelcomePopup(false), 2000);
+    }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -278,11 +285,15 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Success Banner */}
-        <div className="mx-3 md:mx-[5%] mt-3 p-3 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center gap-2 text-sm">
-          <span>✓</span>
-          <span className="font-medium">Welcome back, {profile?.username || 'User'}!</span>
-        </div>
+        {/* Welcome Notification Popup */}
+        {showWelcomePopup && (
+          <div className="fixed top-20 right-4 z-50 animate-fade-in">
+            <div className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30 flex items-center gap-2 text-sm">
+              <span className="text-lg">✓</span>
+              <span className="font-medium">Welcome back, {profile?.username || 'User'}!</span>
+            </div>
+          </div>
+        )}
 
         {/* Live Earnings Ticker */}
         <div className="mt-2 py-1.5 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border-y border-primary/20 overflow-hidden">

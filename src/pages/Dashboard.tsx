@@ -192,18 +192,20 @@ const Dashboard = () => {
               >
                 <Home className="w-4 h-4" /> Dashboard
               </button>
-              <button 
-                onClick={() => { setSidebarOpen(false); }}
+              <Link 
+                to="/profile"
+                onClick={() => setSidebarOpen(false)}
                 className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm transition-colors"
               >
                 <User className="w-4 h-4 text-primary" /> Profile Settings
-              </button>
-              <button 
-                onClick={() => { setSidebarOpen(false); }}
+              </Link>
+              <Link 
+                to="/leaderboard"
+                onClick={() => setSidebarOpen(false)}
                 className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm transition-colors"
               >
                 <Trophy className="w-4 h-4 text-primary" /> Leaderboard
-              </button>
+              </Link>
               {isAdmin && (
                 <Link 
                   to="/admin" 

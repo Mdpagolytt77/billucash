@@ -88,6 +88,7 @@ export type Database = {
           logo_text: string | null
           logo_type: string
           offerwall_settings: Json | null
+          social_links_settings: Json | null
           sound_settings: Json | null
           updated_at: string
         }
@@ -98,6 +99,7 @@ export type Database = {
           logo_text?: string | null
           logo_type?: string
           offerwall_settings?: Json | null
+          social_links_settings?: Json | null
           sound_settings?: Json | null
           updated_at?: string
         }
@@ -108,6 +110,7 @@ export type Database = {
           logo_text?: string | null
           logo_type?: string
           offerwall_settings?: Json | null
+          social_links_settings?: Json | null
           sound_settings?: Json | null
           updated_at?: string
         }

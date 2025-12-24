@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Users, Wallet, FileCheck, Palette, Layers, 
-  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2 
+  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2, Shield 
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
@@ -26,6 +26,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/admin' },
     { icon: Users, label: 'All Users', path: '/admin/users' },
+    { icon: Shield, label: 'Admin Roles', path: '/admin/roles' },
     { icon: Wallet, label: 'Withdraw', path: '/admin/withdraw' },
     { icon: FileCheck, label: 'Completed', path: '/admin/offers' },
     { icon: Palette, label: 'Logo', path: '/admin/logo' },

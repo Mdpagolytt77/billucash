@@ -104,18 +104,28 @@ const AdminPanel = () => {
 
   const handleApprove = async (id: string, username: string, amount: number) => {
     try {
-      const { error } = await supabase.from('withdrawal_requests').update({ status: 'approved', approved_at: new Date().toISOString() }).eq('id', id);
+      const { data, error } = await supabase.rpc('approve_withdrawal', { _request_id: id });
       if (error) throw error;
-      toast.success(`Approved ৳${amount.toFixed(2)} for ${username}`);
-    } catch { toast.error('Failed'); }
+      const result = data as { success?: boolean; error?: string } | null;
+      if (result && !result.success) {
+        toast.error(result.error || 'Failed to approve');
+        return;
+      }
+      toast.success(`Approved ৳${amount.toFixed(2)} for ${username} (Balance deducted)`);
+    } catch (err: any) { toast.error(err.message || 'Failed'); }
   };
 
   const handleReject = async (id: string, username: string) => {
     try {
-      const { error } = await supabase.from('withdrawal_requests').update({ status: 'rejected', rejected_at: new Date().toISOString(), rejection_reason: 'Admin rejected' }).eq('id', id);
+      const { data, error } = await supabase.rpc('reject_withdrawal', { _request_id: id, _reason: 'Admin rejected' });
       if (error) throw error;
+      const result = data as { success?: boolean; error?: string } | null;
+      if (result && !result.success) {
+        toast.error(result.error || 'Failed to reject');
+        return;
+      }
       toast.success(`Rejected from ${username}`);
-    } catch { toast.error('Failed'); }
+    } catch (err: any) { toast.error(err.message || 'Failed'); }
   };
 
   const handleApproveAll = async () => { for (const req of withdrawalRequests) await handleApprove(req.id, req.username, req.amount); };

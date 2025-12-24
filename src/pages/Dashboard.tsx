@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Gift, Bell, Menu, X, ChevronDown, Coins, ArrowLeft
+  Gift, Bell, Menu, X, ChevronDown, Coins, ArrowLeft, Loader2, CheckCircle
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -13,6 +13,15 @@ import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSe
 import { useSoundContext } from '@/contexts/SoundContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+interface AdminOfferwall {
+  id: string;
+  name: string;
+  enabled: boolean;
+  color: string;
+  apiKey: string;
+  iframeUrl: string;
+}
 
 interface Notification {
   id: string;
@@ -41,7 +50,9 @@ const Dashboard = () => {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string} | null>(null);
+  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string} | null>(null);
+  const [adminOfferwalls, setAdminOfferwalls] = useState<AdminOfferwall[]>([]);
+  const [popupLoading, setPopupLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: '1', message: 'Welcome to Billucash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
     { id: '2', message: 'New offers available! Earn up to $5.', type: 'offer', read: false, time: '2m ago', created_at: new Date(Date.now() - 120000) },
@@ -91,6 +102,54 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Load admin offerwalls from database
+  useEffect(() => {
+    const loadOfferwalls = async () => {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('offerwall_settings')
+        .eq('id', 'default')
+        .maybeSingle();
+      
+      if (data?.offerwall_settings && typeof data.offerwall_settings === 'object') {
+        const settings = data.offerwall_settings as { offerwalls?: AdminOfferwall[] };
+        if (Array.isArray(settings.offerwalls)) {
+          setAdminOfferwalls(settings.offerwalls.filter(w => w.enabled));
+        }
+      }
+    };
+    
+    loadOfferwalls();
+
+    // Real-time updates
+    const channel = supabase
+      .channel('offerwall-dashboard-updates')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'site_settings', filter: 'id=eq.default' },
+        (payload) => {
+          const newData = payload.new as { offerwall_settings?: { offerwalls?: AdminOfferwall[] } };
+          if (newData.offerwall_settings?.offerwalls) {
+            setAdminOfferwalls(newData.offerwall_settings.offerwalls.filter(w => w.enabled));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Handle popup loading state
+  useEffect(() => {
+    if (selectedOfferwall) {
+      setPopupLoading(true);
+      const timer = setTimeout(() => setPopupLoading(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedOfferwall]);
+
   // Clear all notifications
   const clearAllNotifications = () => {
     setNotifications([]);
@@ -108,29 +167,34 @@ const Dashboard = () => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // All 20 offerwalls
-  const offerwalls = [
-    { id: 1, name: 'Pubscale', rating: 5, color: '#45B7D1' },
-    { id: 2, name: 'Vortexwall', rating: 5, color: '#FF6B6B' },
-    { id: 3, name: 'Notik', rating: 5, color: '#4ECDC4' },
-    { id: 4, name: 'Revtoo', rating: 5, color: '#96CEB4' },
-    { id: 5, name: 'Adgem', rating: 3, color: '#FFEAA7' },
-    { id: 6, name: 'Upwall', rating: 3, color: '#DDA0DD' },
-    { id: 7, name: 'Tplayed', rating: 4, color: '#98D8C8' },
-    { id: 8, name: 'Taskwall', rating: 2, color: '#F7DC6F' },
-    { id: 9, name: 'Offery', rating: 3, color: '#BB8FCE' },
-    { id: 10, name: 'Adtowall', rating: 5, color: '#85C1E9' },
-    { id: 11, name: 'Adswed', rating: 1, color: '#F8C471' },
-    { id: 12, name: 'Adrevmedia', rating: 2, color: '#82E0AA' },
-    { id: 13, name: 'Revlum', rating: 3, color: '#F1948A' },
-    { id: 14, name: 'Primewall', rating: 2, color: '#85C1E9' },
-    { id: 15, name: 'Admantium', rating: 5, color: '#D7BDE2' },
-    { id: 16, name: 'Wannads', rating: 5, color: '#F9E79F' },
-    { id: 17, name: 'Timewal', rating: 2, color: '#A9DFBF' },
-    { id: 18, name: 'Monlix', rating: 1, color: '#F5B7B1' },
-    { id: 19, name: 'Lootably', rating: 4, color: '#AED6F1' },
-    { id: 20, name: 'Adspiritmedia', rating: 2, color: '#D2B4DE' },
+  // Default offerwalls (fallback if no admin walls)
+  const defaultOfferwalls = [
+    { id: '1', name: 'Pubscale', rating: 5, color: '#45B7D1', iframeUrl: '' },
+    { id: '2', name: 'Vortexwall', rating: 5, color: '#FF6B6B', iframeUrl: '' },
+    { id: '3', name: 'Notik', rating: 5, color: '#4ECDC4', iframeUrl: '' },
+    { id: '4', name: 'Revtoo', rating: 5, color: '#96CEB4', iframeUrl: '' },
+    { id: '5', name: 'Adgem', rating: 3, color: '#FFEAA7', iframeUrl: '' },
+    { id: '6', name: 'Upwall', rating: 3, color: '#DDA0DD', iframeUrl: '' },
+    { id: '7', name: 'Tplayed', rating: 4, color: '#98D8C8', iframeUrl: '' },
+    { id: '8', name: 'Taskwall', rating: 2, color: '#F7DC6F', iframeUrl: '' },
+    { id: '9', name: 'Offery', rating: 3, color: '#BB8FCE', iframeUrl: '' },
+    { id: '10', name: 'Adtowall', rating: 5, color: '#85C1E9', iframeUrl: '' },
+    { id: '11', name: 'Adswed', rating: 1, color: '#F8C471', iframeUrl: '' },
+    { id: '12', name: 'Adrevmedia', rating: 2, color: '#82E0AA', iframeUrl: '' },
+    { id: '13', name: 'Revlum', rating: 3, color: '#F1948A', iframeUrl: '' },
+    { id: '14', name: 'Primewall', rating: 2, color: '#85C1E9', iframeUrl: '' },
+    { id: '15', name: 'Admantium', rating: 5, color: '#D7BDE2', iframeUrl: '' },
+    { id: '16', name: 'Wannads', rating: 5, color: '#F9E79F', iframeUrl: '' },
+    { id: '17', name: 'Timewal', rating: 2, color: '#A9DFBF', iframeUrl: '' },
+    { id: '18', name: 'Monlix', rating: 1, color: '#F5B7B1', iframeUrl: '' },
+    { id: '19', name: 'Lootably', rating: 4, color: '#AED6F1', iframeUrl: '' },
+    { id: '20', name: 'Adspiritmedia', rating: 2, color: '#D2B4DE', iframeUrl: '' },
   ];
+
+  // Use admin offerwalls if available, otherwise use defaults
+  const offerwalls = adminOfferwalls.length > 0 
+    ? adminOfferwalls.map((w, i) => ({ ...w, rating: 5 - (i % 5) }))
+    : defaultOfferwalls;
 
   const bgStyle = getBackgroundStyle(background, heroBg);
 
@@ -172,21 +236,27 @@ const Dashboard = () => {
                 </button>
               </div>
               <div className="p-4">
-                <div className="flex justify-center mb-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                    <Gift className="w-7 h-7" />
+                {popupLoading ? (
+                  <div className="h-64 flex flex-col items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+                    <p className="text-sm text-muted-foreground">Loading...</p>
                   </div>
-                </div>
-                <div className="text-center mb-4">
-                  <p className="text-sm text-muted-foreground">Complete offers from {selectedOfferwall.name} to earn rewards!</p>
-                </div>
-                <div className="h-52 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
-                  <div className="text-center text-muted-foreground">
-                    <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Offerwall content loading...</p>
-                    <p className="text-xs mt-1">Complete tasks to earn rewards</p>
+                ) : selectedOfferwall.iframeUrl ? (
+                  <iframe 
+                    src={selectedOfferwall.iframeUrl}
+                    className="w-full h-[60vh] rounded-xl border-0"
+                    title={selectedOfferwall.name}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="h-52 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
+                    <div className="text-center text-muted-foreground">
+                      <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No offers available</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -285,12 +355,17 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Welcome Notification Popup */}
+        {/* Welcome Notification Popup - Modern Style */}
         {showWelcomePopup && (
           <div className="fixed top-20 right-4 z-50 animate-fade-in">
-            <div className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30 flex items-center gap-2 text-sm">
-              <span className="text-lg">✓</span>
-              <span className="font-medium">Welcome back, {profile?.username || 'User'}!</span>
+            <div className="px-4 py-3 rounded-2xl bg-background/95 backdrop-blur-xl border border-primary/30 shadow-2xl shadow-primary/20 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Login Successful</p>
+                <p className="font-semibold text-sm text-foreground">Welcome back, {profile?.username || 'User'}!</p>
+              </div>
             </div>
           </div>
         )}
@@ -317,7 +392,7 @@ const Dashboard = () => {
             {offerwalls.map(offer => (
               <div 
                 key={offer.id}
-                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color })}
+                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color, iframeUrl: offer.iframeUrl || '' })}
                 className="glass-card p-3 cursor-pointer hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 group"
                 style={{ borderTop: `3px solid ${offer.color}` }}
               >

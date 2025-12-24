@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Rocket, PlayCircle } from 'lucide-react';
 import TypingText from './TypingText';
 
@@ -29,10 +30,10 @@ const HeroSection = () => {
 
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 mb-10 justify-center">
-        <button className="btn-primary flex items-center justify-center gap-2">
+        <Link to="/signup" className="btn-primary flex items-center justify-center gap-2">
           <Rocket className="w-5 h-5" />
           Start Earning Now
-        </button>
+        </Link>
         <button className="btn-glass flex items-center justify-center gap-2">
           <PlayCircle className="w-5 h-5" />
           How It Works

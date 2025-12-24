@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { UserPlus, LogIn } from 'lucide-react';
 
 interface HeaderProps {
@@ -12,12 +13,15 @@ const Header = ({ onLoginClick }: HeaderProps) => {
       </div>
       
       <div className="flex gap-3 items-center">
-        <button className="w-11 h-11 rounded-full bg-white/10 border border-white/20 backdrop-blur-lg flex items-center justify-center transition-all hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-lg group relative">
+        <Link 
+          to="/signup"
+          className="w-11 h-11 rounded-full bg-white/10 border border-white/20 backdrop-blur-lg flex items-center justify-center transition-all hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-lg group relative"
+        >
           <UserPlus className="w-5 h-5" />
           <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black/80 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             Sign Up
           </span>
-        </button>
+        </Link>
         <button 
           onClick={onLoginClick}
           className="w-11 h-11 rounded-full flex items-center justify-center transition-all hover:-translate-y-0.5 hover:shadow-lg group relative"

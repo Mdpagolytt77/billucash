@@ -9,6 +9,7 @@ import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -31,6 +32,7 @@ interface EarningEvent {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile, isAdmin, signOut, isLoading } = useAuth();
+  const { background } = useSiteSettings();
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [snowEnabled, setSnowEnabled] = useState(true);
@@ -113,6 +115,8 @@ const Dashboard = () => {
     { id: 20, name: 'Adspiritmedia', rating: 2, color: '#D2B4DE' },
   ];
 
+  const bgStyle = getBackgroundStyle(background, heroBg);
+
   if (isLoading || showLoadingScreen) {
     return <LoadingScreen isLoading={true} />;
   }
@@ -123,10 +127,7 @@ const Dashboard = () => {
 
       <div 
         className="min-h-screen"
-        style={{
-          background: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${heroBg}) no-repeat center center fixed`,
-          backgroundSize: 'cover',
-        }}
+        style={bgStyle}
       >
         {/* Offerwall Popup */}
         {selectedOfferwall && (
@@ -180,7 +181,7 @@ const Dashboard = () => {
         <aside className={`fixed top-0 left-0 h-full w-56 bg-background border-r border-border z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="p-4">
             <div className="flex items-center justify-between mb-6">
-              <div className="logo-3d text-lg">BILLUCASH</div>
+              <SiteLogo size="md" />
               <button onClick={() => setSidebarOpen(false)} className="p-1.5 hover:bg-muted rounded-lg">
                 <X className="w-4 h-4" />
               </button>
@@ -233,7 +234,7 @@ const Dashboard = () => {
               {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-lg">B</div>
-            <div className="logo-3d text-xl md:text-2xl hidden sm:block">BILLUCASH</div>
+            <div className="hidden sm:block"><SiteLogo size="lg" /></div>
           </div>
 
           {/* Balance */}

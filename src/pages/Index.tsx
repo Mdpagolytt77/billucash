@@ -8,10 +8,12 @@ import LoginBox from '@/components/LoginBox';
 import PaymentSection from '@/components/PaymentSection';
 import Footer from '@/components/Footer';
 import LoginPopup from '@/components/LoginPopup';
+import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const { background } = useSiteSettings();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -20,6 +22,8 @@ const Index = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const bgStyle = getBackgroundStyle(background, heroBg);
 
   return (
     <>
@@ -39,10 +43,7 @@ const Index = () => {
       {/* Main Content */}
       <div 
         className={`min-h-screen transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        style={{
-          background: `linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url(${heroBg}) no-repeat center center fixed`,
-          backgroundSize: 'cover',
-        }}
+        style={bgStyle}
       >
         {/* Header */}
         <Header onLoginClick={() => setIsLoginOpen(true)} />

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { UserPlus, LogIn } from 'lucide-react';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 
 interface HeaderProps {
   onLoginClick: () => void;
@@ -9,7 +10,7 @@ const Header = ({ onLoginClick }: HeaderProps) => {
   return (
     <header className="px-4 md:px-[5%] py-4 flex justify-between items-center bg-background/90 backdrop-blur-lg border-b border-border sticky top-0 z-50">
       <div className="flex items-center gap-3">
-        <div className="logo-3d text-xl md:text-2xl">BILLUCASH</div>
+        <SiteLogo size="lg" />
       </div>
       
       <div className="flex gap-3 items-center">

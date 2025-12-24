@@ -88,6 +88,7 @@ export type Database = {
           logo_text: string | null
           logo_type: string
           offerwall_settings: Json | null
+          postback_secret: string | null
           social_links_settings: Json | null
           sound_settings: Json | null
           updated_at: string
@@ -99,6 +100,7 @@ export type Database = {
           logo_text?: string | null
           logo_type?: string
           offerwall_settings?: Json | null
+          postback_secret?: string | null
           social_links_settings?: Json | null
           sound_settings?: Json | null
           updated_at?: string
@@ -110,6 +112,7 @@ export type Database = {
           logo_text?: string | null
           logo_type?: string
           offerwall_settings?: Json | null
+          postback_secret?: string | null
           social_links_settings?: Json | null
           sound_settings?: Json | null
           updated_at?: string
@@ -184,12 +187,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_withdrawal: { Args: { _request_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      reject_withdrawal: {
+        Args: { _reason?: string; _request_id: string }
+        Returns: Json
       }
     }
     Enums: {

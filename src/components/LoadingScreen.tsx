@@ -8,12 +8,12 @@ const LoadingScreen = ({ isLoading }: LoadingScreenProps) => {
   return (
     <div className="fixed inset-0 bg-background flex justify-center items-center z-[9999] flex-col">
       <div className="text-center">
-        <div className="text-4xl md:text-5xl font-display font-black mb-5 text-gradient">
+        <div className="text-2xl font-display font-black mb-3 text-gradient">
           BILLUCASH
         </div>
-        <div className="w-12 h-12 border-4 border-muted border-t-primary rounded-full animate-spin-slow mx-auto mb-4" />
-        <div className="text-muted-foreground text-sm">
-          Loading Premium Experience...
+        <div className="w-8 h-8 border-2 border-muted border-t-primary rounded-full animate-spin-slow mx-auto mb-2" />
+        <div className="text-muted-foreground text-[10px]">
+          Loading...
         </div>
       </div>
     </div>

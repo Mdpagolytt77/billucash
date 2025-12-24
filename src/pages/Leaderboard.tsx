@@ -160,76 +160,76 @@ const Leaderboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="px-4 md:px-[5%] py-8 max-w-4xl mx-auto">
+        <main className="px-3 md:px-[5%] py-4 max-w-3xl mx-auto">
           {/* Title */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gradient flex items-center justify-center gap-3 mb-2">
-              <Trophy className="w-8 h-8" /> Leaderboard
+          <div className="text-center mb-4">
+            <h1 className="text-xl font-bold text-gradient flex items-center justify-center gap-2 mb-1">
+              <Trophy className="w-5 h-5" /> Leaderboard
             </h1>
-            <p className="text-muted-foreground">Top earners on Billucash</p>
+            <p className="text-[10px] text-muted-foreground">Top 50 earners</p>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-background/90 border border-border rounded-xl p-4 text-center">
-              <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-              <div className="text-xl font-bold">1,234</div>
-              <div className="text-xs text-muted-foreground">Total Users</div>
+          {/* Stats Cards - More Compact */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="bg-background/90 border border-border rounded-lg p-2 text-center">
+              <Users className="w-4 h-4 text-primary mx-auto mb-1" />
+              <div className="text-sm font-bold">1,234</div>
+              <div className="text-[8px] text-muted-foreground">Users</div>
             </div>
-            <div className="bg-background/90 border border-border rounded-xl p-4 text-center">
-              <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-2" />
-              <div className="text-xl font-bold">$12,450</div>
-              <div className="text-xs text-muted-foreground">Total Earned</div>
+            <div className="bg-background/90 border border-border rounded-lg p-2 text-center">
+              <TrendingUp className="w-4 h-4 text-green-400 mx-auto mb-1" />
+              <div className="text-sm font-bold">$12,450</div>
+              <div className="text-[8px] text-muted-foreground">Earned</div>
             </div>
-            <div className="bg-background/90 border border-border rounded-xl p-4 text-center">
-              <Star className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-              <div className="text-xl font-bold">5,678</div>
-              <div className="text-xs text-muted-foreground">Tasks Done</div>
+            <div className="bg-background/90 border border-border rounded-lg p-2 text-center">
+              <Star className="w-4 h-4 text-yellow-400 mx-auto mb-1" />
+              <div className="text-sm font-bold">5,678</div>
+              <div className="text-[8px] text-muted-foreground">Tasks</div>
             </div>
           </div>
 
-          {/* Time Filter */}
-          <div className="flex justify-center gap-2 mb-6">
+          {/* Time Filter - Compact */}
+          <div className="flex justify-center gap-1 mb-3">
             {(['daily', 'weekly', 'monthly', 'alltime'] as const).map((filter) => (
               <button
                 key={filter}
                 onClick={() => setTimeFilter(filter)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-colors ${
                   timeFilter === filter
                     ? 'bg-primary text-white'
                     : 'bg-muted hover:bg-muted/80'
                 }`}
               >
-                {filter === 'alltime' ? 'All Time' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                {filter === 'alltime' ? 'All' : filter.charAt(0).toUpperCase() + filter.slice(1)}
               </button>
             ))}
           </div>
 
-          {/* Compact Leaderboard Table */}
-          <div className="bg-background/90 border border-border rounded-xl overflow-hidden max-h-[60vh] overflow-y-auto">
-            <div className="grid grid-cols-[40px_1fr_70px_50px] gap-1 px-3 py-2 bg-muted/50 text-[10px] font-semibold text-muted-foreground uppercase sticky top-0">
+          {/* Super Compact Leaderboard Table */}
+          <div className="bg-background/90 border border-border rounded-lg overflow-hidden max-h-[50vh] overflow-y-auto">
+            <div className="grid grid-cols-[28px_1fr_50px_36px] gap-0.5 px-2 py-1 bg-muted/50 text-[8px] font-semibold text-muted-foreground uppercase sticky top-0">
               <div>#</div>
               <div>User</div>
-              <div className="text-right">Earned</div>
+              <div className="text-right">Earn</div>
               <div className="text-right">Lvl</div>
             </div>
-            <div className="divide-y divide-border/50">
+            <div className="divide-y divide-border/30">
               {leaderboardData.map((user) => (
                 <div 
                   key={user.rank}
-                  className={`grid grid-cols-[40px_1fr_70px_50px] gap-1 px-3 py-1.5 items-center text-xs ${
+                  className={`grid grid-cols-[28px_1fr_50px_36px] gap-0.5 px-2 py-1 items-center text-[10px] ${
                     user.rank <= 3 ? getRankBg(user.rank) : ''
                   } ${user.username === profile?.username ? 'ring-1 ring-primary ring-inset bg-primary/5' : ''}`}
                 >
                   <div className="flex items-center">{getRankIcon(user.rank)}</div>
-                  <div className="flex items-center gap-1.5 truncate">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-[9px] font-bold flex-shrink-0">
+                  <div className="flex items-center gap-1 truncate">
+                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-[7px] font-bold flex-shrink-0">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
-                    <span className="truncate font-medium">{user.username}</span>
+                    <span className="truncate font-medium text-[9px]">{user.username}</span>
                   </div>
-                  <div className="text-right text-green-400 font-semibold">${user.earnings.toFixed(0)}</div>
-                  <div className={`text-right text-[10px] font-medium ${getLevelColor(user.level)}`}>
+                  <div className="text-right text-green-400 font-semibold text-[9px]">${user.earnings.toFixed(0)}</div>
+                  <div className={`text-right text-[8px] font-medium ${getLevelColor(user.level)}`}>
                     {user.level.substring(0, 3)}
                   </div>
                 </div>
@@ -237,21 +237,21 @@ const Leaderboard = () => {
             </div>
           </div>
 
-          {/* Your Rank */}
-          <div className="mt-6 bg-primary/10 border border-primary/30 rounded-xl p-4">
+          {/* Your Rank - Compact */}
+          <div className="mt-3 bg-primary/10 border border-primary/30 rounded-lg p-2.5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-xs">
                   {profile?.username?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <div>
-                  <div className="font-semibold">{profile?.username || 'You'}</div>
-                  <div className="text-xs text-muted-foreground">Your Position</div>
+                  <div className="font-semibold text-xs">{profile?.username || 'You'}</div>
+                  <div className="text-[8px] text-muted-foreground">Your Position</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xl font-bold text-primary">#--</div>
-                <div className="text-xs text-muted-foreground">Complete tasks to rank up!</div>
+                <div className="text-base font-bold text-primary">#--</div>
+                <div className="text-[8px] text-muted-foreground">Rank up!</div>
               </div>
             </div>
           </div>

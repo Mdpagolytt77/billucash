@@ -11,17 +11,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface Offer { id: string; name: string; reward: number; url: string; }
-interface Offerwall { id: string; name: string; enabled: boolean; color: string; offers: Offer[]; }
+interface Offerwall { id: string; name: string; enabled: boolean; color: string; apiKey: string; iframeUrl: string; offers: Offer[]; }
 
 const AdminOfferwallCustomize = () => {
   const { isAdmin } = useAuth();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [offerwalls, setOfferwalls] = useState<Offerwall[]>([
-    { id: '1', name: 'Adtowall', enabled: true, color: '#ffb020', offers: [] },
-    { id: '2', name: 'Tapjoy', enabled: true, color: '#4a69bd', offers: [] },
-    { id: '3', name: 'OfferToro', enabled: true, color: '#2bd96f', offers: [] },
-    { id: '4', name: 'Adgate', enabled: false, color: '#ff9a9e', offers: [] },
+    { id: '1', name: 'Adtowall', enabled: true, color: '#ffb020', apiKey: '', iframeUrl: '', offers: [] },
+    { id: '2', name: 'Tapjoy', enabled: true, color: '#4a69bd', apiKey: '', iframeUrl: '', offers: [] },
+    { id: '3', name: 'OfferToro', enabled: true, color: '#2bd96f', apiKey: '', iframeUrl: '', offers: [] },
+    { id: '4', name: 'Adgate', enabled: false, color: '#ff9a9e', apiKey: '', iframeUrl: '', offers: [] },
   ]);
   const [newOfferwall, setNewOfferwall] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -60,11 +60,13 @@ const AdminOfferwallCustomize = () => {
     finally { setIsSaving(false); }
   };
 
-  const addOfferwall = () => { if (!newOfferwall.trim()) return; setOfferwalls([...offerwalls, { id: Date.now().toString(), name: newOfferwall, enabled: true, color: '#2bd96f', offers: [] }]); setNewOfferwall(''); };
+  const addOfferwall = () => { if (!newOfferwall.trim()) return; setOfferwalls([...offerwalls, { id: Date.now().toString(), name: newOfferwall, enabled: true, color: '#2bd96f', apiKey: '', iframeUrl: '', offers: [] }]); setNewOfferwall(''); };
   const toggleOfferwall = (id: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, enabled: !o.enabled } : o)); };
   const removeOfferwall = (id: string) => { setOfferwalls(offerwalls.filter(o => o.id !== id)); };
   const updateWallColor = (id: string, color: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, color } : o)); };
   const updateWallName = (id: string, name: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, name } : o)); };
+  const updateWallApiKey = (id: string, apiKey: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, apiKey } : o)); };
+  const updateWallIframeUrl = (id: string, iframeUrl: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, iframeUrl } : o)); };
 
   const addOffer = (wallId: string) => {
     if (!newOffer.name.trim() || !newOffer.url.trim()) { toast.error('Fill name & URL'); return; }
@@ -113,6 +115,30 @@ const AdminOfferwallCustomize = () => {
                     )}
                     <button onClick={() => toggleOfferwall(o.id)} className={`px-2 py-0.5 rounded text-[9px] font-semibold ${o.enabled ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>{o.enabled ? 'ON' : 'OFF'}</button>
                     <button onClick={() => removeOfferwall(o.id)} className="p-1 text-destructive hover:bg-destructive/10 rounded"><Trash2 className="w-3 h-3" /></button>
+                  </div>
+
+                  {/* API Key & Iframe URL */}
+                  <div className="grid grid-cols-1 gap-1.5 mb-2 p-2 bg-background/30 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-muted-foreground w-14">API Key:</span>
+                      <input 
+                        type="text" 
+                        value={o.apiKey} 
+                        onChange={(e) => updateWallApiKey(o.id, e.target.value)} 
+                        placeholder="Enter API key..." 
+                        className="flex-1 px-2 py-1 bg-background border border-border rounded text-[10px]" 
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-muted-foreground w-14">Iframe URL:</span>
+                      <input 
+                        type="text" 
+                        value={o.iframeUrl} 
+                        onChange={(e) => updateWallIframeUrl(o.id, e.target.value)} 
+                        placeholder="https://offerwall.example.com/..." 
+                        className="flex-1 px-2 py-1 bg-background border border-border rounded text-[10px]" 
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-1.5 mb-2">

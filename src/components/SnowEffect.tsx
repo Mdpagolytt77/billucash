@@ -5,27 +5,28 @@ interface Snowflake {
   left: string;
   animationDuration: string;
   animationDelay: string;
-  fontSize: string;
+  size: string;
   opacity: number;
-  symbol: string;
 }
 
 const SnowEffect = () => {
   const [snowflakes, setSnowflakes] = useState<Snowflake[]>([]);
 
   useEffect(() => {
-    const symbols = ['❄', '❅', '❆', '•'];
     const flakes: Snowflake[] = [];
     
-    for (let i = 0; i < 50; i++) {
+    // Reduced to 25 snowflakes for less density
+    for (let i = 0; i < 25; i++) {
       flakes.push({
         id: i,
         left: `${Math.random() * 100}vw`,
-        animationDuration: `${Math.random() * 5 + 5}s`,
-        animationDelay: `${Math.random() * 5}s`,
-        fontSize: `${Math.random() * 10 + 10}px`,
-        opacity: Math.random() * 0.5 + 0.3,
-        symbol: symbols[Math.floor(Math.random() * symbols.length)],
+        // Slower: 10-18 seconds instead of 5-10
+        animationDuration: `${Math.random() * 8 + 10}s`,
+        animationDelay: `${Math.random() * 8}s`,
+        // Smaller snowflakes: 4-10px
+        size: `${Math.random() * 6 + 4}px`,
+        // Lower opacity: 0.2-0.4 (around 40%)
+        opacity: Math.random() * 0.2 + 0.2,
       });
     }
     
@@ -37,17 +38,17 @@ const SnowEffect = () => {
       {snowflakes.map((flake) => (
         <div
           key={flake.id}
-          className="absolute -top-2 text-white animate-snowfall"
+          className="absolute -top-2 rounded-full bg-white animate-snowfall"
           style={{
             left: flake.left,
             animationDuration: flake.animationDuration,
             animationDelay: flake.animationDelay,
-            fontSize: flake.fontSize,
+            width: flake.size,
+            height: flake.size,
             opacity: flake.opacity,
+            boxShadow: '0 0 4px rgba(255,255,255,0.6)',
           }}
-        >
-          {flake.symbol}
-        </div>
+        />
       ))}
     </div>
   );

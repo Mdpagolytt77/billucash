@@ -5,15 +5,16 @@ import {
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
+import SnowToggle from '@/components/SnowToggle';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
+import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
 interface AdminOfferwall {
   id: string;
   name: string;
@@ -44,9 +45,9 @@ const Dashboard = () => {
   const { user, profile, isAdmin, signOut, isLoading, onBalanceIncrease } = useAuth();
   const { background } = useSiteSettings();
   const { playBalanceSound } = useSoundContext();
+  const { snowEnabled, toggleSnow } = useSnowEffect();
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [snowEnabled, setSnowEnabled] = useState(true);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -282,6 +283,9 @@ const Dashboard = () => {
 
           {/* User Menu */}
           <div className="flex items-center gap-2">
+            {/* Snow Toggle */}
+            <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
+            
             {/* Notifications */}
             <div className="relative">
               <button 

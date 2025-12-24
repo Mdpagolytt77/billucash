@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      completed_offers: {
+        Row: {
+          coin: number
+          country: string | null
+          created_at: string
+          id: string
+          ip: string | null
+          offer_name: string
+          offerwall: string
+          transaction_id: string | null
+          user_id: string
+          username: string
+        }
+        Insert: {
+          coin: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          offer_name: string
+          offerwall: string
+          transaction_id?: string | null
+          user_id: string
+          username: string
+        }
+        Update: {
+          coin?: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          offer_name?: string
+          offerwall?: string
+          transaction_id?: string | null
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           balance: number | null

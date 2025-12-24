@@ -3,14 +3,31 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Home, Settings, Trophy, Wallet, Gift, ChevronRight, 
   Bell, LogOut, Menu, X, User, Snowflake,
-  Shield, Zap, TrendingUp, Headphones, ChevronDown
+  Shield, ChevronDown, DollarSign, Coins
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+interface Notification {
+  id: string;
+  message: string;
+  type: string;
+  read: boolean;
+  time: string;
+  created_at: Date;
+}
+
+interface EarningEvent {
+  id: string;
+  username: string;
+  amount: number;
+  created_at: Date;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,12 +37,62 @@ const Dashboard = () => {
   const [snowEnabled, setSnowEnabled] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([
+    { id: '1', message: 'Welcome to Billucash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
+    { id: '2', message: 'New offers available! Earn up to $5.', type: 'offer', read: false, time: '2m ago', created_at: new Date(Date.now() - 120000) },
+  ]);
+  const [liveEarnings, setLiveEarnings] = useState<EarningEvent[]>([
+    { id: '1', username: 'hafizur_vai', amount: 2.50, created_at: new Date() },
+    { id: '2', username: 'rana_pro', amount: 1.75, created_at: new Date() },
+    { id: '3', username: 'nure_alam', amount: 3.20, created_at: new Date() },
+    { id: '4', username: 'akash_99', amount: 0.85, created_at: new Date() },
+    { id: '5', username: 'somnath_x', amount: 4.00, created_at: new Date() },
+    { id: '6', username: 'sakib_bd', amount: 1.25, created_at: new Date() },
+    { id: '7', username: 'arafat_01', amount: 2.10, created_at: new Date() },
+    { id: '8', username: 'rifat_boss', amount: 5.50, created_at: new Date() },
+  ]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLoadingScreen(false);
-    }, 1500);
+    const timer = setTimeout(() => setShowLoadingScreen(false), 1500);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Simulate realtime earnings updates
+  useEffect(() => {
+    const names = ['user_pro', 'earner_99', 'cash_king', 'money_maker', 'top_player', 'winner_x', 'lucky_one', 'star_user'];
+    const interval = setInterval(() => {
+      const newEarning: EarningEvent = {
+        id: Date.now().toString(),
+        username: names[Math.floor(Math.random() * names.length)],
+        amount: parseFloat((Math.random() * 5 + 0.5).toFixed(2)),
+        created_at: new Date(),
+      };
+      setLiveEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulate realtime notifications
+  useEffect(() => {
+    const messages = [
+      'New high-paying offer just added!',
+      'Complete 3 offers today for bonus!',
+      'Flash sale: 2x rewards for 1 hour!',
+      'Your referral earned you $0.50!',
+    ];
+    const interval = setInterval(() => {
+      const newNotif: Notification = {
+        id: Date.now().toString(),
+        message: messages[Math.floor(Math.random() * messages.length)],
+        type: 'offer',
+        read: false,
+        time: 'Just now',
+        created_at: new Date(),
+      };
+      setNotifications(prev => [newNotif, ...prev.slice(0, 4)]);
+      toast.info(newNotif.message, { duration: 3000 });
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
@@ -34,6 +101,13 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  // All 20 offerwalls
   const offerwalls = [
     { id: 1, name: 'Pubscale', rating: 5, color: '#45B7D1' },
     { id: 2, name: 'Vortexwall', rating: 5, color: '#FF6B6B' },
@@ -47,22 +121,14 @@ const Dashboard = () => {
     { id: 10, name: 'Adtowall', rating: 5, color: '#85C1E9' },
     { id: 11, name: 'Adswed', rating: 1, color: '#F8C471' },
     { id: 12, name: 'Adrevmedia', rating: 2, color: '#82E0AA' },
-  ];
-
-  const tickerItems = [
-    { user: 'hafizur vai', tasks: 450 },
-    { user: 'rana', tasks: 700 },
-    { user: 'nure alam', tasks: 600 },
-    { user: 'Akash', tasks: 300 },
-    { user: 'Somnath', tasks: 500 },
-    { user: 'Sakib', tasks: 200 },
-    { user: 'arafat', tasks: 500 },
-  ];
-
-  const notifications = [
-    { id: 1, message: 'Welcome to Billucash! Start earning by completing offers.', type: 'system', read: false, time: '5m ago' },
-    { id: 2, message: 'New offer available! Complete tasks and earn $5.', type: 'offer', read: false, time: '30m ago' },
-    { id: 3, message: `Your balance has been updated. Current balance: $${profile?.balance || '0.00'}`, type: 'balance', read: true, time: '2h ago' },
+    { id: 13, name: 'Revlum', rating: 3, color: '#F1948A' },
+    { id: 14, name: 'Primewall', rating: 2, color: '#85C1E9' },
+    { id: 15, name: 'Admantium', rating: 5, color: '#D7BDE2' },
+    { id: 16, name: 'Wannads', rating: 5, color: '#F9E79F' },
+    { id: 17, name: 'Timewal', rating: 2, color: '#A9DFBF' },
+    { id: 18, name: 'Monlix', rating: 1, color: '#F5B7B1' },
+    { id: 19, name: 'Lootably', rating: 4, color: '#AED6F1' },
+    { id: 20, name: 'Adspiritmedia', rating: 2, color: '#D2B4DE' },
   ];
 
   if (isLoading || showLoadingScreen) {
@@ -128,31 +194,47 @@ const Dashboard = () => {
 
           {/* User Menu */}
           <div className="flex items-center gap-3">
-            {/* Notifications */}
+            {/* Notifications - Realtime */}
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors relative"
               >
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
               
               {showNotifications && (
-                <div className="absolute right-0 top-12 w-80 glass-card p-4 max-h-96 overflow-auto">
+                <div className="absolute right-0 top-12 w-80 glass-card p-4 max-h-96 overflow-auto z-50">
                   <div className="flex justify-between items-center mb-3 pb-2 border-b border-border">
                     <span className="font-semibold text-primary">Notifications</span>
-                    <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={markAllRead} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                        Mark all read
+                      </button>
+                      <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    {notifications.map(notif => (
-                      <div key={notif.id} className={`p-3 rounded-lg ${notif.read ? 'bg-white/5' : 'bg-primary/10 border-l-2 border-primary'}`}>
-                        <p className="text-sm">{notif.message}</p>
-                        <span className="text-xs text-primary mt-1 block">{notif.time}</span>
-                      </div>
-                    ))}
+                  <div className="space-y-2">
+                    {notifications.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-4">No notifications</p>
+                    ) : (
+                      notifications.map(notif => (
+                        <div 
+                          key={notif.id} 
+                          className={`p-3 rounded-lg transition-all ${notif.read ? 'bg-white/5' : 'bg-primary/10 border-l-2 border-primary'}`}
+                        >
+                          <p className="text-sm">{notif.message}</p>
+                          <span className="text-xs text-primary/70 mt-1 block">{notif.time}</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -195,13 +277,14 @@ const Dashboard = () => {
           <span className="font-medium">Welcome back, {profile?.username || 'User'}!</span>
         </div>
 
-        {/* Earnings Ticker */}
-        <div className="mt-4 py-3 bg-background/80 border-y border-border overflow-hidden">
-          <div className="flex gap-6 animate-[moveLeft_30s_linear_infinite] whitespace-nowrap">
-            {[...tickerItems, ...tickerItems].map((item, i) => (
-              <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 border border-white/20">
-                <span className="text-primary font-semibold">{item.user}</span>
-                <span>{item.tasks} Task</span>
+        {/* Live Earnings Ticker - Compact & Beautiful */}
+        <div className="mt-3 py-2 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border-y border-primary/20 overflow-hidden">
+          <div className="flex gap-4 animate-[moveLeft_25s_linear_infinite] whitespace-nowrap">
+            {[...liveEarnings, ...liveEarnings].map((item, i) => (
+              <div key={i} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-sm">
+                <Coins className="w-3.5 h-3.5 text-green-400" />
+                <span className="text-green-400 font-medium">{item.username}</span>
+                <span className="text-white/90 font-bold">+${item.amount.toFixed(2)}</span>
               </div>
             ))}
           </div>

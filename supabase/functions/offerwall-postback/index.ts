@@ -27,7 +27,7 @@ async function verifyHmacSha256(secret: string, payload: string, signature: stri
   }
 }
 
-// MD5 hash for OfferToro verification
+// MD5 hash for signature verification (OfferToro format)
 async function md5Hash(input: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
@@ -37,221 +37,126 @@ async function md5Hash(input: string): Promise<string> {
     .join('');
 }
 
-// Provider-specific credential types
+// Universal credential types for all providers
 interface OfferwallCredentials {
-  appId?: string;
-  apiKey?: string;
-  postbackUrl?: string;
-  publicKey?: string;
   secretKey?: string;
+  hashKey?: string;
+  apiKey?: string;
+  appId?: string;
+  publicKey?: string;
   publisherId?: string;
   campaignId?: string;
-  hashKey?: string;
 }
 
 interface OfferwallConfig {
   id: string;
   name: string;
   enabled: boolean;
-  provider: 'adgem' | 'offertoro' | 'adgate' | 'wannads' | 'custom';
+  provider: string;
   credentials: OfferwallCredentials;
+  pointsConversionRate?: number;
+  minimumPayout?: number;
 }
 
-// Verify AdGem postback
-async function verifyAdGem(
-  params: URLSearchParams,
-  headers: Headers,
-  credentials: OfferwallCredentials
-): Promise<{ valid: boolean; reason?: string }> {
-  const apiKey = headers.get('x-api-key') || params.get('api_key');
-  const appId = params.get('app_id') || params.get('appid');
-  
-  // Verify API key matches
-  if (credentials.apiKey && apiKey === credentials.apiKey) {
-    console.log('AdGem: Verified via API key');
-    return { valid: true };
-  }
-  
-  // Verify App ID matches
-  if (credentials.appId && appId === credentials.appId) {
-    console.log('AdGem: Verified via App ID');
-    return { valid: true };
-  }
-  
-  // If no credentials configured, allow (with warning)
-  if (!credentials.apiKey && !credentials.appId) {
-    console.warn('AdGem: No credentials configured - allowing request');
-    return { valid: true };
-  }
-  
-  return { valid: false, reason: 'Invalid AdGem API key or App ID' };
-}
-
-// Verify OfferToro postback using signature
-async function verifyOfferToro(
-  params: URLSearchParams,
-  credentials: OfferwallCredentials
-): Promise<{ valid: boolean; reason?: string }> {
-  const signature = params.get('sig') || params.get('signature');
-  const userId = params.get('user_id') || params.get('subid');
-  const amount = params.get('amount') || params.get('payout');
-  const transactionId = params.get('oid') || params.get('transaction_id');
-  
-  if (!credentials.secretKey) {
-    console.warn('OfferToro: No secret key configured - allowing request');
-    return { valid: true };
-  }
-  
-  if (signature) {
-    // OfferToro signature format: md5(secret_key + user_id + oid + amount)
-    const expectedPayload = `${credentials.secretKey}${userId}${transactionId}${amount}`;
-    const expectedSig = await md5Hash(expectedPayload);
-    
-    if (expectedSig === signature.toLowerCase()) {
-      console.log('OfferToro: Verified via signature');
-      return { valid: true };
-    }
-    
-    // Try alternate format: md5(secret_key + user_id + amount)
-    const altPayload = `${credentials.secretKey}${userId}${amount}`;
-    const altSig = await md5Hash(altPayload);
-    
-    if (altSig === signature.toLowerCase()) {
-      console.log('OfferToro: Verified via alternate signature');
-      return { valid: true };
-    }
-  }
-  
-  // Fallback: verify public key if provided
-  const publicKey = params.get('pub_key') || params.get('public_key');
-  if (credentials.publicKey && publicKey === credentials.publicKey) {
-    console.log('OfferToro: Verified via public key');
-    return { valid: true };
-  }
-  
-  return { valid: false, reason: 'Invalid OfferToro signature or public key' };
-}
-
-// Verify AdGate postback
-async function verifyAdGate(
-  params: URLSearchParams,
-  headers: Headers,
-  credentials: OfferwallCredentials
-): Promise<{ valid: boolean; reason?: string }> {
-  const apiKey = headers.get('x-api-key') || params.get('api_key');
-  const publisherId = params.get('aff_id') || params.get('publisher_id');
-  const campaignId = params.get('campaign_id') || params.get('cid');
-  
-  // Verify API key
-  if (credentials.apiKey && apiKey === credentials.apiKey) {
-    console.log('AdGate: Verified via API key');
-    return { valid: true };
-  }
-  
-  // Verify publisher ID
-  if (credentials.publisherId && publisherId === credentials.publisherId) {
-    console.log('AdGate: Verified via Publisher ID');
-    return { valid: true };
-  }
-  
-  // Verify campaign ID (optional additional check)
-  if (credentials.campaignId && campaignId === credentials.campaignId) {
-    console.log('AdGate: Verified via Campaign ID');
-    return { valid: true };
-  }
-  
-  // If no credentials configured
-  if (!credentials.apiKey && !credentials.publisherId) {
-    console.warn('AdGate: No credentials configured - allowing request');
-    return { valid: true };
-  }
-  
-  return { valid: false, reason: 'Invalid AdGate API key or Publisher ID' };
-}
-
-// Verify Wannads postback using hash
-async function verifyWannads(
-  params: URLSearchParams,
-  headers: Headers,
-  credentials: OfferwallCredentials
-): Promise<{ valid: boolean; reason?: string }> {
-  const apiKey = headers.get('x-api-key') || params.get('api_key');
-  const hash = params.get('hash') || params.get('sig') || params.get('signature');
-  const userId = params.get('user_id') || params.get('subid');
-  const payout = params.get('payout') || params.get('amount');
-  const transactionId = params.get('tid') || params.get('transaction_id');
-  
-  // Verify API key
-  if (credentials.apiKey && apiKey === credentials.apiKey) {
-    console.log('Wannads: Verified via API key');
-    return { valid: true };
-  }
-  
-  // Verify hash using hashKey
-  if (credentials.hashKey && hash) {
-    // Wannads hash format: HMAC-SHA256(hashKey, user_id + payout + transaction_id)
-    const payload = `${userId}${payout}${transactionId || ''}`;
-    const isValid = await verifyHmacSha256(credentials.hashKey, payload, hash);
-    
-    if (isValid) {
-      console.log('Wannads: Verified via hash');
-      return { valid: true };
-    }
-  }
-  
-  // If no credentials configured
-  if (!credentials.apiKey && !credentials.hashKey) {
-    console.warn('Wannads: No credentials configured - allowing request');
-    return { valid: true };
-  }
-  
-  return { valid: false, reason: 'Invalid Wannads API key or hash' };
-}
-
-// Generic custom provider verification
-async function verifyCustom(
+// Universal signature verification function
+async function verifySignature(
   params: URLSearchParams,
   headers: Headers,
   credentials: OfferwallCredentials,
-  postbackSecret: string | null
+  provider: string,
+  globalSecret: string | null
 ): Promise<{ valid: boolean; reason?: string }> {
-  const apiKey = headers.get('x-api-key') || params.get('api_key');
-  const signature = headers.get('x-signature') || params.get('signature') || params.get('sig');
+  const signature = params.get('sig') || params.get('signature') || params.get('hash') || headers.get('x-signature');
+  const apiKey = params.get('api_key') || params.get('apikey') || headers.get('x-api-key');
+  const userId = params.get('user_id') || params.get('subid') || params.get('sub_id');
+  const payout = params.get('payout') || params.get('amount') || params.get('reward');
+  const transactionId = params.get('transaction_id') || params.get('tid') || params.get('oid') || params.get('id');
+  const publicKey = params.get('pub_key') || params.get('public_key');
+  const appId = params.get('app_id') || params.get('appid');
+  const publisherId = params.get('aff_id') || params.get('publisher_id');
+
+  const secret = credentials.secretKey || credentials.hashKey;
   
-  // Check custom API key
-  if (credentials.apiKey && apiKey === credentials.apiKey) {
-    console.log('Custom: Verified via offerwall API key');
-    return { valid: true };
-  }
-  
-  // Check global postback secret
-  if (postbackSecret) {
-    if (apiKey === postbackSecret) {
-      console.log('Custom: Verified via global postback secret');
-      return { valid: true };
-    }
-    
-    // Check signature
-    if (signature) {
-      const userId = params.get('user_id') || params.get('subid');
-      const payout = params.get('payout') || params.get('amount');
-      const transactionId = params.get('transaction_id') || params.get('tid');
-      const payload = `${userId}${payout}${transactionId || ''}`;
-      
-      if (await verifyHmacSha256(postbackSecret, payload, signature)) {
-        console.log('Custom: Verified via signature');
+  console.log(`Verifying ${provider} postback...`, { hasSecret: !!secret, hasApiKey: !!apiKey, hasSignature: !!signature });
+
+  // 1. Check secret key / hash key signature
+  if (secret && signature) {
+    // Try multiple signature formats
+    const payloads = [
+      `${userId}${payout}${transactionId || ''}`,
+      `${secret}${userId}${transactionId}${payout}`,
+      `${secret}${userId}${payout}`,
+      `${userId}${transactionId}${payout}`,
+    ];
+
+    for (const payload of payloads) {
+      // Try HMAC-SHA256
+      if (await verifyHmacSha256(secret, payload, signature)) {
+        console.log(`${provider}: Verified via HMAC-SHA256 signature`);
+        return { valid: true };
+      }
+      // Try MD5
+      const md5Sig = await md5Hash(payload);
+      if (md5Sig === signature.toLowerCase()) {
+        console.log(`${provider}: Verified via MD5 signature`);
         return { valid: true };
       }
     }
   }
-  
-  // If no auth method configured
-  if (!credentials.apiKey && !postbackSecret) {
-    console.warn('Custom: No credentials configured - allowing request');
+
+  // 2. Check API key match
+  if (credentials.secretKey && apiKey === credentials.secretKey) {
+    console.log(`${provider}: Verified via secret key in request`);
     return { valid: true };
   }
+  if (credentials.apiKey && apiKey === credentials.apiKey) {
+    console.log(`${provider}: Verified via API key`);
+    return { valid: true };
+  }
+
+  // 3. Check public key match
+  if (credentials.publicKey && publicKey === credentials.publicKey) {
+    console.log(`${provider}: Verified via public key`);
+    return { valid: true };
+  }
+
+  // 4. Check app ID match
+  if (credentials.appId && appId === credentials.appId) {
+    console.log(`${provider}: Verified via app ID`);
+    return { valid: true };
+  }
+
+  // 5. Check publisher ID match
+  if (credentials.publisherId && publisherId === credentials.publisherId) {
+    console.log(`${provider}: Verified via publisher ID`);
+    return { valid: true };
+  }
+
+  // 6. Fallback to global postback secret
+  if (globalSecret) {
+    if (apiKey === globalSecret) {
+      console.log(`${provider}: Verified via global postback secret`);
+      return { valid: true };
+    }
+    if (signature) {
+      const payload = `${userId}${payout}${transactionId || ''}`;
+      if (await verifyHmacSha256(globalSecret, payload, signature)) {
+        console.log(`${provider}: Verified via global secret signature`);
+        return { valid: true };
+      }
+    }
+  }
+
+  // 7. If no credentials are configured at all, allow with warning
+  const hasAnyCredential = secret || credentials.apiKey || credentials.publicKey || 
+    credentials.appId || credentials.publisherId;
   
-  return { valid: false, reason: 'Invalid custom API key or signature' };
+  if (!hasAnyCredential && !globalSecret) {
+    console.warn(`${provider}: No credentials configured - allowing request (INSECURE)`);
+    return { valid: true };
+  }
+
+  return { valid: false, reason: `Invalid ${provider} signature or credentials` };
 }
 
 serve(async (req) => {
@@ -264,8 +169,8 @@ serve(async (req) => {
     const url = new URL(req.url);
     const params = url.searchParams;
 
-    // Extract parameters from query string (common offerwall format)
-    const userId = params.get('user_id') || params.get('subid') || params.get('sub_id');
+    // Extract parameters from query string (universal format)
+    const userId = params.get('user_id') || params.get('subid') || params.get('sub_id') || params.get('click_id');
     const offerName = params.get('offer_name') || params.get('offer') || params.get('campaign_name') || 'Unknown Offer';
     const offerwallName = params.get('offerwall') || params.get('network') || params.get('source') || 'Unknown';
     const payout = params.get('payout') || params.get('amount') || params.get('reward') || '0';
@@ -273,7 +178,7 @@ serve(async (req) => {
     const ip = params.get('ip') || params.get('user_ip') || req.headers.get('x-forwarded-for') || null;
     const country = params.get('country') || params.get('geo') || null;
 
-    console.log('Postback received:', { userId, offerName, offerwallName, payout, transactionId, ip, country });
+    console.log('=== Postback received ===', { userId, offerName, offerwallName, payout, transactionId, ip, country });
 
     // Validate required parameters
     if (!userId) {
@@ -302,19 +207,20 @@ serve(async (req) => {
 
     // Find matching offerwall configuration
     let matchedOfferwall: OfferwallConfig | null = null;
-    const normalizedName = offerwallName.toLowerCase();
+    const normalizedName = offerwallName.toLowerCase().replace(/[^a-z0-9]/g, '');
     
     for (const ow of offerwalls) {
-      if (ow.enabled && ow.name.toLowerCase().includes(normalizedName) || normalizedName.includes(ow.name.toLowerCase())) {
+      const owName = ow.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (ow.enabled && (owName === normalizedName || owName.includes(normalizedName) || normalizedName.includes(owName))) {
         matchedOfferwall = ow;
         break;
       }
     }
 
-    // Also try to match by provider name in the URL
+    // Also try to match by provider name
     if (!matchedOfferwall) {
       for (const ow of offerwalls) {
-        if (ow.enabled && normalizedName.includes(ow.provider)) {
+        if (ow.enabled && normalizedName.includes(ow.provider.toLowerCase())) {
           matchedOfferwall = ow;
           break;
         }
@@ -323,35 +229,11 @@ serve(async (req) => {
 
     console.log('Matched offerwall:', matchedOfferwall?.name || 'none', 'provider:', matchedOfferwall?.provider || 'unknown');
 
-    // Verify the request based on provider
-    let verificationResult: { valid: boolean; reason?: string } = { valid: false, reason: 'No matching offerwall found' };
-
-    if (matchedOfferwall) {
-      const credentials = matchedOfferwall.credentials || {};
-      
-      switch (matchedOfferwall.provider) {
-        case 'adgem':
-          verificationResult = await verifyAdGem(params, req.headers, credentials);
-          break;
-        case 'offertoro':
-          verificationResult = await verifyOfferToro(params, credentials);
-          break;
-        case 'adgate':
-          verificationResult = await verifyAdGate(params, req.headers, credentials);
-          break;
-        case 'wannads':
-          verificationResult = await verifyWannads(params, req.headers, credentials);
-          break;
-        case 'custom':
-        default:
-          verificationResult = await verifyCustom(params, req.headers, credentials, postbackSecret);
-          break;
-      }
-    } else {
-      // No matched offerwall - try generic verification with global secret
-      console.log('No matched offerwall - using global verification');
-      verificationResult = await verifyCustom(params, req.headers, {}, postbackSecret);
-    }
+    // Verify the request signature/credentials
+    const provider = matchedOfferwall?.provider || 'custom';
+    const credentials = matchedOfferwall?.credentials || {};
+    
+    const verificationResult = await verifySignature(params, req.headers, credentials, provider, postbackSecret);
 
     if (!verificationResult.valid) {
       console.error('Verification failed:', verificationResult.reason);
@@ -361,9 +243,23 @@ serve(async (req) => {
       });
     }
 
-    // Parse payout - convert to coins (1 coin = $0.001, so $1 = 1000 coins)
+    // Parse payout and convert to coins using offerwall-specific rate or default (1000 coins = $1)
     const payoutValue = parseFloat(payout) || 0;
-    const coins = Math.round(payoutValue * 1000);
+    const conversionRate = matchedOfferwall?.pointsConversionRate || 1000;
+    const coins = Math.round(payoutValue * conversionRate);
+
+    // Check minimum payout threshold
+    const minimumPayout = matchedOfferwall?.minimumPayout || 0;
+    if (payoutValue < minimumPayout) {
+      console.log(`Payout ${payoutValue} below minimum ${minimumPayout}`);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: `Payout ${payoutValue} is below minimum threshold ${minimumPayout}` 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (coins <= 0) {
       console.error('Invalid payout value:', payout);
@@ -404,7 +300,7 @@ serve(async (req) => {
       });
     }
 
-    // Insert completed offer
+    // Insert completed offer (transaction history)
     const finalOfferwallName = matchedOfferwall?.name || offerwallName;
     const { error: insertError } = await supabase
       .from('completed_offers')
@@ -427,7 +323,7 @@ serve(async (req) => {
       });
     }
 
-    // Update user balance
+    // Update user balance atomically
     const newBalance = (profile.balance || 0) + coins;
     const { error: updateError } = await supabase
       .from('profiles')
@@ -438,11 +334,13 @@ serve(async (req) => {
       console.error('Failed to update balance:', updateError);
     }
 
-    console.log('Postback processed successfully:', { 
+    console.log('=== Postback processed successfully ===', { 
       userId, 
       offerwall: finalOfferwallName, 
-      provider: matchedOfferwall?.provider || 'unknown',
-      coins, 
+      provider,
+      payoutUSD: payoutValue,
+      conversionRate,
+      coinsAwarded: coins, 
       newBalance 
     });
 
@@ -450,7 +348,8 @@ serve(async (req) => {
       success: true, 
       coins_awarded: coins,
       new_balance: newBalance,
-      offerwall: finalOfferwallName
+      offerwall: finalOfferwallName,
+      conversion_rate: conversionRate
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

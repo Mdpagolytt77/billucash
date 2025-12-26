@@ -1,13 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Rocket, PlayCircle } from 'lucide-react';
 import TypingText from './TypingText';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 
 const HeroSection = () => {
   return (
     <div className="max-w-xl text-center mx-auto lg:mx-0 lg:text-left">
       {/* Logo */}
       <div className="text-center mb-6">
-        <div className="logo-3d text-4xl md:text-5xl inline-block mb-1">BILLUCASH</div>
+        <div className="text-4xl md:text-5xl inline-block mb-1">
+          <SiteLogo size="lg" className="!text-4xl md:!text-5xl !max-h-16" />
+        </div>
         <div className="text-primary text-sm tracking-[0.2em] font-semibold uppercase">
           earn & grow
         </div>

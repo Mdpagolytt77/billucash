@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Layers, Menu, Save, RotateCcw, Plus, Trash2, Pencil, X, Key, Globe, Hash, Shield, Eye, EyeOff, Copy, Check, Zap, Upload, Image, DollarSign, AlertCircle, Loader2 } from 'lucide-react';
+import { Layers, Menu, Save, RotateCcw, Plus, Trash2, Pencil, X, Globe, Hash, Copy, Check, Zap, Upload, Image, DollarSign, AlertCircle, Loader2, Lock } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -12,15 +12,10 @@ import { toast } from 'sonner';
 
 interface Offer { id: string; name: string; reward: number; url: string; }
 
-// Universal credential types for all providers
-interface OfferwallCredentials {
-  secretKey?: string;
-  hashKey?: string;
-  apiKey?: string;
-  appId?: string;
-  publicKey?: string;
-  publisherId?: string;
-  campaignId?: string;
+// NOTE: Secret keys are NOT stored in frontend - they're managed server-side via environment variables
+// This interface only contains non-sensitive configuration
+interface OfferwallPublicConfig {
+  hasSecretConfigured?: boolean; // Flag indicating if secret is set server-side
 }
 
 interface Offerwall {
@@ -29,10 +24,10 @@ interface Offerwall {
   enabled: boolean;
   color: string;
   provider: string;
-  credentials: OfferwallCredentials;
+  publicConfig?: OfferwallPublicConfig;
   iframeUrl: string;
   offers: Offer[];
-  // New unified fields
+  // Configuration fields (non-sensitive)
   pointsConversionRate: number; // e.g., 1000 means $1 = 1000 points
   minimumPayout: number; // Minimum offer value to show
   logoUrl?: string;
@@ -81,7 +76,6 @@ const AdminOfferwallCustomize = () => {
   const [editingWall, setEditingWall] = useState<string | null>(null);
   const [editingOffer, setEditingOffer] = useState<{ wallId: string; offer: Offer } | null>(null);
   const [newOffer, setNewOffer] = useState({ name: '', reward: 0, url: '' });
-  const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [testingWall, setTestingWall] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState<string | null>(null);
@@ -106,7 +100,7 @@ const AdminOfferwallCustomize = () => {
     setOfferwalls(walls.map(w => ({
       ...w,
       provider: w.provider || 'custom',
-      credentials: w.credentials || {},
+      publicConfig: w.publicConfig || {},
       pointsConversionRate: w.pointsConversionRate ?? 1000,
       minimumPayout: w.minimumPayout ?? 0,
     })));
@@ -125,8 +119,16 @@ const AdminOfferwallCustomize = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Remove any lingering credentials before saving (security measure)
+      const sanitizedWalls = offerwalls.map(({ ...w }) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const wall = w as any;
+        delete wall.credentials; // Remove old credentials if they exist
+        return wall;
+      });
+      
       const { error } = await supabase.from('site_settings').update({
-        offerwall_settings: JSON.parse(JSON.stringify({ offerwalls })),
+        offerwall_settings: JSON.parse(JSON.stringify({ offerwalls: sanitizedWalls })),
         updated_at: new Date().toISOString()
       }).eq('id', 'default');
       if (error) throw error;
@@ -143,7 +145,7 @@ const AdminOfferwallCustomize = () => {
       enabled: true,
       color: '#2bd96f',
       provider: newProvider,
-      credentials: {},
+      publicConfig: {},
       iframeUrl: '',
       offers: [],
       pointsConversionRate: 1000,
@@ -158,9 +160,6 @@ const AdminOfferwallCustomize = () => {
   const updateWallColor = (id: string, color: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, color } : o)); };
   const updateWallName = (id: string, name: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, name } : o)); };
   const updateWallProvider = (id: string, provider: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, provider } : o)); };
-  const updateWallCredential = (id: string, key: keyof OfferwallCredentials, value: string) => {
-    setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, credentials: { ...o.credentials, [key]: value } } : o));
-  };
   const updateWallIframeUrl = (id: string, iframeUrl: string) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, iframeUrl } : o)); };
   const updateWallPointsRate = (id: string, rate: number) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, pointsConversionRate: rate } : o)); };
   const updateWallMinPayout = (id: string, min: number) => { setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, minimumPayout: min } : o)); };
@@ -173,10 +172,6 @@ const AdminOfferwallCustomize = () => {
   };
   const removeOffer = (wallId: string, offerId: string) => { setOfferwalls(offerwalls.map(o => o.id === wallId ? { ...o, offers: o.offers.filter(of => of.id !== offerId) } : o)); };
   const updateOffer = (wallId: string, offerId: string, updates: Partial<Offer>) => { setOfferwalls(offerwalls.map(o => o.id === wallId ? { ...o, offers: o.offers.map(of => of.id === offerId ? { ...of, ...updates } : of) } : o)); };
-
-  const toggleSecretVisibility = (fieldKey: string) => {
-    setShowSecrets(prev => ({ ...prev, [fieldKey]: !prev[fieldKey] }));
-  };
 
   const copyPostbackUrl = async (wallId: string, wallName: string) => {
     const url = generatePostbackUrl(wallName);
@@ -202,14 +197,8 @@ const AdminOfferwallCustomize = () => {
         transaction_id: `test_${Date.now()}`,
         ip: '127.0.0.1',
         country: 'TEST',
+        test_mode: 'true', // Flag to indicate test request
       });
-
-      // Add API key for verification
-      if (wall.credentials.secretKey) {
-        testParams.append('api_key', wall.credentials.secretKey);
-      } else if (wall.credentials.apiKey) {
-        testParams.append('api_key', wall.credentials.apiKey);
-      }
 
       const response = await fetch(`${POSTBACK_BASE_URL}?${testParams.toString()}`);
       const result = await response.json();
@@ -339,35 +328,20 @@ const AdminOfferwallCustomize = () => {
                     {o.logoUrl && <span className="text-[8px] text-green-400">✓ Uploaded</span>}
                   </div>
 
-                  {/* Unified credential fields */}
+                  {/* Configuration fields */}
                   <div className="space-y-2 mb-3 p-2 bg-background/30 rounded-lg border border-border/50">
                     <div className="text-[9px] text-muted-foreground mb-2 flex items-center gap-1">
-                      <Key className="w-3 h-3" />
-                      Security & Verification
+                      <Lock className="w-3 h-3" />
+                      Security & Configuration
                     </div>
                     
-                    {/* Secret Key / Hash Key */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] text-muted-foreground w-24 flex items-center gap-1">
-                        <Shield className="w-3 h-3" />
-                        Secret/Hash Key:
+                    {/* Security Notice - Secret keys are managed server-side */}
+                    <div className="flex items-center gap-2 p-2 bg-green-500/10 border border-green-500/30 rounded">
+                      <Lock className="w-3 h-3 text-green-400 flex-shrink-0" />
+                      <span className="text-[9px] text-green-400">
+                        Secret keys are securely managed server-side via the global postback secret. 
+                        Configure it in site settings.
                       </span>
-                      <div className="flex-1 relative">
-                        <input
-                          type={showSecrets[`${o.id}-secret`] ? 'text' : 'password'}
-                          value={o.credentials.secretKey || o.credentials.hashKey || ''}
-                          onChange={(e) => updateWallCredential(o.id, 'secretKey', e.target.value)}
-                          placeholder="For signature verification..."
-                          className="w-full px-2 py-1 pr-7 bg-background border border-border rounded text-[10px]"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => toggleSecretVisibility(`${o.id}-secret`)}
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                          {showSecrets[`${o.id}-secret`] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                        </button>
-                      </div>
                     </div>
 
                     {/* Points Conversion Rate */}

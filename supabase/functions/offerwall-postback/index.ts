@@ -37,126 +37,80 @@ async function md5Hash(input: string): Promise<string> {
     .join('');
 }
 
-// Universal credential types for all providers
-interface OfferwallCredentials {
-  secretKey?: string;
-  hashKey?: string;
-  apiKey?: string;
-  appId?: string;
-  publicKey?: string;
-  publisherId?: string;
-  campaignId?: string;
-}
-
+// Offerwall configuration (non-sensitive - from site_settings)
 interface OfferwallConfig {
   id: string;
   name: string;
   enabled: boolean;
   provider: string;
-  credentials: OfferwallCredentials;
   pointsConversionRate?: number;
   minimumPayout?: number;
 }
 
-// Universal signature verification function
+// Secure signature verification using ONLY global postback secret
 async function verifySignature(
   params: URLSearchParams,
   headers: Headers,
-  credentials: OfferwallCredentials,
-  provider: string,
-  globalSecret: string | null
+  postbackSecret: string | null,
+  isTestMode: boolean
 ): Promise<{ valid: boolean; reason?: string }> {
+  // SECURITY: If no postback secret is configured, REJECT all requests
+  if (!postbackSecret) {
+    console.error('SECURITY: No postback_secret configured - rejecting request');
+    return { valid: false, reason: 'Postback secret not configured. Please configure it in site settings.' };
+  }
+
   const signature = params.get('sig') || params.get('signature') || params.get('hash') || headers.get('x-signature');
   const apiKey = params.get('api_key') || params.get('apikey') || headers.get('x-api-key');
   const userId = params.get('user_id') || params.get('subid') || params.get('sub_id');
   const payout = params.get('payout') || params.get('amount') || params.get('reward');
   const transactionId = params.get('transaction_id') || params.get('tid') || params.get('oid') || params.get('id');
-  const publicKey = params.get('pub_key') || params.get('public_key');
-  const appId = params.get('app_id') || params.get('appid');
-  const publisherId = params.get('aff_id') || params.get('publisher_id');
 
-  const secret = credentials.secretKey || credentials.hashKey;
-  
-  console.log(`Verifying ${provider} postback...`, { hasSecret: !!secret, hasApiKey: !!apiKey, hasSignature: !!signature });
+  console.log('Verifying postback...', { hasSignature: !!signature, hasApiKey: !!apiKey, isTestMode });
 
-  // 1. Check secret key / hash key signature
-  if (secret && signature) {
-    // Try multiple signature formats
+  // Test mode: Only allow for admin testing with api_key matching postback_secret
+  if (isTestMode) {
+    if (apiKey === postbackSecret) {
+      console.log('Test mode: Verified via postback secret');
+      return { valid: true };
+    }
+    return { valid: false, reason: 'Invalid test credentials' };
+  }
+
+  // 1. Check API key match against postback secret
+  if (apiKey === postbackSecret) {
+    console.log('Verified via API key match');
+    return { valid: true };
+  }
+
+  // 2. Check HMAC-SHA256 signature
+  if (signature) {
     const payloads = [
       `${userId}${payout}${transactionId || ''}`,
-      `${secret}${userId}${transactionId}${payout}`,
-      `${secret}${userId}${payout}`,
+      `${postbackSecret}${userId}${transactionId}${payout}`,
+      `${postbackSecret}${userId}${payout}`,
       `${userId}${transactionId}${payout}`,
     ];
 
     for (const payload of payloads) {
-      // Try HMAC-SHA256
-      if (await verifyHmacSha256(secret, payload, signature)) {
-        console.log(`${provider}: Verified via HMAC-SHA256 signature`);
+      if (await verifyHmacSha256(postbackSecret, payload, signature)) {
+        console.log('Verified via HMAC-SHA256 signature');
         return { valid: true };
       }
       // Try MD5
       const md5Sig = await md5Hash(payload);
       if (md5Sig === signature.toLowerCase()) {
-        console.log(`${provider}: Verified via MD5 signature`);
+        console.log('Verified via MD5 signature');
         return { valid: true };
       }
     }
   }
 
-  // 2. Check API key match
-  if (credentials.secretKey && apiKey === credentials.secretKey) {
-    console.log(`${provider}: Verified via secret key in request`);
-    return { valid: true };
-  }
-  if (credentials.apiKey && apiKey === credentials.apiKey) {
-    console.log(`${provider}: Verified via API key`);
-    return { valid: true };
-  }
+  // 3. IP whitelist check (optional - can be added based on offerwall provider)
+  const clientIp = headers.get('x-forwarded-for') || headers.get('cf-connecting-ip');
+  console.log('Request from IP:', clientIp);
 
-  // 3. Check public key match
-  if (credentials.publicKey && publicKey === credentials.publicKey) {
-    console.log(`${provider}: Verified via public key`);
-    return { valid: true };
-  }
-
-  // 4. Check app ID match
-  if (credentials.appId && appId === credentials.appId) {
-    console.log(`${provider}: Verified via app ID`);
-    return { valid: true };
-  }
-
-  // 5. Check publisher ID match
-  if (credentials.publisherId && publisherId === credentials.publisherId) {
-    console.log(`${provider}: Verified via publisher ID`);
-    return { valid: true };
-  }
-
-  // 6. Fallback to global postback secret
-  if (globalSecret) {
-    if (apiKey === globalSecret) {
-      console.log(`${provider}: Verified via global postback secret`);
-      return { valid: true };
-    }
-    if (signature) {
-      const payload = `${userId}${payout}${transactionId || ''}`;
-      if (await verifyHmacSha256(globalSecret, payload, signature)) {
-        console.log(`${provider}: Verified via global secret signature`);
-        return { valid: true };
-      }
-    }
-  }
-
-  // 7. If no credentials are configured at all, allow with warning
-  const hasAnyCredential = secret || credentials.apiKey || credentials.publicKey || 
-    credentials.appId || credentials.publisherId;
-  
-  if (!hasAnyCredential && !globalSecret) {
-    console.warn(`${provider}: No credentials configured - allowing request (INSECURE)`);
-    return { valid: true };
-  }
-
-  return { valid: false, reason: `Invalid ${provider} signature or credentials` };
+  return { valid: false, reason: 'Invalid signature or API key' };
 }
 
 serve(async (req) => {
@@ -229,11 +183,11 @@ serve(async (req) => {
 
     console.log('Matched offerwall:', matchedOfferwall?.name || 'none', 'provider:', matchedOfferwall?.provider || 'unknown');
 
-    // Verify the request signature/credentials
-    const provider = matchedOfferwall?.provider || 'custom';
-    const credentials = matchedOfferwall?.credentials || {};
-    
-    const verificationResult = await verifySignature(params, req.headers, credentials, provider, postbackSecret);
+    // Check for test mode
+    const isTestMode = params.get('test_mode') === 'true';
+
+    // Verify the request signature using ONLY global postback secret
+    const verificationResult = await verifySignature(params, req.headers, postbackSecret, isTestMode);
 
     if (!verificationResult.valid) {
       console.error('Verification failed:', verificationResult.reason);
@@ -334,6 +288,7 @@ serve(async (req) => {
       console.error('Failed to update balance:', updateError);
     }
 
+    const provider = matchedOfferwall?.provider || 'custom';
     console.log('=== Postback processed successfully ===', { 
       userId, 
       offerwall: finalOfferwallName, 

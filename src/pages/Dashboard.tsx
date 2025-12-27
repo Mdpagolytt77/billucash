@@ -37,6 +37,7 @@ interface EarningEvent {
   id: string;
   username: string;
   amount: number;
+  offerName: string;
   created_at: Date;
 }
 
@@ -58,16 +59,7 @@ const Dashboard = () => {
     { id: '1', message: 'Welcome to Billucash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
     { id: '2', message: 'New offers available! Earn up to $5.', type: 'offer', read: false, time: '2m ago', created_at: new Date(Date.now() - 120000) },
   ]);
-  const [liveEarnings, setLiveEarnings] = useState<EarningEvent[]>([
-    { id: '1', username: 'hafizur_vai', amount: 2.50, created_at: new Date() },
-    { id: '2', username: 'rana_pro', amount: 1.75, created_at: new Date() },
-    { id: '3', username: 'nure_alam', amount: 3.20, created_at: new Date() },
-    { id: '4', username: 'akash_99', amount: 0.85, created_at: new Date() },
-    { id: '5', username: 'somnath_x', amount: 4.00, created_at: new Date() },
-    { id: '6', username: 'sakib_bd', amount: 1.25, created_at: new Date() },
-    { id: '7', username: 'arafat_01', amount: 2.10, created_at: new Date() },
-    { id: '8', username: 'rifat_boss', amount: 5.50, created_at: new Date() },
-  ]);
+  const [liveEarnings, setLiveEarnings] = useState<EarningEvent[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -98,31 +90,56 @@ const Dashboard = () => {
     });
   }, [onBalanceIncrease, playBalanceSound]);
 
-  // Real-time earnings from all profile updates
+  // Real-time earnings from completed_offers table - shows actual offer names
   useEffect(() => {
+    // Load initial recent offers
+    const loadRecentOffers = async () => {
+      const { data } = await supabase
+        .from('completed_offers')
+        .select('id, username, coin, offer_name, created_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (data) {
+        setLiveEarnings(data.map(offer => ({
+          id: offer.id,
+          username: offer.username,
+          amount: offer.coin / 1000, // Convert coins to dollars
+          offerName: offer.offer_name,
+          created_at: new Date(offer.created_at),
+        })));
+      }
+    };
+    
+    loadRecentOffers();
+
+    // Real-time subscription to completed_offers
     const channel = supabase
-      .channel('live-earnings-updates')
+      .channel('live-earnings-offers')
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: 'INSERT',
           schema: 'public',
-          table: 'profiles',
+          table: 'completed_offers',
         },
         (payload) => {
-          const oldData = payload.old as { balance?: number; username?: string };
-          const newData = payload.new as { balance?: number; username?: string };
+          const newOffer = payload.new as { 
+            id: string; 
+            username: string; 
+            coin: number; 
+            offer_name: string; 
+            created_at: string; 
+          };
           
-          if (newData.balance && oldData.balance && newData.balance > oldData.balance) {
-            const earnedAmount = newData.balance - oldData.balance;
-            const newEarning: EarningEvent = {
-              id: Date.now().toString(),
-              username: newData.username || 'user',
-              amount: earnedAmount,
-              created_at: new Date(),
-            };
-            setLiveEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
-          }
+          const newEarning: EarningEvent = {
+            id: newOffer.id,
+            username: newOffer.username,
+            amount: newOffer.coin / 1000,
+            offerName: newOffer.offer_name,
+            created_at: new Date(newOffer.created_at),
+          };
+          setLiveEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
         }
       )
       .subscribe();
@@ -132,20 +149,7 @@ const Dashboard = () => {
     };
   }, []);
 
-  // Fallback: Simulate realtime earnings if no real updates
-  useEffect(() => {
-    const names = ['user_pro', 'earner_99', 'cash_king', 'money_maker', 'top_player', 'winner_x', 'lucky_one', 'star_user'];
-    const interval = setInterval(() => {
-      const newEarning: EarningEvent = {
-        id: Date.now().toString(),
-        username: names[Math.floor(Math.random() * names.length)],
-        amount: parseFloat((Math.random() * 5 + 0.5).toFixed(2)),
-        created_at: new Date(),
-      };
-      setLiveEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, []);
+  // No fallback simulation - only show real completed offers
 
   // Load admin offerwalls from database
   useEffect(() => {
@@ -420,15 +424,20 @@ const Dashboard = () => {
 
         {/* Live Earnings Ticker */}
         <div className="mt-2 py-1.5 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border-y border-primary/20 overflow-hidden">
-          <div className="flex gap-3 animate-[moveLeft_25s_linear_infinite] whitespace-nowrap">
-            {[...liveEarnings, ...liveEarnings].map((item, i) => (
-              <div key={i} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-xs">
-                <Coins className="w-3 h-3 text-green-400" />
-                <span className="text-green-400 font-medium">{item.username}</span>
-                <span className="text-white/90 font-bold">+${item.amount.toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
+          {liveEarnings.length === 0 ? (
+            <div className="text-center text-xs text-muted-foreground py-1">No recent earnings yet</div>
+          ) : (
+            <div className="flex gap-3 animate-[moveLeft_25s_linear_infinite] whitespace-nowrap">
+              {[...liveEarnings, ...liveEarnings].map((item, i) => (
+                <div key={i} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-xs">
+                  <Coins className="w-3 h-3 text-green-400" />
+                  <span className="text-green-400 font-medium">{item.username}</span>
+                  <span className="text-white/80 text-[10px] truncate max-w-[100px]">{item.offerName}</span>
+                  <span className="text-white/90 font-bold">+${item.amount.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Main Content */}

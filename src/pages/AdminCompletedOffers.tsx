@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Menu, Search, Loader2 } from 'lucide-react';
+import { CheckCircle, Menu, Search, Loader2, Trash2, AlertTriangle } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -8,6 +8,17 @@ import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CompletedOffer {
   id: string;
@@ -30,6 +41,9 @@ const AdminCompletedOffers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [offers, setOffers] = useState<CompletedOffer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Calculate amount and revenue
   // 400 coin = $0.40 (coin / 1000)
@@ -98,6 +112,55 @@ const AdminCompletedOffers = () => {
     return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
+  // Get unique usernames for filter dropdown
+  const uniqueUsernames = [...new Set(offers.map(o => o.username))].sort();
+
+  // Toggle selection
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  // Select all on current page
+  const toggleSelectAll = () => {
+    if (selectedIds.size === pageData.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pageData.map(o => o.id)));
+    }
+  };
+
+  // Delete selected offers
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0) return;
+    
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('completed_offers')
+        .delete()
+        .in('id', Array.from(selectedIds));
+
+      if (error) throw error;
+      
+      toast.success(`Deleted ${selectedIds.size} offer(s)`);
+      setSelectedIds(new Set());
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete offers');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
   return (
@@ -116,15 +179,50 @@ const AdminCompletedOffers = () => {
         </header>
 
         <main className="p-3 md:px-[3%]">
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
+                  Delete {selectedIds.size} Offer(s)?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. The selected completed offers will be permanently deleted.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteSelected}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
           <div className="glass-card p-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
               <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4" /> Completed Offers <span className="text-[10px] text-muted-foreground">({filteredData.length})</span>
               </h2>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                {selectedIds.size > 0 && (
+                  <button
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="px-2 py-1.5 bg-destructive/20 text-destructive rounded-lg text-[10px] flex items-center gap-1 hover:bg-destructive/30"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    Delete ({selectedIds.size})
+                  </button>
+                )}
                 <div className="relative flex-1">
                   <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..." className="w-full pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" />
+                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search user..." className="w-full pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" />
                 </div>
                 <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]">
                   {[10, 15, 25, 50].map(n => <option key={n} value={n}>{n} rows</option>)}
@@ -144,9 +242,17 @@ const AdminCompletedOffers = () => {
             ) : (
               <>
                 <div className="overflow-auto max-h-[55vh] border border-border rounded-lg">
-                  <table className="w-full text-[9px] min-w-[800px]">
+                  <table className="w-full text-[9px] min-w-[850px]">
                     <thead className="sticky top-0 bg-muted/90">
                       <tr>
+                        <th className="p-1.5 w-8">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.size === pageData.length && pageData.length > 0}
+                            onChange={toggleSelectAll}
+                            className="w-3 h-3 rounded border-border"
+                          />
+                        </th>
                         <th className="text-left p-1.5 text-muted-foreground">User</th>
                         <th className="text-left p-1.5 text-muted-foreground">Offerwall</th>
                         <th className="text-left p-1.5 text-muted-foreground">Offer</th>
@@ -159,7 +265,15 @@ const AdminCompletedOffers = () => {
                     </thead>
                     <tbody>
                       {pageData.map((row) => (
-                        <tr key={row.id} className="border-t border-border/50 hover:bg-primary/5">
+                        <tr key={row.id} className={`border-t border-border/50 hover:bg-primary/5 ${selectedIds.has(row.id) ? 'bg-primary/10' : ''}`}>
+                          <td className="p-1.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(row.id)}
+                              onChange={() => toggleSelect(row.id)}
+                              className="w-3 h-3 rounded border-border"
+                            />
+                          </td>
                           <td className="p-1.5 font-medium">{row.username}</td>
                           <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>
                           <td className="p-1.5 max-w-[100px] truncate">{row.offer_name}</td>

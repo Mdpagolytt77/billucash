@@ -52,7 +52,8 @@ async function verifySignature(
   params: URLSearchParams,
   headers: Headers,
   postbackSecret: string | null,
-  isTestMode: boolean
+  isTestMode: boolean,
+  supabaseClient: any
 ): Promise<{ valid: boolean; reason?: string }> {
   // SECURITY: If no postback secret is configured, REJECT all requests
   if (!postbackSecret) {
@@ -68,13 +69,21 @@ async function verifySignature(
 
   console.log('Verifying postback...', { hasSignature: !!signature, hasApiKey: !!apiKey, isTestMode });
 
-  // Test mode: Only allow for admin testing with api_key matching postback_secret
-  if (isTestMode) {
-    if (apiKey === postbackSecret) {
-      console.log('Test mode: Verified via postback secret');
+  // Test mode: Allow if user is an admin (verified server-side)
+  if (isTestMode && userId) {
+    // Check if the user is an admin using service role
+    const { data: adminCheck } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+    
+    if (adminCheck) {
+      console.log('Test mode: Verified via admin status');
       return { valid: true };
     }
-    return { valid: false, reason: 'Invalid test credentials' };
+    return { valid: false, reason: 'Test mode requires admin privileges' };
   }
 
   // 1. Check API key match against postback secret
@@ -187,7 +196,7 @@ serve(async (req) => {
     const isTestMode = params.get('test_mode') === 'true';
 
     // Verify the request signature using ONLY global postback secret
-    const verificationResult = await verifySignature(params, req.headers, postbackSecret, isTestMode);
+    const verificationResult = await verifySignature(params, req.headers, postbackSecret, isTestMode, supabase);
 
     if (!verificationResult.valid) {
       console.error('Verification failed:', verificationResult.reason);

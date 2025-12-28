@@ -57,24 +57,33 @@ export type Database = {
         Row: {
           balance: number | null
           created_at: string | null
+          device_info: string | null
           email: string | null
           id: string
+          last_login_ip: string | null
+          status: string
           updated_at: string | null
           username: string
         }
         Insert: {
           balance?: number | null
           created_at?: string | null
+          device_info?: string | null
           email?: string | null
           id: string
+          last_login_ip?: string | null
+          status?: string
           updated_at?: string | null
           username: string
         }
         Update: {
           balance?: number | null
           created_at?: string | null
+          device_info?: string | null
           email?: string | null
           id?: string
+          last_login_ip?: string | null
+          status?: string
           updated_at?: string | null
           username?: string
         }

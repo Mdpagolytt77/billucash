@@ -215,6 +215,55 @@ const AdminOfferwallCustomize = () => {
     }
   };
 
+  // Test Tracker - simulates adding an entry to the live earnings tracker on dashboard
+  const handleTestTracker = async (wall: Offerwall) => {
+    if (!user?.id) {
+      toast.error('You must be logged in to test');
+      return;
+    }
+
+    setTestingWall(`tracker_${wall.id}`);
+    try {
+      // Get current user's profile for username
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        toast.error('Profile not found');
+        return;
+      }
+
+      // Insert a test completed offer directly
+      const testOfferName = `Test ${wall.name} Offer`;
+      const testCoin = Math.floor(Math.random() * 500) + 100; // Random 100-600 coins
+
+      const { error } = await supabase
+        .from('completed_offers')
+        .insert({
+          user_id: user.id,
+          username: profile.username,
+          offerwall: wall.name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+          offer_name: testOfferName,
+          coin: testCoin,
+          transaction_id: `tracker_test_${Date.now()}`,
+          ip: '127.0.0.1',
+          country: 'TEST',
+        });
+
+      if (error) throw error;
+
+      toast.success(`Tracker test added! "${testOfferName}" with ${testCoin} coins`);
+    } catch (error) {
+      console.error('Tracker test error:', error);
+      toast.error('Tracker test failed');
+    } finally {
+      setTestingWall(null);
+    }
+  };
+
   const handleLogoUpload = async (wallId: string, file: File) => {
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
@@ -429,7 +478,18 @@ const AdminOfferwallCustomize = () => {
                           <><Zap className="w-3 h-3" /> Test Postback</>
                         )}
                       </button>
-                      <span className="text-[8px] text-muted-foreground">Simulate a $0.01 conversion to verify setup</span>
+                      <button
+                        onClick={() => handleTestTracker(o)}
+                        disabled={testingWall === `tracker_${o.id}`}
+                        className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded text-[9px] font-medium flex items-center gap-1 hover:bg-green-500/30 disabled:opacity-50"
+                      >
+                        {testingWall === `tracker_${o.id}` ? (
+                          <><Loader2 className="w-3 h-3 animate-spin" /> Testing...</>
+                        ) : (
+                          <><Zap className="w-3 h-3" /> Test Tracker</>
+                        )}
+                      </button>
+                      <span className="text-[8px] text-muted-foreground">Simulate conversions</span>
                     </div>
                   </div>
 

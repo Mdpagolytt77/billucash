@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   Shield, Users, DollarSign, 
   TrendingUp, AlertCircle, CheckCircle, Clock,
-  RefreshCw, Menu, X
+  RefreshCw, Menu, X, Zap
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -33,6 +33,16 @@ interface Stats {
   todaySignups: number;
 }
 
+interface RealtimeTransaction {
+  id: string;
+  transaction_id: string | null;
+  username: string;
+  offerwall: string;
+  offer_name: string;
+  coin: number;
+  created_at: string;
+}
+
 const AdminPanel = () => {
   const { isAdmin } = useAuth();
   const { snowEnabled, toggleSnow } = useSnowEffect();
@@ -40,6 +50,8 @@ const AdminPanel = () => {
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalEarnings: 0, totalTasks: 0, todaySignups: 0 });
+  const [realtimeTransactions, setRealtimeTransactions] = useState<RealtimeTransaction[]>([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
 
   const fetchWithdrawals = async () => {
     setIsLoadingData(true);
@@ -61,14 +73,33 @@ const AdminPanel = () => {
       const totalEarnings = balanceData?.reduce((sum, p) => sum + (Number(p.balance) || 0), 0) || 0;
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const { count: todayCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', today.toISOString());
-      setStats({ totalUsers: userCount || 0, totalEarnings, totalTasks: 0, todaySignups: todayCount || 0 });
+      const { count: taskCount } = await supabase.from('completed_offers').select('*', { count: 'exact', head: true });
+      setStats({ totalUsers: userCount || 0, totalEarnings, totalTasks: taskCount || 0, todaySignups: todayCount || 0 });
     } catch (error) { console.error('Error fetching stats:', error); }
   };
 
+  const fetchRealtimeTransactions = async () => {
+    setLoadingTransactions(true);
+    try {
+      const { data, error } = await supabase
+        .from('completed_offers')
+        .select('id, transaction_id, username, offerwall, offer_name, coin, created_at')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      setRealtimeTransactions(data || []);
+    } catch (error) {
+      console.error('Failed to load transactions:', error);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
   useEffect(() => {
-    if (isAdmin) { fetchWithdrawals(); fetchStats(); }
+    if (isAdmin) { fetchWithdrawals(); fetchStats(); fetchRealtimeTransactions(); }
   }, [isAdmin]);
 
+  // Real-time listener for withdrawals
   useEffect(() => {
     if (!isAdmin) return;
     const channel = supabase.channel('withdrawal-requests-changes')
@@ -86,6 +117,18 @@ const AdminPanel = () => {
         } else if (payload.eventType === 'DELETE') {
           setWithdrawalRequests(prev => prev.filter(w => w.id !== (payload.old as WithdrawalRequest).id));
         }
+      }).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [isAdmin]);
+
+  // Real-time listener for completed_offers (postbacks)
+  useEffect(() => {
+    if (!isAdmin) return;
+    const channel = supabase.channel('realtime-transactions')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'completed_offers' }, (payload) => {
+        const newTx = payload.new as RealtimeTransaction;
+        setRealtimeTransactions(prev => [newTx, ...prev.slice(0, 49)]);
+        toast.success(`New postback: ${newTx.username} earned ${newTx.coin} coins from ${newTx.offerwall}`);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [isAdmin]);
@@ -223,6 +266,61 @@ const AdminPanel = () => {
                             <button onClick={() => handleReject(req.id, req.username)} className="p-1 bg-red-500 rounded text-white"><X className="w-3 h-3" /></button>
                           </div>
                         </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Real-time Transactions Section */}
+        <div className="mx-3 md:mx-[5%] mb-4">
+          <div className="glass-card p-4">
+            <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4" /> Real-time Transactions
+              <span className="text-xs text-muted-foreground">(Last 50 postbacks)</span>
+              {loadingTransactions && <RefreshCw className="w-3 h-3 animate-spin" />}
+              <button onClick={fetchRealtimeTransactions} disabled={loadingTransactions} className="ml-auto p-1.5 bg-primary/20 rounded-lg hover:bg-primary/30">
+                <RefreshCw className={`w-3 h-3 text-primary ${loadingTransactions ? 'animate-spin' : ''}`} />
+              </button>
+            </h2>
+
+            <div className="overflow-x-auto max-h-64 overflow-y-auto">
+              <table className="w-full text-[10px]">
+                <thead className="sticky top-0 bg-background">
+                  <tr className="border-b border-border">
+                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Timestamp</th>
+                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Transaction ID</th>
+                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">User</th>
+                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Offerwall</th>
+                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Offer</th>
+                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Coins</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {realtimeTransactions.length === 0 ? (
+                    <tr><td colSpan={6} className="text-center py-6 text-muted-foreground">
+                      {loadingTransactions ? 'Loading...' : 'No transactions yet'}
+                    </td></tr>
+                  ) : (
+                    realtimeTransactions.map(tx => (
+                      <tr key={tx.id} className="border-b border-border/50 hover:bg-muted/30">
+                        <td className="py-1.5 px-2 text-muted-foreground">
+                          {new Date(tx.created_at).toLocaleString()}
+                        </td>
+                        <td className="py-1.5 px-2 font-mono text-[9px] max-w-[100px] truncate" title={tx.transaction_id || ''}>
+                          {tx.transaction_id || 'N/A'}
+                        </td>
+                        <td className="py-1.5 px-2 font-medium">{tx.username}</td>
+                        <td className="py-1.5 px-2">
+                          <span className="px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[9px] font-medium uppercase">
+                            {tx.offerwall}
+                          </span>
+                        </td>
+                        <td className="py-1.5 px-2 max-w-[120px] truncate" title={tx.offer_name}>{tx.offer_name}</td>
+                        <td className="py-1.5 px-2 text-green-400 font-semibold">{tx.coin}</td>
                       </tr>
                     ))
                   )}

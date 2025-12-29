@@ -422,18 +422,17 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Live Earnings Ticker */}
-        <div className="mt-2 py-1.5 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border-y border-primary/20 overflow-hidden">
+        {/* Live Earnings Ticker - Compact Grid */}
+        <div className="mt-2 px-3 md:px-[5%] py-2 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 border-y border-primary/20">
           {liveEarnings.length === 0 ? (
             <div className="text-center text-xs text-muted-foreground py-1">No recent earnings yet</div>
           ) : (
-            <div className="flex gap-3 animate-[moveLeft_25s_linear_infinite] whitespace-nowrap">
-              {[...liveEarnings, ...liveEarnings].map((item, i) => (
-                <div key={i} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-xs">
-                  <Coins className="w-3 h-3 text-green-400" />
-                  <span className="text-green-400 font-medium">{item.username}</span>
-                  <span className="text-white/80 text-[10px] truncate max-w-[100px]">{item.offerName}</span>
-                  <span className="text-white/90 font-bold">+${item.amount.toFixed(2)}</span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5">
+              {liveEarnings.slice(0, 10).map((item, i) => (
+                <div key={i} className="flex items-center gap-1 px-2 py-1 rounded bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 text-[10px]">
+                  <Coins className="w-2.5 h-2.5 text-green-400 flex-shrink-0" />
+                  <span className="text-green-400 font-medium truncate max-w-[50px]">{item.username}</span>
+                  <span className="text-white/90 font-bold ml-auto">+${item.amount.toFixed(2)}</span>
                 </div>
               ))}
             </div>

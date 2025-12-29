@@ -37,41 +37,54 @@ async function md5Hash(input: string): Promise<string> {
     .join('');
 }
 
-// Offerwall configuration (non-sensitive - from site_settings)
+// Offerwall configuration (from site_settings)
 interface OfferwallConfig {
   id: string;
   name: string;
   enabled: boolean;
   provider: string;
   pointsConversionRate?: number;
+  profitMargin?: number; // Percentage to deduct
   minimumPayout?: number;
+  apiKey?: string;
+  secretKey?: string; // Used for signature verification
+  subIdParam?: string;
 }
 
-// Secure signature verification using ONLY global postback secret
+// Secure signature verification using global or offerwall-specific secret
 async function verifySignature(
   params: URLSearchParams,
   headers: Headers,
   postbackSecret: string | null,
   isTestMode: boolean,
-  supabaseClient: any
+  supabaseClient: any,
+  offerwallConfig: OfferwallConfig | null
 ): Promise<{ valid: boolean; reason?: string }> {
-  // SECURITY: If no postback secret is configured, REJECT all requests
-  if (!postbackSecret) {
-    console.error('SECURITY: No postback_secret configured - rejecting request');
-    return { valid: false, reason: 'Postback secret not configured. Please configure it in site settings.' };
+  // Get the secret to use - prefer offerwall-specific, fallback to global
+  const secretToUse = offerwallConfig?.secretKey || offerwallConfig?.apiKey || postbackSecret;
+  
+  // SECURITY: If no secret is configured anywhere, REJECT all requests
+  if (!secretToUse) {
+    console.error('SECURITY: No secret configured - rejecting request');
+    return { valid: false, reason: 'No secret key configured. Please configure it in offerwall settings or site settings.' };
   }
 
   const signature = params.get('sig') || params.get('signature') || params.get('hash') || headers.get('x-signature');
   const apiKey = params.get('api_key') || params.get('apikey') || headers.get('x-api-key');
-  const userId = params.get('user_id') || params.get('subid') || params.get('sub_id');
+  const userId = params.get('user_id') || params.get('subid') || params.get('sub_id') || params.get('click_id');
   const payout = params.get('payout') || params.get('amount') || params.get('reward');
   const transactionId = params.get('transaction_id') || params.get('tid') || params.get('oid') || params.get('id');
 
-  console.log('Verifying postback...', { hasSignature: !!signature, hasApiKey: !!apiKey, isTestMode });
+  console.log('Verifying postback...', { 
+    hasSignature: !!signature, 
+    hasApiKey: !!apiKey, 
+    isTestMode,
+    usingOfferwallSecret: !!offerwallConfig?.secretKey,
+    usingOfferwallApiKey: !!offerwallConfig?.apiKey
+  });
 
   // Test mode: Allow if user is an admin (verified server-side)
   if (isTestMode && userId) {
-    // Check if the user is an admin using service role
     const { data: adminCheck } = await supabaseClient
       .from('user_roles')
       .select('role')
@@ -86,36 +99,52 @@ async function verifySignature(
     return { valid: false, reason: 'Test mode requires admin privileges' };
   }
 
-  // 1. Check API key match against postback secret
-  if (apiKey === postbackSecret) {
+  // 1. Check API key match against secret
+  if (apiKey === secretToUse) {
     console.log('Verified via API key match');
     return { valid: true };
   }
 
-  // 2. Check HMAC-SHA256 signature
-  if (signature) {
-    const payloads = [
-      `${userId}${payout}${transactionId || ''}`,
-      `${postbackSecret}${userId}${transactionId}${payout}`,
-      `${postbackSecret}${userId}${payout}`,
-      `${userId}${transactionId}${payout}`,
-    ];
+  // 2. Check offerwall-specific API key
+  if (offerwallConfig?.apiKey && apiKey === offerwallConfig.apiKey) {
+    console.log('Verified via offerwall API key');
+    return { valid: true };
+  }
 
-    for (const payload of payloads) {
-      if (await verifyHmacSha256(postbackSecret, payload, signature)) {
-        console.log('Verified via HMAC-SHA256 signature');
-        return { valid: true };
-      }
-      // Try MD5
-      const md5Sig = await md5Hash(payload);
-      if (md5Sig === signature.toLowerCase()) {
-        console.log('Verified via MD5 signature');
-        return { valid: true };
+  // 3. Check HMAC-SHA256/MD5 signature
+  if (signature) {
+    const secrets = [secretToUse];
+    if (offerwallConfig?.secretKey && offerwallConfig.secretKey !== secretToUse) {
+      secrets.push(offerwallConfig.secretKey);
+    }
+    if (postbackSecret && postbackSecret !== secretToUse) {
+      secrets.push(postbackSecret);
+    }
+
+    for (const secret of secrets) {
+      const payloads = [
+        `${userId}${payout}${transactionId || ''}`,
+        `${secret}${userId}${transactionId}${payout}`,
+        `${secret}${userId}${payout}`,
+        `${userId}${transactionId}${payout}`,
+        `${payout}${userId}${transactionId || ''}`,
+      ];
+
+      for (const payload of payloads) {
+        if (await verifyHmacSha256(secret, payload, signature)) {
+          console.log('Verified via HMAC-SHA256 signature');
+          return { valid: true };
+        }
+        const md5Sig = await md5Hash(payload);
+        if (md5Sig === signature.toLowerCase()) {
+          console.log('Verified via MD5 signature');
+          return { valid: true };
+        }
       }
     }
   }
 
-  // 3. IP whitelist check (optional - can be added based on offerwall provider)
+  // 4. IP whitelist check (optional - can be added based on offerwall provider)
   const clientIp = headers.get('x-forwarded-for') || headers.get('cf-connecting-ip');
   console.log('Request from IP:', clientIp);
 
@@ -195,8 +224,8 @@ serve(async (req) => {
     // Check for test mode
     const isTestMode = params.get('test_mode') === 'true';
 
-    // Verify the request signature using ONLY global postback secret
-    const verificationResult = await verifySignature(params, req.headers, postbackSecret, isTestMode, supabase);
+    // Verify the request signature using offerwall-specific or global secret
+    const verificationResult = await verifySignature(params, req.headers, postbackSecret, isTestMode, supabase, matchedOfferwall);
 
     if (!verificationResult.valid) {
       console.error('Verification failed:', verificationResult.reason);
@@ -209,7 +238,10 @@ serve(async (req) => {
     // Parse payout and convert to coins using offerwall-specific rate or default (1000 coins = $1)
     const payoutValue = parseFloat(payout) || 0;
     const conversionRate = matchedOfferwall?.pointsConversionRate || 1000;
-    const coins = Math.round(payoutValue * conversionRate);
+    const profitMargin = matchedOfferwall?.profitMargin || 0;
+    // Apply profit margin: total points minus profit percentage
+    const totalPoints = payoutValue * conversionRate;
+    const coins = Math.round(totalPoints * (1 - profitMargin / 100));
 
     // Check minimum payout threshold
     const minimumPayout = matchedOfferwall?.minimumPayout || 0;

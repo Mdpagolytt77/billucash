@@ -506,6 +506,26 @@ const AdminOfferwallCustomize = () => {
                     <button onClick={() => addOffer(selectedWall.id)} className="px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs"><Plus className="w-3 h-3" /></button>
                   </div>
                 </div>
+
+                {/* Save Button */}
+                <div className="flex gap-2 pt-4 border-t border-border mt-4">
+                  <button
+                    onClick={() => setSelectedWall(null)}
+                    className="flex-1 px-3 py-2 bg-muted border border-border rounded-lg text-xs font-medium hover:bg-muted/80"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await handleSave();
+                      setSelectedWall(null);
+                    }}
+                    disabled={isSaving}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-xs disabled:opacity-50"
+                  >
+                    <Save className="w-3 h-3" /> {isSaving ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
               </div>
             </>
           )}

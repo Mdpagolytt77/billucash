@@ -101,7 +101,7 @@ const LiveEarningsTracker = () => {
                 {/* Left side - Username & Offerwall */}
                 <div className="flex flex-col leading-tight">
                   <span className="text-[10px] font-semibold text-foreground">
-                    {maskUsername(earning.username)}
+                    {earning.username}
                   </span>
                   <span className="text-[9px] text-muted-foreground">
                     {earning.offerwall}

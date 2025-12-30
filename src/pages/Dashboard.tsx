@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Gift, Bell, Menu, X, ChevronDown, Coins, ArrowLeft, Loader2, CheckCircle
+  Gift, Bell, Menu, X, ChevronDown, ArrowLeft, Loader2, CheckCircle
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -9,6 +9,7 @@ import SnowToggle from '@/components/SnowToggle';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
+import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
@@ -33,14 +34,6 @@ interface Notification {
   created_at: Date;
 }
 
-interface EarningEvent {
-  id: string;
-  username: string;
-  amount: number;
-  offerName: string;
-  created_at: Date;
-}
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile, isAdmin, signOut, isLoading, onBalanceIncrease } = useAuth();
@@ -59,7 +52,7 @@ const Dashboard = () => {
     { id: '1', message: 'Welcome to Billucash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
     { id: '2', message: 'New offers available! Earn up to $5.', type: 'offer', read: false, time: '2m ago', created_at: new Date(Date.now() - 120000) },
   ]);
-  const [liveEarnings, setLiveEarnings] = useState<EarningEvent[]>([]);
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -89,67 +82,6 @@ const Dashboard = () => {
       setNotifications(prev => [newNotif, ...prev]);
     });
   }, [onBalanceIncrease, playBalanceSound]);
-
-  // Real-time earnings from completed_offers table - shows actual offer names
-  useEffect(() => {
-    // Load initial recent offers
-    const loadRecentOffers = async () => {
-      const { data } = await supabase
-        .from('completed_offers')
-        .select('id, username, coin, offer_name, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10);
-      
-      if (data) {
-        setLiveEarnings(data.map(offer => ({
-          id: offer.id,
-          username: offer.username,
-          amount: offer.coin / 1000, // Convert coins to dollars
-          offerName: offer.offer_name,
-          created_at: new Date(offer.created_at),
-        })));
-      }
-    };
-    
-    loadRecentOffers();
-
-    // Real-time subscription to completed_offers
-    const channel = supabase
-      .channel('live-earnings-offers')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'completed_offers',
-        },
-        (payload) => {
-          const newOffer = payload.new as { 
-            id: string; 
-            username: string; 
-            coin: number; 
-            offer_name: string; 
-            created_at: string; 
-          };
-          
-          const newEarning: EarningEvent = {
-            id: newOffer.id,
-            username: newOffer.username,
-            amount: newOffer.coin / 1000,
-            offerName: newOffer.offer_name,
-            created_at: new Date(newOffer.created_at),
-          };
-          setLiveEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  // No fallback simulation - only show real completed offers
 
   // Load admin offerwalls from database
   useEffect(() => {
@@ -422,22 +354,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Live Earnings Ticker - Compact Grid */}
-        <div className="mt-2 px-3 md:px-[5%] py-2 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 border-y border-primary/20">
-          {liveEarnings.length === 0 ? (
-            <div className="text-center text-xs text-muted-foreground py-1">No recent earnings yet</div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5">
-              {liveEarnings.slice(0, 10).map((item, i) => (
-                <div key={i} className="flex items-center gap-1 px-2 py-1 rounded bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 text-[10px]">
-                  <Coins className="w-2.5 h-2.5 text-green-400 flex-shrink-0" />
-                  <span className="text-green-400 font-medium truncate max-w-[50px]">{item.username}</span>
-                  <span className="text-white/90 font-bold ml-auto">+${item.amount.toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Live Earnings Ticker */}
+        <LiveEarningsTracker />
 
         {/* Main Content */}
         <main className="px-3 md:px-[5%] py-6">

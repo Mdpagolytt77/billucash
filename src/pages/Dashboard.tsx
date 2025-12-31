@@ -255,10 +255,10 @@ const Dashboard = () => {
             <SiteLogo size="sm" />
           </div>
 
-          {/* Balance */}
+          {/* Balance - Show in coins */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-sm">
             <img src="https://cdn-icons-png.flaticon.com/512/2173/2173478.png" alt="Coin" className="w-4 h-4" />
-            <span className="font-semibold">${profile?.balance?.toFixed(2) || '0.00'}</span>
+            <span className="font-semibold">{profile?.balance?.toFixed(2) || '0.00'}</span>
           </div>
 
           {/* User Menu */}

@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Shield, Users, DollarSign, 
-  TrendingUp, AlertCircle, CheckCircle, Clock,
-  RefreshCw, Menu, X, Zap
+  Users, DollarSign, AlertCircle, CheckCircle, Clock,
+  RefreshCw, Menu, X, Zap, Settings, CreditCard, History, ArrowDownCircle
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
@@ -27,10 +26,14 @@ interface WithdrawalRequest {
 }
 
 interface Stats {
-  totalUsers: number;
-  totalEarnings: number;
-  totalTasks: number;
-  todaySignups: number;
+  allUsers: number;
+  completedOffers: number;
+  totalRevenue: number;
+  totalPendingWithdraw: number;
+  totalWithdrawn: number;
+  pendingWithdrawCount: number;
+  allWithdrawHistory: number;
+  chargeback: number;
 }
 
 interface RealtimeTransaction {
@@ -45,11 +48,21 @@ interface RealtimeTransaction {
 
 const AdminPanel = () => {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
-  const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalEarnings: 0, totalTasks: 0, todaySignups: 0 });
+  const [stats, setStats] = useState<Stats>({ 
+    allUsers: 0, 
+    completedOffers: 0, 
+    totalRevenue: 0, 
+    totalPendingWithdraw: 0,
+    totalWithdrawn: 0,
+    pendingWithdrawCount: 0,
+    allWithdrawHistory: 0,
+    chargeback: 0
+  });
   const [realtimeTransactions, setRealtimeTransactions] = useState<RealtimeTransaction[]>([]);
   const [loadingTransactions, setLoadingTransactions] = useState(false);
 
@@ -68,13 +81,44 @@ const AdminPanel = () => {
 
   const fetchStats = async () => {
     try {
+      // All users count
       const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-      const { data: balanceData } = await supabase.from('profiles').select('balance');
-      const totalEarnings = balanceData?.reduce((sum, p) => sum + (Number(p.balance) || 0), 0) || 0;
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const { count: todayCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', today.toISOString());
-      const { count: taskCount } = await supabase.from('completed_offers').select('*', { count: 'exact', head: true });
-      setStats({ totalUsers: userCount || 0, totalEarnings, totalTasks: taskCount || 0, todaySignups: todayCount || 0 });
+      
+      // Completed offers count
+      const { count: offersCount } = await supabase.from('completed_offers').select('*', { count: 'exact', head: true });
+      
+      // Total revenue from completed offers (coin sum * rate)
+      const { data: offersData } = await supabase.from('completed_offers').select('coin');
+      const totalCoins = offersData?.reduce((sum, o) => sum + (o.coin || 0), 0) || 0;
+      const totalRevenue = totalCoins / 1000; // Convert coins to dollars
+
+      // Pending withdrawals
+      const { data: pendingData, count: pendingCount } = await supabase
+        .from('withdrawal_requests')
+        .select('amount', { count: 'exact' })
+        .eq('status', 'pending');
+      const totalPendingWithdraw = pendingData?.reduce((sum, w) => sum + Number(w.amount), 0) || 0;
+
+      // Approved withdrawals (total withdrawn)
+      const { data: approvedData, count: approvedCount } = await supabase
+        .from('withdrawal_requests')
+        .select('amount', { count: 'exact' })
+        .eq('status', 'approved');
+      const totalWithdrawn = approvedData?.reduce((sum, w) => sum + Number(w.amount), 0) || 0;
+
+      // All withdrawal history count
+      const { count: allWithdrawCount } = await supabase.from('withdrawal_requests').select('*', { count: 'exact', head: true });
+
+      setStats({ 
+        allUsers: userCount || 0, 
+        completedOffers: offersCount || 0, 
+        totalRevenue,
+        totalPendingWithdraw,
+        totalWithdrawn,
+        pendingWithdrawCount: pendingCount || 0,
+        allWithdrawHistory: allWithdrawCount || 0,
+        chargeback: 0 // No chargeback table yet
+      });
     } catch (error) { console.error('Error fetching stats:', error); }
   };
 
@@ -104,6 +148,7 @@ const AdminPanel = () => {
     if (!isAdmin) return;
     const channel = supabase.channel('withdrawal-requests-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests' }, (payload) => {
+        fetchStats(); // Refresh stats on any withdrawal change
         if (payload.eventType === 'INSERT') {
           const newRequest = payload.new as WithdrawalRequest;
           if (newRequest.status === 'pending') {
@@ -128,7 +173,18 @@ const AdminPanel = () => {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'completed_offers' }, (payload) => {
         const newTx = payload.new as RealtimeTransaction;
         setRealtimeTransactions(prev => [newTx, ...prev.slice(0, 49)]);
+        fetchStats(); // Refresh stats on new offer
         toast.success(`New postback: ${newTx.username} earned ${newTx.coin} coins from ${newTx.offerwall}`);
+      }).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [isAdmin]);
+
+  // Real-time listener for profiles (user count)
+  useEffect(() => {
+    if (!isAdmin) return;
+    const channel = supabase.channel('profiles-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchStats();
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [isAdmin]);
@@ -174,11 +230,19 @@ const AdminPanel = () => {
   const handleApproveAll = async () => { for (const req of withdrawalRequests) await handleApprove(req.id, req.username, req.amount); };
   const handleRejectAll = async () => { for (const req of withdrawalRequests) await handleReject(req.id, req.username); };
 
+  // Stat cards matching the reference image
   const statCards = [
-    { label: 'Total Accounts', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'text-blue-400' },
-    { label: 'Total Earnings', value: `৳ ${stats.totalEarnings.toFixed(2)}`, icon: DollarSign, color: 'text-green-400' },
-    { label: 'Tasks Completed', value: stats.totalTasks.toLocaleString(), icon: TrendingUp, color: 'text-purple-400' },
-    { label: "Today's Signups", value: stats.todaySignups.toLocaleString(), icon: Clock, color: 'text-yellow-400' },
+    { label: 'All users', value: stats.allUsers.toLocaleString(), icon: Users, color: 'text-primary' },
+    { label: 'Completed Offers', value: stats.completedOffers.toLocaleString(), icon: CheckCircle, color: 'text-primary' },
+    { label: 'Total Revenue', value: `$ ${stats.totalRevenue.toFixed(2)}`, icon: CheckCircle, color: 'text-primary' },
+    { label: 'Total pending Withdraw', value: `$ ${stats.totalPendingWithdraw.toFixed(0)}`, icon: CheckCircle, color: 'text-primary' },
+  ];
+
+  const statCards2 = [
+    { label: 'Total Withdrawn', value: `$ ${stats.totalWithdrawn.toFixed(2)}`, icon: CheckCircle, color: 'text-primary' },
+    { label: 'Pending Withdraw', value: stats.pendingWithdrawCount.toLocaleString(), icon: ArrowDownCircle, color: 'text-primary' },
+    { label: 'All withdraw History', value: stats.allWithdrawHistory.toLocaleString(), icon: History, color: 'text-primary' },
+    { label: 'Chargeback', value: `$ ${stats.chargeback}`, icon: CheckCircle, color: 'text-primary' },
   ];
 
   const pendingCount = withdrawalRequests.length;
@@ -193,30 +257,61 @@ const AdminPanel = () => {
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg"><Menu className="w-4 h-4" /></button>
             <SiteLogo size="sm" />
-            <span className="text-xs text-muted-foreground">/ Admin</span>
           </div>
           <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
         </header>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%] py-4">
+        {/* Stats Row 1 */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%] pt-4">
           {statCards.map((stat, i) => (
-            <div key={i} className="glass-card p-4 text-center" style={{ borderTop: '3px solid hsl(var(--primary))' }}>
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-2">
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            <div key={i} className="glass-card p-4 text-center rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-2">
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
-              <div className="text-xl font-bold text-primary">{stat.value}</div>
-              <div className="text-[10px] text-muted-foreground">{stat.label}</div>
+              <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
+              <div className="text-lg font-bold text-primary">{stat.value}</div>
             </div>
           ))}
         </div>
 
-        {/* Withdrawals */}
+        {/* Stats Row 2 */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%] pt-3">
+          {statCards2.map((stat, i) => (
+            <div key={i} className="glass-card p-4 text-center rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-2">
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+              </div>
+              <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
+              <div className="text-lg font-bold text-primary">{stat.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* All Settings Section */}
+        <div className="px-3 md:px-[5%] py-4">
+          <h3 className="text-sm font-bold text-primary mb-3">All settings</h3>
+          <div className="flex flex-wrap gap-2">
+            <button 
+              onClick={() => navigate('/admin/offerwall-customize')}
+              className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-xs font-semibold transition-colors"
+            >
+              Offerwalls settings
+            </button>
+            <button 
+              onClick={() => navigate('/admin/withdraw')}
+              className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-colors"
+            >
+              Withdraw settings
+            </button>
+          </div>
+        </div>
+
+        {/* Pending Withdrawals */}
         <div className="mx-3 md:mx-[5%] mb-4">
           <div className="glass-card p-4">
             <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-              <DollarSign className="w-4 h-4" /> Withdrawals
-              <span className="text-xs text-muted-foreground">({pendingCount} Pending)</span>
+              <DollarSign className="w-4 h-4" /> Pending Withdrawals
+              <span className="text-xs text-muted-foreground">({pendingCount})</span>
               {isLoadingData && <RefreshCw className="w-3 h-3 animate-spin" />}
             </h2>
 

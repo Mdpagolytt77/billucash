@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Menu, Search, Loader2, Trash2, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Menu, Search, Loader2, Trash2, AlertTriangle, Pencil } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -19,9 +19,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface CompletedOffer {
   id: string;
+  user_id: string;
   username: string;
   offerwall: string;
   offer_name: string;
@@ -44,6 +55,19 @@ const AdminCompletedOffers = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
+  // Edit dialog state
+  const [editOffer, setEditOffer] = useState<CompletedOffer | null>(null);
+  const [editForm, setEditForm] = useState({
+    username: '',
+    offerwall: '',
+    offer_name: '',
+    coin: 0,
+    transaction_id: '',
+    ip: '',
+    country: '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   // Calculate amount and revenue
   // 400 coin = $0.40 (coin / 1000)
@@ -109,11 +133,68 @@ const AdminCompletedOffers = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    return date.toLocaleString('en-US', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   // Get unique usernames for filter dropdown
   const uniqueUsernames = [...new Set(offers.map(o => o.username))].sort();
+
+  // Open edit dialog
+  const openEditDialog = (offer: CompletedOffer) => {
+    setEditOffer(offer);
+    setEditForm({
+      username: offer.username,
+      offerwall: offer.offerwall,
+      offer_name: offer.offer_name,
+      coin: offer.coin,
+      transaction_id: offer.transaction_id || '',
+      ip: offer.ip || '',
+      country: offer.country || '',
+    });
+  };
+
+  // Save edit
+  const handleSaveEdit = async () => {
+    if (!editOffer) return;
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('completed_offers')
+        .update({
+          username: editForm.username,
+          offerwall: editForm.offerwall,
+          offer_name: editForm.offer_name,
+          coin: editForm.coin,
+          transaction_id: editForm.transaction_id || null,
+          ip: editForm.ip || null,
+          country: editForm.country || null,
+        })
+        .eq('id', editOffer.id);
+
+      if (error) throw error;
+      
+      // Update local state
+      setOffers(prev => prev.map(o => 
+        o.id === editOffer.id 
+          ? { ...o, ...editForm, transaction_id: editForm.transaction_id || null, ip: editForm.ip || null, country: editForm.country || null }
+          : o
+      ));
+      
+      toast.success('Offer updated successfully');
+      setEditOffer(null);
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error('Failed to update offer');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Toggle selection
   const toggleSelect = (id: string) => {
@@ -242,7 +323,7 @@ const AdminCompletedOffers = () => {
             ) : (
               <>
                 <div className="overflow-auto max-h-[55vh] border border-border rounded-lg">
-                  <table className="w-full text-[9px] min-w-[850px]">
+                  <table className="w-full text-[9px] min-w-[1200px]">
                     <thead className="sticky top-0 bg-muted/90">
                       <tr>
                         <th className="p-1.5 w-8">
@@ -253,14 +334,17 @@ const AdminCompletedOffers = () => {
                             className="w-3 h-3 rounded border-border"
                           />
                         </th>
-                        <th className="text-left p-1.5 text-muted-foreground">User</th>
+                        <th className="text-left p-1.5 text-muted-foreground">User ID</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Username</th>
                         <th className="text-left p-1.5 text-muted-foreground">Offerwall</th>
-                        <th className="text-left p-1.5 text-muted-foreground">Offer</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Offer Name</th>
                         <th className="text-center p-1.5 text-muted-foreground">Coin</th>
                         <th className="text-center p-1.5 text-muted-foreground">Amount</th>
                         <th className="text-center p-1.5 text-muted-foreground">Revenue</th>
-                        <th className="text-left p-1.5 text-muted-foreground">Country</th>
-                        <th className="text-left p-1.5 text-muted-foreground">Time</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Transaction ID</th>
+                        <th className="text-left p-1.5 text-muted-foreground">IP</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Date Time</th>
+                        <th className="text-center p-1.5 text-muted-foreground">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -274,14 +358,25 @@ const AdminCompletedOffers = () => {
                               className="w-3 h-3 rounded border-border"
                             />
                           </td>
+                          <td className="p-1.5 text-muted-foreground text-[8px] max-w-[80px] truncate" title={row.user_id}>{row.user_id.slice(0, 8)}...</td>
                           <td className="p-1.5 font-medium">{row.username}</td>
                           <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>
-                          <td className="p-1.5 max-w-[100px] truncate">{row.offer_name}</td>
+                          <td className="p-1.5 max-w-[150px] truncate" title={row.offer_name}>{row.offer_name}</td>
                           <td className="p-1.5 text-center">{row.coin}</td>
                           <td className="p-1.5 text-center text-green-400">${calculateAmount(row.coin)}</td>
                           <td className="p-1.5 text-center text-primary">${calculateRevenue(row.coin)}</td>
-                          <td className="p-1.5 text-muted-foreground">{row.country || 'Unknown'}</td>
-                          <td className="p-1.5 text-muted-foreground">{formatDate(row.created_at)}</td>
+                          <td className="p-1.5 text-muted-foreground text-[8px] max-w-[120px] truncate" title={row.transaction_id || ''}>{row.transaction_id || '-'}</td>
+                          <td className="p-1.5 text-muted-foreground">{row.ip || '-'}</td>
+                          <td className="p-1.5 text-muted-foreground whitespace-nowrap">{formatDate(row.created_at)}</td>
+                          <td className="p-1.5 text-center">
+                            <button
+                              onClick={() => openEditDialog(row)}
+                              className="p-1 rounded hover:bg-primary/20 text-primary"
+                              title="Edit"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -299,6 +394,89 @@ const AdminCompletedOffers = () => {
               </>
             )}
           </div>
+
+          {/* Edit Dialog */}
+          <Dialog open={!!editOffer} onOpenChange={(open) => !open && setEditOffer(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Pencil className="w-4 h-4" /> Edit Offer
+                </DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-3 py-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Username</Label>
+                    <Input
+                      value={editForm.username}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, username: e.target.value }))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Offerwall</Label>
+                    <Input
+                      value={editForm.offerwall}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, offerwall: e.target.value }))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs">Offer Name</Label>
+                  <Input
+                    value={editForm.offer_name}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, offer_name: e.target.value }))}
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Coin</Label>
+                    <Input
+                      type="number"
+                      value={editForm.coin}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, coin: Number(e.target.value) }))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Country</Label>
+                    <Input
+                      value={editForm.country}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, country: e.target.value }))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs">Transaction ID</Label>
+                  <Input
+                    value={editForm.transaction_id}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, transaction_id: e.target.value }))}
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">IP Address</Label>
+                  <Input
+                    value={editForm.ip}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, ip: e.target.value }))}
+                    className="h-8 text-xs"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" size="sm" onClick={() => setEditOffer(null)} disabled={isSaving}>
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSaveEdit} disabled={isSaving}>
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Save
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </>

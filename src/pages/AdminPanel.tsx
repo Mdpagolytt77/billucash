@@ -292,7 +292,7 @@ const AdminPanel = () => {
           <h3 className="text-sm font-bold text-primary mb-3">All settings</h3>
           <div className="flex flex-wrap gap-2">
             <button 
-              onClick={() => navigate('/admin/offerwall-customize')}
+              onClick={() => navigate('/admin/offerwall')}
               className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-xs font-semibold transition-colors"
             >
               Offerwalls settings
@@ -302,6 +302,12 @@ const AdminPanel = () => {
               className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-colors"
             >
               Withdraw settings
+            </button>
+            <button 
+              onClick={() => navigate('/admin/roles')}
+              className="px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold transition-colors"
+            >
+              Admin Roles
             </button>
           </div>
         </div>

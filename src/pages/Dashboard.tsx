@@ -86,14 +86,10 @@ const Dashboard = () => {
   // Load admin offerwalls from database
   useEffect(() => {
     const loadOfferwalls = async () => {
-      const { data } = await supabase
-        .from('site_settings')
-        .select('offerwall_settings')
-        .eq('id', 'default')
-        .maybeSingle();
+      const { data } = await supabase.rpc('get_public_site_settings');
       
-      if (data?.offerwall_settings && typeof data.offerwall_settings === 'object') {
-        const settings = data.offerwall_settings as { offerwalls?: AdminOfferwall[] };
+      if (data && data.length > 0 && data[0].offerwall_settings && typeof data[0].offerwall_settings === 'object') {
+        const settings = data[0].offerwall_settings as { offerwalls?: AdminOfferwall[] };
         if (Array.isArray(settings.offerwalls)) {
           setAdminOfferwalls(settings.offerwalls.filter(w => w.enabled));
         }

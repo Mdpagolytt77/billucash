@@ -45,23 +45,20 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
 
   const loadSettings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('logo_type, logo_text, logo_image_url, background_settings')
-        .eq('id', 'default')
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('get_public_site_settings');
 
       if (error) {
         console.error('Error loading site settings:', error);
         return;
       }
 
-      if (data) {
-        if (data.logo_type) setLogoType(data.logo_type as 'text' | 'image');
-        if (data.logo_text) setLogoText(data.logo_text);
-        if (data.logo_image_url) setLogoImageUrl(data.logo_image_url);
-        if (data.background_settings && typeof data.background_settings === 'object') {
-          setBackground(prev => ({ ...prev, ...(data.background_settings as unknown as BackgroundSettings) }));
+      if (data && data.length > 0) {
+        const settings = data[0];
+        if (settings.logo_type) setLogoType(settings.logo_type as 'text' | 'image');
+        if (settings.logo_text) setLogoText(settings.logo_text);
+        if (settings.logo_image_url) setLogoImageUrl(settings.logo_image_url);
+        if (settings.background_settings && typeof settings.background_settings === 'object') {
+          setBackground(prev => ({ ...prev, ...(settings.background_settings as unknown as BackgroundSettings) }));
         }
       }
     } catch (err) {

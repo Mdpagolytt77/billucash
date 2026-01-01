@@ -197,6 +197,20 @@ export type Database = {
     }
     Functions: {
       approve_withdrawal: { Args: { _request_id: string }; Returns: Json }
+      get_public_site_settings: {
+        Args: never
+        Returns: {
+          background_settings: Json
+          id: string
+          logo_image_url: string
+          logo_text: string
+          logo_type: string
+          offerwall_settings: Json
+          social_links_settings: Json
+          sound_settings: Json
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

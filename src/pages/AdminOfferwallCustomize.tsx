@@ -120,9 +120,9 @@ const AdminOfferwallCustomize = () => {
   };
 
   const loadSettings = async () => {
-    const { data } = await supabase.from('site_settings').select('offerwall_settings').eq('id', 'default').maybeSingle();
-    if (data?.offerwall_settings && typeof data.offerwall_settings === 'object') {
-      const offerData = data.offerwall_settings as Record<string, unknown>;
+    const { data } = await supabase.rpc('get_public_site_settings');
+    if (data && data.length > 0 && data[0].offerwall_settings && typeof data[0].offerwall_settings === 'object') {
+      const offerData = data[0].offerwall_settings as Record<string, unknown>;
       if (Array.isArray(offerData.offerwalls)) {
         migrateAndSetOfferwalls(offerData.offerwalls as Offerwall[]);
       }

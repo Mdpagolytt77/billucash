@@ -67,16 +67,12 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
 
   const loadSocialLinks = async () => {
     try {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('social_links_settings')
-        .eq('id', 'default')
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('get_public_site_settings');
 
       if (error) throw error;
 
-      if (data?.social_links_settings && Array.isArray(data.social_links_settings)) {
-        const links = data.social_links_settings as unknown as SocialLink[];
+      if (data && data.length > 0 && data[0].social_links_settings && Array.isArray(data[0].social_links_settings)) {
+        const links = data[0].social_links_settings as unknown as SocialLink[];
         setSocialLinks(links.filter(l => l.enabled));
       }
     } catch (error) {

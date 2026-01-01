@@ -56,19 +56,15 @@ export const SoundProvider = ({ children }: { children: ReactNode }) => {
 
   const loadSettings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('sound_settings')
-        .eq('id', 'default')
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('get_public_site_settings');
 
       if (error) {
         console.error('Error loading sound settings:', error);
         return;
       }
 
-      if (data?.sound_settings && typeof data.sound_settings === 'object') {
-        const soundData = data.sound_settings as Record<string, unknown>;
+      if (data && data.length > 0 && data[0].sound_settings && typeof data[0].sound_settings === 'object') {
+        const soundData = data[0].sound_settings as Record<string, unknown>;
         setSettings(prev => ({
           ...prev,
           enabled: soundData.enabled !== undefined ? Boolean(soundData.enabled) : prev.enabled,

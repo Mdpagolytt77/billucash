@@ -1,10 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Helper to convert bytes to hex string
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // HMAC-SHA256 signature verification
 async function verifyHmacSha256(secret: string, payload: string, signature: string): Promise<boolean> {
@@ -18,23 +24,19 @@ async function verifyHmacSha256(secret: string, payload: string, signature: stri
       ['sign']
     );
     const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
-    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+    const expectedSignature = bytesToHex(new Uint8Array(signatureBuffer));
     return expectedSignature === signature.toLowerCase();
   } catch {
     return false;
   }
 }
 
-// MD5 hash for signature verification (OfferToro format)
+// MD5 hash for signature verification - Using Deno std crypto
 async function md5Hash(input: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
   const hashBuffer = await crypto.subtle.digest('MD5', data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
+  return bytesToHex(new Uint8Array(hashBuffer));
 }
 
 // Offerwall configuration (from site_settings)

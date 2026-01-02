@@ -10,6 +10,16 @@ import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface UserWithRole {
   id: string;
@@ -25,6 +35,7 @@ const AdminRoleManagement = () => {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [userToRemove, setUserToRemove] = useState<UserWithRole | null>(null);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -110,6 +121,13 @@ const AdminRoleManagement = () => {
     }
   };
 
+  const confirmRemoveAdmin = () => {
+    if (userToRemove) {
+      handleRemoveAdmin(userToRemove.id, userToRemove.username);
+      setUserToRemove(null);
+    }
+  };
+
   const filteredUsers = users.filter(user => 
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -180,20 +198,20 @@ const AdminRoleManagement = () => {
               {admins.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-4">No admins found</p>
               ) : (
-                admins.map(user => (
-                  <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-primary/10 border border-primary/20">
-                    <div>
-                      <p className="text-xs font-medium">{user.username}</p>
-                      <p className="text-[10px] text-muted-foreground">{user.email}</p>
+                  admins.map(user => (
+                    <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-primary/10 border border-primary/20">
+                      <div>
+                        <p className="text-xs font-medium">{user.username}</p>
+                        <p className="text-[10px] text-muted-foreground">{user.email}</p>
+                      </div>
+                      <button
+                        onClick={() => setUserToRemove(user)}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
+                      >
+                        <UserMinus className="w-3 h-3" /> Remove
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleRemoveAdmin(user.id, user.username)}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
-                    >
-                      <UserMinus className="w-3 h-3" /> Remove
-                    </button>
-                  </div>
-                ))
+                  ))
               )}
             </div>
           </div>
@@ -227,6 +245,28 @@ const AdminRoleManagement = () => {
             </div>
           </div>
         </main>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={!!userToRemove} onOpenChange={(open) => !open && setUserToRemove(null)}>
+          <AlertDialogContent className="max-w-sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-sm">Remove Admin Role?</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs">
+                Are you sure you want to remove <strong>{userToRemove?.username}</strong> from Admin role? 
+                They will lose all admin privileges.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="h-8 text-xs">Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmRemoveAdmin}
+                className="h-8 text-xs bg-destructive hover:bg-destructive/90"
+              >
+                Yes, Remove
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );

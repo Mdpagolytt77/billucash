@@ -164,13 +164,14 @@ serve(async (req) => {
     const params = url.searchParams;
 
     // Extract parameters from query string (universal format)
-    const userId = params.get('user_id') || params.get('subid') || params.get('sub_id') || params.get('click_id');
-    const offerName = params.get('offer_name') || params.get('offer') || params.get('campaign_name') || 'Unknown Offer';
-    const offerwallName = params.get('offerwall') || params.get('network') || params.get('source') || 'Unknown';
-    const payout = params.get('payout') || params.get('amount') || params.get('reward') || '0';
-    const transactionId = params.get('transaction_id') || params.get('tid') || params.get('oid') || params.get('id') || null;
-    const ip = params.get('ip') || params.get('user_ip') || req.headers.get('x-forwarded-for') || null;
-    const country = params.get('country') || params.get('geo') || null;
+    // Vortexwall uses: identity_id (user_id), payout, offer_name, transaction_id, etc.
+    const userId = params.get('user_id') || params.get('identity_id') || params.get('subid') || params.get('sub_id') || params.get('click_id');
+    const offerName = params.get('offer_name') || params.get('offer') || params.get('campaign_name') || params.get('offer_title') || 'Unknown Offer';
+    const offerwallName = params.get('offerwall') || params.get('network') || params.get('source') || params.get('placement') || 'Unknown';
+    const payout = params.get('payout') || params.get('amount') || params.get('reward') || params.get('usd') || '0';
+    const transactionId = params.get('transaction_id') || params.get('tid') || params.get('oid') || params.get('id') || params.get('offer_id') || null;
+    const ip = params.get('ip') || params.get('user_ip') || params.get('click_ip') || req.headers.get('x-forwarded-for') || null;
+    const country = params.get('country') || params.get('geo') || params.get('country_code') || null;
 
     console.log('=== Postback received ===', { userId, offerName, offerwallName, payout, transactionId, ip, country });
 

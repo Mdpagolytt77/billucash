@@ -218,22 +218,32 @@ const Dashboard = () => {
                     <SiteLogo size="lg" className="animate-bounce mb-3" />
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   </div>
-                ) : selectedOfferwall.iframeUrl ? (
-                  <iframe 
-                    src={selectedOfferwall.iframeUrl}
-                    className="w-full h-[60vh] rounded-xl border-0"
-                    title={selectedOfferwall.name}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <div className="h-52 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
-                    <div className="text-center text-muted-foreground">
-                      <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">No offers available</p>
-                    </div>
-                  </div>
-                )}
+                ) : (() => {
+                    // Dynamically generate iframe URL with user_id for Vortexwall
+                    const iframeUrl = selectedOfferwall.name.toLowerCase().includes('vortex')
+                      ? `https://vortexwall.com/ow/694d43d853920bb7ed5519a6/${user?.id || ''}`
+                      : selectedOfferwall.iframeUrl
+                        ?.replace(/{uid}/g, user?.id || '')
+                        ?.replace(/{user_id}/g, user?.id || '')
+                        ?.replace(/{subid}/g, user?.id || '');
+                    
+                    return iframeUrl ? (
+                      <iframe 
+                        src={iframeUrl}
+                        className="w-full h-[60vh] rounded-xl border-0"
+                        title={selectedOfferwall.name}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className="h-52 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
+                        <div className="text-center text-muted-foreground">
+                          <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">No offers available</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
               </div>
             </div>
           </div>

@@ -218,6 +218,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_balance: {
+        Args: { amount_input: number; user_id_input: string }
+        Returns: undefined
+      }
       reject_withdrawal: {
         Args: { _reason?: string; _request_id: string }
         Returns: Json

@@ -8,7 +8,6 @@ const corsHeaders = {
 
 // Vortexwall Configuration
 const VORTEXWALL_SECRET_KEY = '6916b40b-a04f-4c67-9981-dd55e2c2db1a';
-const VORTEXWALL_WHITELISTED_IP = '157.230.103.196';
 
 // Helper to convert bytes to hex string
 function bytesToHex(bytes: Uint8Array): string {
@@ -33,7 +32,7 @@ serve(async (req) => {
     const url = new URL(req.url);
     const params = url.searchParams;
 
-    // Get client IP for whitelist check
+    // Get client IP (kept for logging + storage only)
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                      req.headers.get('cf-connecting-ip') || 
                      req.headers.get('x-real-ip') || '';
@@ -41,12 +40,6 @@ serve(async (req) => {
     console.log('=== Vortexwall Postback Received ===');
     console.log('Client IP:', clientIp);
     console.log('All params:', Object.fromEntries(params.entries()));
-
-    // IP Whitelist Check (optional - log warning if not matching)
-    if (clientIp && clientIp !== VORTEXWALL_WHITELISTED_IP) {
-      console.warn(`IP ${clientIp} is not in whitelist (${VORTEXWALL_WHITELISTED_IP})`);
-      // We log but don't reject - signature verification is more important
-    }
 
     // Extract Vortexwall parameters
     const identityId = params.get('identity_id');
@@ -69,14 +62,15 @@ serve(async (req) => {
       });
     }
 
-    // Hash Verification: SHA256(identity_id + campaign_id + txid + SECRET_KEY)
+    // Hash Verification: SHA256(identity_id + campaign_id + txid + secret_key)
     const hashPayload = `${identityId}${campaignId}${txid}${VORTEXWALL_SECRET_KEY}`;
     const expectedHash = await sha256Hash(hashPayload);
 
-    console.log('Hash verification:', { 
-      payload: hashPayload.substring(0, 50) + '...', 
-      expected: expectedHash.substring(0, 16) + '...', 
-      received: incomingHash.substring(0, 16) + '...'
+    // For debugging in logs (print full hashes)
+    console.log('Hash verification:', {
+      payload: hashPayload,
+      expectedHash,
+      receivedHash: incomingHash,
     });
 
     // Verify hash if provided

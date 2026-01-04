@@ -2,3 +2,7 @@ project_id = "xqcelwxqavzmgaqcgqps"
 
 [functions.offerwall-postback]
 verify_jwt = false
+
+[functions.vortexwall-postback]
+verify_jwt = false
+

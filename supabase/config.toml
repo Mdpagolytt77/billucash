@@ -6,3 +6,5 @@ verify_jwt = false
 [functions.vortexwall-postback]
 verify_jwt = false
 
+[functions.primewall-postback]
+verify_jwt = false

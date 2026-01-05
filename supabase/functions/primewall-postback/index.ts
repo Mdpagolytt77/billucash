@@ -29,35 +29,44 @@ serve(async (req) => {
     console.log('Client IP:', clientIp);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract PrimeWall parameters
-    const userId = params.get('user_id');
-    const payout = params.get('payout');
-    const transactionId = params.get('transaction_id') || params.get('txid');
-    const offerName = params.get('offer_name') || params.get('offer') || 'PrimeWall Offer';
-    const country = params.get('country') || 'Unknown';
+    // Extract PrimeWall parameters - try multiple common parameter names
+    const userId = params.get('user_id') || params.get('userid') || params.get('uid') || params.get('subid') || params.get('sub_id');
+    
+    // Try multiple payout parameter names that offerwalls commonly use
+    const payoutRaw = params.get('payout') || params.get('amount') || params.get('reward') || 
+                      params.get('points') || params.get('earnings') || params.get('currency') ||
+                      params.get('virtual_currency') || params.get('vc_amount');
+    
+    const transactionId = params.get('transaction_id') || params.get('txid') || params.get('tx_id') || 
+                          params.get('offer_id') || params.get('id');
+    const offerName = params.get('offer_name') || params.get('offer') || params.get('campaign') || 
+                      params.get('campaign_name') || 'PrimeWall Offer';
+    const country = params.get('country') || params.get('geo') || 'Unknown';
     const signature = params.get('signature') || params.get('sig') || params.get('hash');
-    const secretKey = params.get('secret_key') || params.get('secret');
+    const status = params.get('status') || params.get('result') || 'completed';
 
-    console.log('Parsed params:', { userId, payout, transactionId, offerName, country, signature, secretKey });
+    console.log('=== Parameter Extraction ===');
+    console.log('userId:', userId);
+    console.log('payoutRaw:', payoutRaw);
+    console.log('transactionId:', transactionId);
+    console.log('offerName:', offerName);
+    console.log('country:', country);
+    console.log('status:', status);
 
     // Validate required parameters
-    if (!userId || !payout) {
+    if (!userId || !payoutRaw) {
       console.error('Missing required params: user_id or payout');
+      console.error('userId:', userId, 'payoutRaw:', payoutRaw);
       return new Response('Approved', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Secret key validation (if provided in request)
-    if (secretKey && secretKey !== PRIMEWALL_SECRET_KEY) {
-      console.warn('Secret key mismatch:', { received: secretKey, expected: PRIMEWALL_SECRET_KEY });
-    }
-
     // Parse payout amount
-    const payoutAmount = parseFloat(payout);
-    if (isNaN(payoutAmount)) {
-      console.error('Invalid payout amount:', payout);
+    const payoutAmount = parseFloat(payoutRaw);
+    if (isNaN(payoutAmount) || payoutAmount <= 0) {
+      console.error('Invalid payout amount:', payoutRaw, 'parsed:', payoutAmount);
       return new Response('Approved', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },

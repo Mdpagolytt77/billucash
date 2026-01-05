@@ -219,13 +219,20 @@ const Dashboard = () => {
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   </div>
                 ) : (() => {
-                    // Dynamically generate iframe URL with user_id for Vortexwall
-                    const iframeUrl = selectedOfferwall.name.toLowerCase().includes('vortex')
-                      ? `https://vortexwall.com/ow/694d43d853920bb7ed5519a6/${user?.id || ''}`
-                      : selectedOfferwall.iframeUrl
+                    // Dynamically generate iframe URL with user_id for specific offerwalls
+                    const offerwallName = selectedOfferwall.name.toLowerCase();
+                    let iframeUrl = '';
+                    
+                    if (offerwallName.includes('vortex')) {
+                      iframeUrl = `https://vortexwall.com/ow/694d43d853920bb7ed5519a6/${user?.id || ''}`;
+                    } else if (offerwallName.includes('primewall') || offerwallName.includes('prime')) {
+                      iframeUrl = `https://primewall.io/offer/Pz6Cs5/${user?.id || ''}`;
+                    } else {
+                      iframeUrl = selectedOfferwall.iframeUrl
                         ?.replace(/{uid}/g, user?.id || '')
                         ?.replace(/{user_id}/g, user?.id || '')
-                        ?.replace(/{subid}/g, user?.id || '');
+                        ?.replace(/{subid}/g, user?.id || '') || '';
+                    }
                     
                     return iframeUrl ? (
                       <iframe 

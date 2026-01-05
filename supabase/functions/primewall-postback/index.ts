@@ -29,21 +29,81 @@ serve(async (req) => {
     console.log('Client IP:', clientIp);
     console.log('All params:', Object.fromEntries(params.entries()));
 
+    // Helpers
+    const unwrapToken = (value: string | null) => {
+      if (!value) return null;
+      let v = value.trim();
+      // unwrap common wrappers: [value], {value}, (value)
+      const wrappers: Array<[string, string]> = [
+        ['[', ']'],
+        ['{', '}'],
+        ['(', ')'],
+      ];
+      for (const [l, r] of wrappers) {
+        if (v.startsWith(l) && v.endsWith(r) && v.length > 2) v = v.slice(1, -1).trim();
+      }
+      return v;
+    };
+
+    const looksLikePlaceholder = (value: string | null) => {
+      if (!value) return false;
+      const v = value.toLowerCase();
+      return (
+        v.includes('user_id') ||
+        v.includes('userid') ||
+        v.includes('subid') ||
+        v.includes('payout') ||
+        v.includes('reward') ||
+        v.includes('amount') ||
+        v.includes('{') ||
+        v.includes('}')
+      );
+    };
+
     // Extract PrimeWall parameters - try multiple common parameter names
-    const userId = params.get('user_id') || params.get('userid') || params.get('uid') || params.get('subid') || params.get('sub_id');
-    
+    const userId = unwrapToken(
+      params.get('user_id') ||
+        params.get('USER_ID') ||
+        params.get('userid') ||
+        params.get('uid') ||
+        params.get('subid') ||
+        params.get('sub_id') ||
+        params.get('subId')
+    );
+
     // Try multiple payout parameter names that offerwalls commonly use
-    const payoutRaw = params.get('payout') || params.get('amount') || params.get('reward') || 
-                      params.get('points') || params.get('earnings') || params.get('currency') ||
-                      params.get('virtual_currency') || params.get('vc_amount');
-    
-    const transactionId = params.get('transaction_id') || params.get('txid') || params.get('tx_id') || 
-                          params.get('offer_id') || params.get('id');
-    const offerName = params.get('offer_name') || params.get('offer') || params.get('campaign') || 
-                      params.get('campaign_name') || 'PrimeWall Offer';
-    const country = params.get('country') || params.get('geo') || 'Unknown';
-    const signature = params.get('signature') || params.get('sig') || params.get('hash');
-    const status = params.get('status') || params.get('result') || 'completed';
+    const payoutRaw = unwrapToken(
+      params.get('payout') ||
+        params.get('PAYOUT') ||
+        params.get('amount') ||
+        params.get('reward') ||
+        params.get('points') ||
+        params.get('earnings') ||
+        params.get('currency') ||
+        params.get('virtual_currency') ||
+        params.get('vc_amount')
+    );
+
+    const transactionId = unwrapToken(
+      params.get('transaction_id') ||
+        params.get('TRANSACTION_ID') ||
+        params.get('transId') ||
+        params.get('txid') ||
+        params.get('tx_id') ||
+        params.get('offer_id') ||
+        params.get('id')
+    );
+    const offerName = unwrapToken(
+      params.get('offer_name') ||
+        params.get('OFFER_NAME') ||
+        params.get('offer') ||
+        params.get('campaign') ||
+        params.get('campaign_name') ||
+        params.get('offerName')
+    ) || 'PrimeWall Offer';
+    const country = unwrapToken(params.get('country') || params.get('COUNTRY') || params.get('geo')) || 'Unknown';
+    const signature = unwrapToken(params.get('signature') || params.get('sig') || params.get('hash'));
+    const status = unwrapToken(params.get('status') || params.get('result')) || 'completed';
 
     console.log('=== Parameter Extraction ===');
     console.log('userId:', userId);
@@ -57,8 +117,18 @@ serve(async (req) => {
     if (!userId || !payoutRaw) {
       console.error('Missing required params: user_id or payout');
       console.error('userId:', userId, 'payoutRaw:', payoutRaw);
-      return new Response('Approved', {
-        status: 200,
+      // Returning non-200 here encourages the offerwall to retry and prevents "false success"
+      return new Response('Missing required parameters (user_id, payout)', {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
+    // Guard against misconfigured macros like [PAYOUT] / {PAYOUT}
+    if (looksLikePlaceholder(userId) || looksLikePlaceholder(payoutRaw)) {
+      console.error('Detected placeholder token(s) - check PrimeWall macro formatting:', { userId, payoutRaw });
+      return new Response('Placeholder token detected - fix PrimeWall callback macros', {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
@@ -67,8 +137,8 @@ serve(async (req) => {
     const payoutAmount = parseFloat(payoutRaw);
     if (isNaN(payoutAmount) || payoutAmount <= 0) {
       console.error('Invalid payout amount:', payoutRaw, 'parsed:', payoutAmount);
-      return new Response('Approved', {
-        status: 200,
+      return new Response('Invalid payout amount', {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }

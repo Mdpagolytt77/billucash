@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Menu, RefreshCw, UserPlus, UserMinus, Search } from 'lucide-react';
+import { Shield, Menu, RefreshCw, UserPlus, UserMinus, Search, Crown, Users } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -21,12 +21,17 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+type AppRole = 'admin' | 'moderator' | 'user';
+
 interface UserWithRole {
   id: string;
   username: string;
   email: string;
-  role: 'admin' | 'user';
+  role: AppRole;
 }
+
+const MAX_ADMINS = 1;
+const MAX_MODERATORS = 3;
 
 const AdminRoleManagement = () => {
   const { isAdmin } = useAuth();
@@ -36,6 +41,7 @@ const AdminRoleManagement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [userToRemove, setUserToRemove] = useState<UserWithRole | null>(null);
+  const [actionType, setActionType] = useState<'remove-admin' | 'remove-moderator' | null>(null);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -47,7 +53,6 @@ const AdminRoleManagement = () => {
       
       if (error) throw error;
 
-      // Get roles for all users
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
@@ -58,7 +63,7 @@ const AdminRoleManagement = () => {
         const userRole = roles?.find(r => r.user_id === user.id);
         return {
           ...user,
-          role: (userRole?.role as 'admin' | 'user') || 'user'
+          role: (userRole?.role as AppRole) || 'user'
         };
       });
 
@@ -75,9 +80,41 @@ const AdminRoleManagement = () => {
     if (isAdmin) fetchUsers();
   }, [isAdmin]);
 
+  // Real-time subscription for user_roles changes
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const channel = supabase
+      .channel('user-roles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles'
+        },
+        () => {
+          // Refresh the list when roles change
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin]);
+
+  const admins = users.filter(u => u.role === 'admin');
+  const moderators = users.filter(u => u.role === 'moderator');
+
   const handleMakeAdmin = async (userId: string, username: string) => {
+    if (admins.length >= MAX_ADMINS) {
+      toast.error(`Maximum ${MAX_ADMINS} admin allowed! Remove existing admin first.`);
+      return;
+    }
+
     try {
-      // Check if user already has a role entry
       const { data: existing } = await supabase
         .from('user_roles')
         .select('id')
@@ -85,14 +122,12 @@ const AdminRoleManagement = () => {
         .maybeSingle();
 
       if (existing) {
-        // Update existing role
         const { error } = await supabase
           .from('user_roles')
           .update({ role: 'admin' })
           .eq('user_id', userId);
         if (error) throw error;
       } else {
-        // Insert new role
         const { error } = await supabase
           .from('user_roles')
           .insert({ user_id: userId, role: 'admin' });
@@ -100,13 +135,44 @@ const AdminRoleManagement = () => {
       }
 
       toast.success(`${username} is now an Admin!`);
-      fetchUsers();
     } catch (error: any) {
       toast.error(error.message || 'Failed to update role');
     }
   };
 
-  const handleRemoveAdmin = async (userId: string, username: string) => {
+  const handleMakeModerator = async (userId: string, username: string) => {
+    if (moderators.length >= MAX_MODERATORS) {
+      toast.error(`Maximum ${MAX_MODERATORS} moderators allowed!`);
+      return;
+    }
+
+    try {
+      const { data: existing } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await supabase
+          .from('user_roles')
+          .update({ role: 'moderator' })
+          .eq('user_id', userId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: 'moderator' });
+        if (error) throw error;
+      }
+
+      toast.success(`${username} is now a Moderator!`);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update role');
+    }
+  };
+
+  const handleRemoveRole = async (userId: string, username: string) => {
     try {
       const { error } = await supabase
         .from('user_roles')
@@ -114,18 +180,23 @@ const AdminRoleManagement = () => {
         .eq('user_id', userId);
       
       if (error) throw error;
-      toast.success(`${username} is no longer an Admin`);
-      fetchUsers();
+      toast.success(`${username} is now a regular user`);
     } catch (error: any) {
       toast.error(error.message || 'Failed to update role');
     }
   };
 
-  const confirmRemoveAdmin = () => {
+  const confirmRemove = () => {
     if (userToRemove) {
-      handleRemoveAdmin(userToRemove.id, userToRemove.username);
+      handleRemoveRole(userToRemove.id, userToRemove.username);
       setUserToRemove(null);
+      setActionType(null);
     }
+  };
+
+  const openRemoveDialog = (user: UserWithRole, type: 'remove-admin' | 'remove-moderator') => {
+    setUserToRemove(user);
+    setActionType(type);
   };
 
   const filteredUsers = users.filter(user => 
@@ -133,7 +204,6 @@ const AdminRoleManagement = () => {
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const admins = filteredUsers.filter(u => u.role === 'admin');
   const regularUsers = filteredUsers.filter(u => u.role === 'user');
 
   if (!isAdmin) {
@@ -160,10 +230,9 @@ const AdminRoleManagement = () => {
         <main className="p-3 md:px-[5%]">
           {/* Info Card */}
           <div className="glass-card p-3 mb-3 border-l-4 border-primary">
-            <h3 className="text-xs font-bold text-primary mb-1">🔐 Admin Role Management</h3>
+            <h3 className="text-xs font-bold text-primary mb-1">🔐 Admin & Moderator Management</h3>
             <p className="text-[10px] text-muted-foreground">
-              এখান থেকে যেকোনো user কে Admin বানাতে বা Admin role remove করতে পারবেন। 
-              Site sell করার সময় নতুন owner কে Admin বানিয়ে নিজের Admin role remove করুন।
+              1 জন Main Admin এবং সর্বোচ্চ 3 জন Moderator রাখতে পারবেন। Real-time আপডেট হয়।
             </p>
           </div>
 
@@ -187,31 +256,70 @@ const AdminRoleManagement = () => {
             </button>
           </div>
 
-          {/* Admins Section */}
-          <div className="glass-card p-3 mb-3">
-            <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-3">
-              <Shield className="w-4 h-4" /> Current Admins
-              <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">{admins.length}</span>
+          {/* Main Admin Section */}
+          <div className="glass-card p-3 mb-3 border border-yellow-500/30">
+            <h2 className="text-sm font-bold text-yellow-500 flex items-center gap-1.5 mb-3">
+              <Crown className="w-4 h-4" /> Main Admin
+              <span className="text-[10px] bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-full">
+                {admins.length}/{MAX_ADMINS}
+              </span>
             </h2>
 
             <div className="space-y-1.5">
               {admins.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-4">No admins found</p>
+                <p className="text-xs text-muted-foreground text-center py-4">No admin assigned</p>
               ) : (
-                  admins.map(user => (
-                    <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-primary/10 border border-primary/20">
+                admins.map(user => (
+                  <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-yellow-500" />
                       <div>
-                        <p className="text-xs font-medium">{user.username}</p>
+                        <p className="text-xs font-medium text-yellow-500">{user.username}</p>
                         <p className="text-[10px] text-muted-foreground">{user.email}</p>
                       </div>
-                      <button
-                        onClick={() => setUserToRemove(user)}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
-                      >
-                        <UserMinus className="w-3 h-3" /> Remove
-                      </button>
                     </div>
-                  ))
+                    <button
+                      onClick={() => openRemoveDialog(user, 'remove-admin')}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
+                    >
+                      <UserMinus className="w-3 h-3" /> Remove
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Moderators Section */}
+          <div className="glass-card p-3 mb-3 border border-blue-500/30">
+            <h2 className="text-sm font-bold text-blue-500 flex items-center gap-1.5 mb-3">
+              <Shield className="w-4 h-4" /> Moderators
+              <span className="text-[10px] bg-blue-500/20 text-blue-500 px-1.5 py-0.5 rounded-full">
+                {moderators.length}/{MAX_MODERATORS}
+              </span>
+            </h2>
+
+            <div className="space-y-1.5">
+              {moderators.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">No moderators assigned</p>
+              ) : (
+                moderators.map(user => (
+                  <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-blue-500" />
+                      <div>
+                        <p className="text-xs font-medium text-blue-500">{user.username}</p>
+                        <p className="text-[10px] text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => openRemoveDialog(user, 'remove-moderator')}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
+                    >
+                      <UserMinus className="w-3 h-3" /> Remove
+                    </button>
+                  </div>
+                ))
               )}
             </div>
           </div>
@@ -219,7 +327,7 @@ const AdminRoleManagement = () => {
           {/* Regular Users Section */}
           <div className="glass-card p-3">
             <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5 mb-3">
-              👤 Regular Users
+              <Users className="w-4 h-4" /> Regular Users
               <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{regularUsers.length}</span>
             </h2>
 
@@ -233,12 +341,22 @@ const AdminRoleManagement = () => {
                       <p className="text-xs font-medium">{user.username}</p>
                       <p className="text-[10px] text-muted-foreground">{user.email}</p>
                     </div>
-                    <button
-                      onClick={() => handleMakeAdmin(user.id, user.username)}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/20 text-primary text-[10px] font-medium hover:bg-primary/30"
-                    >
-                      <UserPlus className="w-3 h-3" /> Make Admin
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleMakeAdmin(user.id, user.username)}
+                        disabled={admins.length >= MAX_ADMINS}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500/20 text-yellow-500 text-[10px] font-medium hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Crown className="w-3 h-3" /> Admin
+                      </button>
+                      <button
+                        onClick={() => handleMakeModerator(user.id, user.username)}
+                        disabled={moderators.length >= MAX_MODERATORS}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/20 text-blue-500 text-[10px] font-medium hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Shield className="w-3 h-3" /> Mod
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -247,19 +365,21 @@ const AdminRoleManagement = () => {
         </main>
 
         {/* Confirmation Dialog */}
-        <AlertDialog open={!!userToRemove} onOpenChange={(open) => !open && setUserToRemove(null)}>
+        <AlertDialog open={!!userToRemove} onOpenChange={(open) => { if (!open) { setUserToRemove(null); setActionType(null); } }}>
           <AlertDialogContent className="max-w-sm">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-sm">Remove Admin Role?</AlertDialogTitle>
+              <AlertDialogTitle className="text-sm">
+                {actionType === 'remove-admin' ? 'Remove Admin?' : 'Remove Moderator?'}
+              </AlertDialogTitle>
               <AlertDialogDescription className="text-xs">
-                Are you sure you want to remove <strong>{userToRemove?.username}</strong> from Admin role? 
-                They will lose all admin privileges.
+                Are you sure you want to remove <strong>{userToRemove?.username}</strong> from {actionType === 'remove-admin' ? 'Admin' : 'Moderator'} role? 
+                They will become a regular user.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className="h-8 text-xs">Cancel</AlertDialogCancel>
               <AlertDialogAction 
-                onClick={confirmRemoveAdmin}
+                onClick={confirmRemove}
                 className="h-8 text-xs bg-destructive hover:bg-destructive/90"
               >
                 Yes, Remove

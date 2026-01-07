@@ -23,6 +23,7 @@ interface AdminOfferwall {
   color: string;
   apiKey: string;
   iframeUrl: string;
+  logoUrl?: string;
 }
 
 interface Notification {
@@ -146,31 +147,31 @@ const Dashboard = () => {
 
   // Default offerwalls (fallback if no admin walls)
   const defaultOfferwalls = [
-    { id: '1', name: 'Pubscale', rating: 5, color: '#45B7D1', iframeUrl: '' },
-    { id: '2', name: 'Vortexwall', rating: 5, color: '#FF6B6B', iframeUrl: '' },
-    { id: '3', name: 'Notik', rating: 5, color: '#4ECDC4', iframeUrl: '' },
-    { id: '4', name: 'Revtoo', rating: 5, color: '#96CEB4', iframeUrl: '' },
-    { id: '5', name: 'Adgem', rating: 3, color: '#FFEAA7', iframeUrl: '' },
-    { id: '6', name: 'Upwall', rating: 3, color: '#DDA0DD', iframeUrl: '' },
-    { id: '7', name: 'Tplayed', rating: 4, color: '#98D8C8', iframeUrl: '' },
-    { id: '8', name: 'Taskwall', rating: 2, color: '#F7DC6F', iframeUrl: '' },
-    { id: '9', name: 'Offery', rating: 3, color: '#BB8FCE', iframeUrl: '' },
-    { id: '10', name: 'Adtowall', rating: 5, color: '#85C1E9', iframeUrl: '' },
-    { id: '11', name: 'Adswed', rating: 1, color: '#F8C471', iframeUrl: '' },
-    { id: '12', name: 'Adrevmedia', rating: 2, color: '#82E0AA', iframeUrl: '' },
-    { id: '13', name: 'Revlum', rating: 3, color: '#F1948A', iframeUrl: '' },
-    { id: '14', name: 'Primewall', rating: 2, color: '#85C1E9', iframeUrl: '' },
-    { id: '15', name: 'Admantium', rating: 5, color: '#D7BDE2', iframeUrl: '' },
-    { id: '16', name: 'Wannads', rating: 5, color: '#F9E79F', iframeUrl: '' },
-    { id: '17', name: 'Timewal', rating: 2, color: '#A9DFBF', iframeUrl: '' },
-    { id: '18', name: 'Monlix', rating: 1, color: '#F5B7B1', iframeUrl: '' },
-    { id: '19', name: 'Lootably', rating: 4, color: '#AED6F1', iframeUrl: '' },
-    { id: '20', name: 'Adspiritmedia', rating: 2, color: '#D2B4DE', iframeUrl: '' },
+    { id: '1', name: 'Pubscale', color: '#45B7D1', iframeUrl: '', logoUrl: '' },
+    { id: '2', name: 'Vortexwall', color: '#FF6B6B', iframeUrl: '', logoUrl: '' },
+    { id: '3', name: 'Notik', color: '#4ECDC4', iframeUrl: '', logoUrl: '' },
+    { id: '4', name: 'Revtoo', color: '#96CEB4', iframeUrl: '', logoUrl: '' },
+    { id: '5', name: 'Adgem', color: '#FFEAA7', iframeUrl: '', logoUrl: '' },
+    { id: '6', name: 'Upwall', color: '#DDA0DD', iframeUrl: '', logoUrl: '' },
+    { id: '7', name: 'Tplayed', color: '#98D8C8', iframeUrl: '', logoUrl: '' },
+    { id: '8', name: 'Taskwall', color: '#F7DC6F', iframeUrl: '', logoUrl: '' },
+    { id: '9', name: 'Offery', color: '#BB8FCE', iframeUrl: '', logoUrl: '' },
+    { id: '10', name: 'Adtowall', color: '#85C1E9', iframeUrl: '', logoUrl: '' },
+    { id: '11', name: 'Adswed', color: '#F8C471', iframeUrl: '', logoUrl: '' },
+    { id: '12', name: 'Adrevmedia', color: '#82E0AA', iframeUrl: '', logoUrl: '' },
+    { id: '13', name: 'Revlum', color: '#F1948A', iframeUrl: '', logoUrl: '' },
+    { id: '14', name: 'Primewall', color: '#85C1E9', iframeUrl: '', logoUrl: '' },
+    { id: '15', name: 'Admantium', color: '#D7BDE2', iframeUrl: '', logoUrl: '' },
+    { id: '16', name: 'Wannads', color: '#F9E79F', iframeUrl: '', logoUrl: '' },
+    { id: '17', name: 'Timewal', color: '#A9DFBF', iframeUrl: '', logoUrl: '' },
+    { id: '18', name: 'Monlix', color: '#F5B7B1', iframeUrl: '', logoUrl: '' },
+    { id: '19', name: 'Lootably', color: '#AED6F1', iframeUrl: '', logoUrl: '' },
+    { id: '20', name: 'Adspiritmedia', color: '#D2B4DE', iframeUrl: '', logoUrl: '' },
   ];
 
   // Use admin offerwalls if available, otherwise use defaults
   const offerwalls = adminOfferwalls.length > 0 
-    ? adminOfferwalls.map((w, i) => ({ ...w, rating: 5 - (i % 5) }))
+    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '' }))
     : defaultOfferwalls;
 
   const bgStyle = getBackgroundStyle(background, heroBg);
@@ -380,22 +381,24 @@ const Dashboard = () => {
               <div 
                 key={offer.id}
                 onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color, iframeUrl: offer.iframeUrl || '' })}
-                className="glass-card p-3 cursor-pointer hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 group"
-                style={{ borderTop: `3px solid ${offer.color}` }}
+                className="relative overflow-hidden rounded-xl cursor-pointer hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 group aspect-[4/3]"
+                style={{ 
+                  background: `linear-gradient(135deg, ${offer.color}, ${offer.color}88, ${offer.color}55)` 
+                }}
               >
-                <div 
-                  className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform"
-                  style={{ background: `linear-gradient(135deg, ${offer.color}, ${offer.color}99)` }}
-                >
-                  {offer.name.charAt(0)}
+                <div className="absolute inset-0 flex items-center justify-center p-4">
+                  {offer.logoUrl ? (
+                    <img 
+                      src={offer.logoUrl} 
+                      alt={offer.name}
+                      className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <span className="text-white font-bold text-2xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      {offer.name}
+                    </span>
+                  )}
                 </div>
-                <h3 className="font-semibold text-xs mb-1">{offer.name}</h3>
-                <div className="flex gap-0.5 mb-1">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`text-[10px] ${i < offer.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
-                  ))}
-                </div>
-                <span className="text-[10px] text-muted-foreground">Earn rewards</span>
               </div>
             ))}
           </div>

@@ -41,6 +41,8 @@ interface Offerwall {
   // Popup size settings
   popupWidth?: string; // e.g., 'sm', 'md', 'lg', 'xl', 'full'
   popupHeight?: string; // e.g., '50vh', '60vh', '70vh', '80vh', '90vh'
+  // Popup animation
+  popupAnimation?: 'fade' | 'slide' | 'scale';
 }
 
 const PROVIDER_OPTIONS = [
@@ -121,6 +123,7 @@ const AdminOfferwallCustomize = () => {
       offers: (w.offers || []).map(o => ({ ...o, whitelisted: o.whitelisted ?? true })),
       popupWidth: w.popupWidth || 'lg',
       popupHeight: w.popupHeight || '60vh',
+      popupAnimation: w.popupAnimation || 'fade',
     })));
   };
 
@@ -165,6 +168,7 @@ const AdminOfferwallCustomize = () => {
       subIdParam: 'subid',
       popupWidth: 'lg',
       popupHeight: '60vh',
+      popupAnimation: 'fade',
     };
     setOfferwalls([...offerwalls, newWall]);
     setNewOfferwall('');
@@ -449,10 +453,10 @@ const AdminOfferwallCustomize = () => {
                   <p className="text-[10px] text-muted-foreground mt-1">Parameter name the network uses for user tracking</p>
                 </div>
 
-                {/* Popup Size Settings */}
+                {/* Popup Size & Animation Settings */}
                 <div className="p-3 bg-muted/50 rounded-lg border border-border space-y-3">
-                  <h4 className="text-xs font-semibold text-primary flex items-center gap-1"><Layers className="w-3 h-3" /> Popup Size Settings</h4>
-                  <div className="grid grid-cols-2 gap-3">
+                  <h4 className="text-xs font-semibold text-primary flex items-center gap-1"><Layers className="w-3 h-3" /> Popup Size & Animation</h4>
+                  <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Popup Width</label>
                       <select
@@ -460,12 +464,12 @@ const AdminOfferwallCustomize = () => {
                         onChange={(e) => updateWall(selectedWall.id, { popupWidth: e.target.value })}
                         className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
                       >
-                        <option value="sm">Small (max-w-sm)</option>
-                        <option value="md">Medium (max-w-md)</option>
-                        <option value="lg">Large (max-w-lg)</option>
-                        <option value="xl">Extra Large (max-w-xl)</option>
-                        <option value="2xl">2XL (max-w-2xl)</option>
-                        <option value="3xl">3XL (max-w-3xl)</option>
+                        <option value="sm">Small</option>
+                        <option value="md">Medium</option>
+                        <option value="lg">Large</option>
+                        <option value="xl">Extra Large</option>
+                        <option value="2xl">2XL</option>
+                        <option value="3xl">3XL</option>
                         <option value="full">Full Width</option>
                       </select>
                     </div>
@@ -476,16 +480,28 @@ const AdminOfferwallCustomize = () => {
                         onChange={(e) => updateWall(selectedWall.id, { popupHeight: e.target.value })}
                         className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
                       >
-                        <option value="40vh">40% Screen</option>
-                        <option value="50vh">50% Screen</option>
-                        <option value="60vh">60% Screen</option>
-                        <option value="70vh">70% Screen</option>
-                        <option value="80vh">80% Screen</option>
-                        <option value="90vh">90% Screen (Full)</option>
+                        <option value="40vh">40%</option>
+                        <option value="50vh">50%</option>
+                        <option value="60vh">60%</option>
+                        <option value="70vh">70%</option>
+                        <option value="80vh">80%</option>
+                        <option value="90vh">90%</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Animation</label>
+                      <select
+                        value={selectedWall.popupAnimation || 'fade'}
+                        onChange={(e) => updateWall(selectedWall.id, { popupAnimation: e.target.value as 'fade' | 'slide' | 'scale' })}
+                        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
+                      >
+                        <option value="fade">Fade</option>
+                        <option value="slide">Slide Up</option>
+                        <option value="scale">Scale</option>
                       </select>
                     </div>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">Controls the size of the popup when users click this offerwall</p>
+                  <p className="text-[10px] text-muted-foreground">Controls popup size and opening animation</p>
                 </div>
 
                 {/* Iframe URL with Macros */}

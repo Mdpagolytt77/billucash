@@ -26,6 +26,7 @@ interface AdminOfferwall {
   logoUrl?: string;
   popupWidth?: string;
   popupHeight?: string;
+  popupAnimation?: 'fade' | 'slide' | 'scale';
 }
 
 interface Notification {
@@ -48,7 +49,7 @@ const Dashboard = () => {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string} | null>(null);
+  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale'} | null>(null);
   const [adminOfferwalls, setAdminOfferwalls] = useState<AdminOfferwall[]>([]);
   const [popupLoading, setPopupLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -173,8 +174,8 @@ const Dashboard = () => {
 
   // Use admin offerwalls if available, otherwise use defaults
   const offerwalls = adminOfferwalls.length > 0 
-    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '', popupWidth: w.popupWidth || 'lg', popupHeight: w.popupHeight || '60vh' }))
-    : defaultOfferwalls.map(w => ({ ...w, popupWidth: 'lg', popupHeight: '60vh' }));
+    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '', popupWidth: w.popupWidth || 'lg', popupHeight: w.popupHeight || '60vh', popupAnimation: w.popupAnimation || 'fade' }))
+    : defaultOfferwalls.map(w => ({ ...w, popupWidth: 'lg', popupHeight: '60vh', popupAnimation: 'fade' as const }));
 
   const bgStyle = getBackgroundStyle(background, heroBg);
 
@@ -204,11 +205,19 @@ const Dashboard = () => {
           };
           const popupWidthClass = widthClasses[selectedOfferwall.popupWidth || 'lg'] || 'max-w-lg';
           const iframeHeight = selectedOfferwall.popupHeight || '60vh';
+          
+          // Animation classes
+          const animationClasses: Record<string, string> = {
+            fade: 'animate-fade-in',
+            slide: 'animate-[slideInUp_0.3s_ease-out]',
+            scale: 'animate-scale-in',
+          };
+          const popupAnimation = animationClasses[selectedOfferwall.popupAnimation || 'fade'] || 'animate-fade-in';
 
           return (
-            <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4" onClick={() => setSelectedOfferwall(null)}>
+            <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setSelectedOfferwall(null)}>
               <div 
-                className={`bg-background/98 backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden border border-white/20 shadow-2xl`}
+                className={`bg-background/98 backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden border border-white/20 shadow-2xl ${popupAnimation}`}
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between p-3 border-b border-border" style={{ borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
@@ -398,7 +407,7 @@ const Dashboard = () => {
             {offerwalls.map(offer => (
               <div 
                 key={offer.id}
-                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color, iframeUrl: offer.iframeUrl || '', popupWidth: offer.popupWidth, popupHeight: offer.popupHeight })}
+                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color, iframeUrl: offer.iframeUrl || '', popupWidth: offer.popupWidth, popupHeight: offer.popupHeight, popupAnimation: offer.popupAnimation })}
                 className="relative overflow-hidden rounded-xl cursor-pointer hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 group aspect-[4/3]"
                 style={{ 
                   background: `linear-gradient(135deg, ${offer.color}, ${offer.color}88, ${offer.color}55)` 

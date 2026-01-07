@@ -24,6 +24,8 @@ interface AdminOfferwall {
   apiKey: string;
   iframeUrl: string;
   logoUrl?: string;
+  popupWidth?: string;
+  popupHeight?: string;
 }
 
 interface Notification {
@@ -46,7 +48,7 @@ const Dashboard = () => {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string} | null>(null);
+  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string} | null>(null);
   const [adminOfferwalls, setAdminOfferwalls] = useState<AdminOfferwall[]>([]);
   const [popupLoading, setPopupLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -171,8 +173,8 @@ const Dashboard = () => {
 
   // Use admin offerwalls if available, otherwise use defaults
   const offerwalls = adminOfferwalls.length > 0 
-    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '' }))
-    : defaultOfferwalls;
+    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '', popupWidth: w.popupWidth || 'lg', popupHeight: w.popupHeight || '60vh' }))
+    : defaultOfferwalls.map(w => ({ ...w, popupWidth: 'lg', popupHeight: '60vh' }));
 
   const bgStyle = getBackgroundStyle(background, heroBg);
 
@@ -189,73 +191,89 @@ const Dashboard = () => {
         style={bgStyle}
       >
         {/* Offerwall Popup */}
-        {selectedOfferwall && (
-          <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4" onClick={() => setSelectedOfferwall(null)}>
-            <div 
-              className="bg-background/98 backdrop-blur-xl rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden border border-white/20 shadow-2xl"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between p-3 border-b border-border" style={{ borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
-                <div className="flex items-center gap-2">
+        {selectedOfferwall && (() => {
+          // Map popup width to Tailwind class
+          const widthClasses: Record<string, string> = {
+            sm: 'max-w-sm',
+            md: 'max-w-md',
+            lg: 'max-w-lg',
+            xl: 'max-w-xl',
+            '2xl': 'max-w-2xl',
+            '3xl': 'max-w-3xl',
+            full: 'max-w-[95vw]',
+          };
+          const popupWidthClass = widthClasses[selectedOfferwall.popupWidth || 'lg'] || 'max-w-lg';
+          const iframeHeight = selectedOfferwall.popupHeight || '60vh';
+
+          return (
+            <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4" onClick={() => setSelectedOfferwall(null)}>
+              <div 
+                className={`bg-background/98 backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden border border-white/20 shadow-2xl`}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between p-3 border-b border-border" style={{ borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setSelectedOfferwall(null)}
+                      className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                    </button>
+                    <Gift className="w-4 h-4 text-primary" />
+                    <h2 className="text-base font-bold">{selectedOfferwall.name}</h2>
+                  </div>
                   <button 
                     onClick={() => setSelectedOfferwall(null)}
-                    className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                    className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4" />
+                    <X className="w-3 h-3" />
                   </button>
-                  <Gift className="w-4 h-4 text-primary" />
-                  <h2 className="text-base font-bold">{selectedOfferwall.name}</h2>
                 </div>
-                <button 
-                  onClick={() => setSelectedOfferwall(null)}
-                  className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-              <div className="p-4">
-                {popupLoading ? (
-                  <div className="h-64 flex flex-col items-center justify-center">
-                    <SiteLogo size="lg" className="animate-bounce mb-3" />
-                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                  </div>
-                ) : (() => {
-                    // Dynamically generate iframe URL with user_id for specific offerwalls
-                    const offerwallName = selectedOfferwall.name.toLowerCase();
-                    let iframeUrl = '';
-                    
-                    if (offerwallName.includes('vortex')) {
-                      iframeUrl = `https://vortexwall.com/ow/694d43d853920bb7ed5519a6/${user?.id || ''}`;
-                    } else if (offerwallName.includes('primewall') || offerwallName.includes('prime')) {
-                      iframeUrl = `https://primewall.io/offer/Pz6Cs5/${user?.id || ''}`;
-                    } else {
-                      iframeUrl = selectedOfferwall.iframeUrl
-                        ?.replace(/{uid}/g, user?.id || '')
-                        ?.replace(/{user_id}/g, user?.id || '')
-                        ?.replace(/{subid}/g, user?.id || '') || '';
-                    }
-                    
-                    return iframeUrl ? (
-                      <iframe 
-                        src={iframeUrl}
-                        className="w-full h-[60vh] rounded-xl border-0"
-                        title={selectedOfferwall.name}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <div className="h-52 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
-                        <div className="text-center text-muted-foreground">
-                          <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                          <p className="text-sm">No offers available</p>
+                <div className="p-4">
+                  {popupLoading ? (
+                    <div className="h-64 flex flex-col items-center justify-center">
+                      <SiteLogo size="lg" className="animate-bounce mb-3" />
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    </div>
+                  ) : (() => {
+                      // Dynamically generate iframe URL with user_id for specific offerwalls
+                      const offerwallName = selectedOfferwall.name.toLowerCase();
+                      let iframeUrl = '';
+                      
+                      if (offerwallName.includes('vortex')) {
+                        iframeUrl = `https://vortexwall.com/ow/694d43d853920bb7ed5519a6/${user?.id || ''}`;
+                      } else if (offerwallName.includes('primewall') || offerwallName.includes('prime')) {
+                        iframeUrl = `https://primewall.io/offer/Pz6Cs5/${user?.id || ''}`;
+                      } else {
+                        iframeUrl = selectedOfferwall.iframeUrl
+                          ?.replace(/{uid}/g, user?.id || '')
+                          ?.replace(/{user_id}/g, user?.id || '')
+                          ?.replace(/{subid}/g, user?.id || '') || '';
+                      }
+                      
+                      return iframeUrl ? (
+                        <iframe 
+                          src={iframeUrl}
+                          className="w-full rounded-xl border-0"
+                          style={{ height: iframeHeight }}
+                          title={selectedOfferwall.name}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <div className="h-52 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
+                          <div className="text-center text-muted-foreground">
+                            <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">No offers available</p>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })()}
+                      );
+                    })()}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Sidebar */}
         <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -380,7 +398,7 @@ const Dashboard = () => {
             {offerwalls.map(offer => (
               <div 
                 key={offer.id}
-                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color, iframeUrl: offer.iframeUrl || '' })}
+                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color, iframeUrl: offer.iframeUrl || '', popupWidth: offer.popupWidth, popupHeight: offer.popupHeight })}
                 className="relative overflow-hidden rounded-xl cursor-pointer hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 group aspect-[4/3]"
                 style={{ 
                   background: `linear-gradient(135deg, ${offer.color}, ${offer.color}88, ${offer.color}55)` 

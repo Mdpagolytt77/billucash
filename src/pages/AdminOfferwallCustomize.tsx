@@ -38,6 +38,9 @@ interface Offerwall {
   subIdParam: string; // e.g., 'subid', 'aff_sub', 'uid'
   // Logo
   logoUrl?: string;
+  // Popup size settings
+  popupWidth?: string; // e.g., 'sm', 'md', 'lg', 'xl', 'full'
+  popupHeight?: string; // e.g., '50vh', '60vh', '70vh', '80vh', '90vh'
 }
 
 const PROVIDER_OPTIONS = [
@@ -116,6 +119,8 @@ const AdminOfferwallCustomize = () => {
       apiKey: w.apiKey || '',
       secretKey: w.secretKey || '',
       offers: (w.offers || []).map(o => ({ ...o, whitelisted: o.whitelisted ?? true })),
+      popupWidth: w.popupWidth || 'lg',
+      popupHeight: w.popupHeight || '60vh',
     })));
   };
 
@@ -158,6 +163,8 @@ const AdminOfferwallCustomize = () => {
       profitMargin: 0,
       minimumPayout: 0,
       subIdParam: 'subid',
+      popupWidth: 'lg',
+      popupHeight: '60vh',
     };
     setOfferwalls([...offerwalls, newWall]);
     setNewOfferwall('');
@@ -440,6 +447,45 @@ const AdminOfferwallCustomize = () => {
                     <option value="user_id">user_id</option>
                   </select>
                   <p className="text-[10px] text-muted-foreground mt-1">Parameter name the network uses for user tracking</p>
+                </div>
+
+                {/* Popup Size Settings */}
+                <div className="p-3 bg-muted/50 rounded-lg border border-border space-y-3">
+                  <h4 className="text-xs font-semibold text-primary flex items-center gap-1"><Layers className="w-3 h-3" /> Popup Size Settings</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Popup Width</label>
+                      <select
+                        value={selectedWall.popupWidth || 'lg'}
+                        onChange={(e) => updateWall(selectedWall.id, { popupWidth: e.target.value })}
+                        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
+                      >
+                        <option value="sm">Small (max-w-sm)</option>
+                        <option value="md">Medium (max-w-md)</option>
+                        <option value="lg">Large (max-w-lg)</option>
+                        <option value="xl">Extra Large (max-w-xl)</option>
+                        <option value="2xl">2XL (max-w-2xl)</option>
+                        <option value="3xl">3XL (max-w-3xl)</option>
+                        <option value="full">Full Width</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Iframe Height</label>
+                      <select
+                        value={selectedWall.popupHeight || '60vh'}
+                        onChange={(e) => updateWall(selectedWall.id, { popupHeight: e.target.value })}
+                        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
+                      >
+                        <option value="40vh">40% Screen</option>
+                        <option value="50vh">50% Screen</option>
+                        <option value="60vh">60% Screen</option>
+                        <option value="70vh">70% Screen</option>
+                        <option value="80vh">80% Screen</option>
+                        <option value="90vh">90% Screen (Full)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Controls the size of the popup when users click this offerwall</p>
                 </div>
 
                 {/* Iframe URL with Macros */}

@@ -149,19 +149,40 @@ const AdminAllUsers = () => {
     if (!selectedUser) return;
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          balance: parseFloat(editBalance) || 0,
-          status: editStatus,
-        })
-        .eq('id', selectedUser.id);
-      if (error) throw error;
+      const newBalance = parseFloat(editBalance) || 0;
+      const currentBalance = selectedUser.balance || 0;
+      
+      // Use secure RPC function for balance changes with audit trail
+      if (newBalance !== currentBalance) {
+        const { data: balanceResult, error: balanceError } = await supabase
+          .rpc('admin_adjust_balance', {
+            _user_id: selectedUser.id,
+            _new_balance: newBalance,
+            _reason: `Admin manual adjustment via user management panel`
+          });
+        
+        if (balanceError) throw balanceError;
+        
+        const result = balanceResult as { success: boolean; error?: string };
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to adjust balance');
+        }
+      }
+      
+      // Update status separately (balance already updated via RPC)
+      if (editStatus !== selectedUser.status) {
+        const { error: statusError } = await supabase
+          .from('profiles')
+          .update({ status: editStatus })
+          .eq('id', selectedUser.id);
+        if (statusError) throw statusError;
+      }
+      
       toast.success(`Updated ${selectedUser.username}`);
       setEditModalOpen(false);
       fetchUsers();
     } catch (error: any) {
-      toast.error('Failed to update user');
+      toast.error(error.message || 'Failed to update user');
     } finally {
       setIsSaving(false);
     }

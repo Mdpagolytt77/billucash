@@ -85,20 +85,16 @@ async function verifySignature(
     isTestMode
   });
 
-  // Test mode: Allow if user is an admin
-  if (isTestMode && userId) {
-    const { data: adminCheck } = await supabaseClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
-    
-    if (adminCheck) {
-      console.log('[Security] Test mode verified via admin status');
-      return { valid: true };
+  // Test mode: DISABLED in production for security
+  // Test mode requires explicit environment variable AND valid signature
+  if (isTestMode) {
+    const testModeEnabled = Deno.env.get('ENABLE_TEST_MODE') === 'true';
+    if (!testModeEnabled) {
+      console.warn('[Security] Test mode rejected - not enabled in environment');
+      return { valid: false, reason: 'Test mode disabled' };
     }
-    return { valid: false, reason: 'Unauthorized' };
+    // Even in test mode, require API key or signature verification
+    console.log('[Security] Test mode enabled, continuing to signature verification');
   }
 
   // Check API key match

@@ -6,9 +6,84 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// PrimeWall Configuration
-const PRIMEWALL_SECRET_KEY = 'En4DH7Ap5Ua2Ie8';
-const PRIMEWALL_PUBLIC_KEY = 'Pz6Cs5';
+// PrimeWall Configuration - from environment variables
+const PRIMEWALL_SECRET_KEY = Deno.env.get('PRIMEWALL_SECRET_KEY');
+const PRIMEWALL_PUBLIC_KEY = Deno.env.get('PRIMEWALL_PUBLIC_KEY');
+
+// Security limits
+const MAX_PAYOUT = 1000; // Maximum $1000 per transaction
+const MAX_OFFER_NAME_LENGTH = 200;
+
+// Helper to convert bytes to hex string
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// HMAC-SHA256 signature verification
+async function hmacSha256(secret: string, message: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(message));
+  return bytesToHex(new Uint8Array(signatureBuffer));
+}
+
+// MD5 hash for legacy signature verification
+async function md5Hash(input: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest('MD5', data);
+  return bytesToHex(new Uint8Array(hashBuffer));
+}
+
+// Verify signature from PrimeWall
+async function verifySignature(
+  signature: string | null,
+  apiKey: string | null,
+  userId: string,
+  payout: string,
+  transactionId: string | null
+): Promise<boolean> {
+  if (!PRIMEWALL_SECRET_KEY) {
+    console.error('[Security] No PRIMEWALL_SECRET_KEY configured');
+    return false;
+  }
+
+  // Method 1: Check API key match
+  if (apiKey && apiKey === PRIMEWALL_SECRET_KEY) {
+    return true;
+  }
+
+  // Method 2: Check signature (HMAC-SHA256 or MD5)
+  if (signature) {
+    const payloads = [
+      `${userId}${payout}${transactionId || ''}`,
+      `${PRIMEWALL_SECRET_KEY}${userId}${transactionId || ''}${payout}`,
+      `${PRIMEWALL_SECRET_KEY}${userId}${payout}`,
+      `${userId}${transactionId || ''}${payout}`,
+    ];
+
+    for (const payload of payloads) {
+      // Check HMAC-SHA256
+      const hmacSig = await hmacSha256(PRIMEWALL_SECRET_KEY, payload);
+      if (hmacSig.toLowerCase() === signature.toLowerCase()) {
+        return true;
+      }
+      // Check MD5
+      const md5Sig = await md5Hash(payload);
+      if (md5Sig.toLowerCase() === signature.toLowerCase()) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -17,6 +92,15 @@ serve(async (req) => {
   }
 
   try {
+    // Check if secrets are configured
+    if (!PRIMEWALL_SECRET_KEY) {
+      console.error('[Security] Missing PRIMEWALL_SECRET_KEY environment variable');
+      return new Response('Approved', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
     const url = new URL(req.url);
     const params = url.searchParams;
 
@@ -27,18 +111,12 @@ serve(async (req) => {
 
     console.log('=== PrimeWall Postback Received ===');
     console.log('Client IP:', clientIp);
-    console.log('All params:', Object.fromEntries(params.entries()));
 
     // Helpers
     const unwrapToken = (value: string | null) => {
       if (!value) return null;
       let v = value.trim();
-      // unwrap common wrappers: [value], {value}, (value)
-      const wrappers: Array<[string, string]> = [
-        ['[', ']'],
-        ['{', '}'],
-        ['(', ')'],
-      ];
+      const wrappers: Array<[string, string]> = [['[', ']'], ['{', '}'], ['(', ')']];
       for (const [l, r] of wrappers) {
         if (v.startsWith(l) && v.endsWith(r) && v.length > 2) v = v.slice(1, -1).trim();
       }
@@ -48,99 +126,91 @@ serve(async (req) => {
     const looksLikePlaceholder = (value: string | null) => {
       if (!value) return false;
       const v = value.toLowerCase();
-      return (
-        v.includes('user_id') ||
-        v.includes('userid') ||
-        v.includes('subid') ||
-        v.includes('payout') ||
-        v.includes('reward') ||
-        v.includes('amount') ||
-        v.includes('{') ||
-        v.includes('}')
-      );
+      return v.includes('user_id') || v.includes('userid') || v.includes('subid') ||
+             v.includes('payout') || v.includes('reward') || v.includes('amount') ||
+             v.includes('{') || v.includes('}');
     };
 
-    // Extract PrimeWall parameters - try multiple common parameter names
+    // Extract parameters
     const userId = unwrapToken(
-      params.get('user_id') ||
-        params.get('USER_ID') ||
-        params.get('userid') ||
-        params.get('uid') ||
-        params.get('subid') ||
-        params.get('sub_id') ||
-        params.get('subId')
+      params.get('user_id') || params.get('USER_ID') || params.get('userid') ||
+      params.get('uid') || params.get('subid') || params.get('sub_id') || params.get('subId')
     );
 
-    // Try multiple payout parameter names that offerwalls commonly use
     const payoutRaw = unwrapToken(
-      params.get('payout') ||
-        params.get('PAYOUT') ||
-        params.get('amount') ||
-        params.get('reward') ||
-        params.get('points') ||
-        params.get('earnings') ||
-        params.get('currency') ||
-        params.get('virtual_currency') ||
-        params.get('vc_amount')
+      params.get('payout') || params.get('PAYOUT') || params.get('amount') ||
+      params.get('reward') || params.get('points') || params.get('earnings') ||
+      params.get('currency') || params.get('virtual_currency') || params.get('vc_amount')
     );
 
     const transactionId = unwrapToken(
-      params.get('transaction_id') ||
-        params.get('TRANSACTION_ID') ||
-        params.get('transId') ||
-        params.get('txid') ||
-        params.get('tx_id') ||
-        params.get('offer_id') ||
-        params.get('id')
+      params.get('transaction_id') || params.get('TRANSACTION_ID') || params.get('transId') ||
+      params.get('txid') || params.get('tx_id') || params.get('offer_id') || params.get('id')
     );
-    const offerName = unwrapToken(
-      params.get('offer_name') ||
-        params.get('OFFER_NAME') ||
-        params.get('offer') ||
-        params.get('campaign') ||
-        params.get('campaign_name') ||
-        params.get('offerName')
+
+    let offerName = unwrapToken(
+      params.get('offer_name') || params.get('OFFER_NAME') || params.get('offer') ||
+      params.get('campaign') || params.get('campaign_name') || params.get('offerName')
     ) || 'PrimeWall Offer';
+
     const country = unwrapToken(params.get('country') || params.get('COUNTRY') || params.get('geo')) || 'Unknown';
     const signature = unwrapToken(params.get('signature') || params.get('sig') || params.get('hash'));
-    const status = unwrapToken(params.get('status') || params.get('result')) || 'completed';
+    const apiKey = params.get('api_key') || params.get('apikey') || req.headers.get('x-api-key');
 
-    console.log('=== Parameter Extraction ===');
-    console.log('userId:', userId);
-    console.log('payoutRaw:', payoutRaw);
-    console.log('transactionId:', transactionId);
-    console.log('offerName:', offerName);
-    console.log('country:', country);
-    console.log('status:', status);
+    console.log('Parameters extracted:', { userId: !!userId, payout: !!payoutRaw, transactionId: !!transactionId });
 
     // Validate required parameters
     if (!userId || !payoutRaw) {
-      console.error('Missing required params: user_id or payout');
-      console.error('userId:', userId, 'payoutRaw:', payoutRaw);
-      // Returning non-200 here encourages the offerwall to retry and prevents "false success"
-      return new Response('Missing required parameters (user_id, payout)', {
-        status: 400,
+      console.error('[Security] Missing required parameters');
+      return new Response('Approved', {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Guard against misconfigured macros like [PAYOUT] / {PAYOUT}
+    // Guard against placeholder tokens
     if (looksLikePlaceholder(userId) || looksLikePlaceholder(payoutRaw)) {
-      console.error('Detected placeholder token(s) - check PrimeWall macro formatting:', { userId, payoutRaw });
-      return new Response('Placeholder token detected - fix PrimeWall callback macros', {
-        status: 400,
+      console.error('[Security] Placeholder tokens detected');
+      return new Response('Approved', {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Parse payout amount
+    // SECURITY: Verify signature/API key
+    const isValid = await verifySignature(signature, apiKey, userId, payoutRaw, transactionId);
+    if (!isValid) {
+      console.error('[Security] Signature/API key verification failed');
+      return new Response('Approved', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
+    console.log('[Security] Request verified successfully');
+
+    // Parse and validate payout amount
     const payoutAmount = parseFloat(payoutRaw);
     if (isNaN(payoutAmount) || payoutAmount <= 0) {
-      console.error('Invalid payout amount:', payoutRaw, 'parsed:', payoutAmount);
-      return new Response('Invalid payout amount', {
-        status: 400,
+      console.error('[Validation] Invalid payout amount');
+      return new Response('Approved', {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
+    }
+
+    // SECURITY: Maximum payout validation
+    if (payoutAmount > MAX_PAYOUT) {
+      console.error(`[Security] Payout ${payoutAmount} exceeds maximum ${MAX_PAYOUT}`);
+      return new Response('Approved', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
+    // Validate string field lengths
+    if (offerName.length > MAX_OFFER_NAME_LENGTH) {
+      offerName = offerName.substring(0, MAX_OFFER_NAME_LENGTH);
     }
 
     console.log('Processing payout:', { userId, payoutAmount });
@@ -159,7 +229,7 @@ serve(async (req) => {
         .maybeSingle();
 
       if (existingOffer) {
-        console.log('Duplicate transaction detected:', transactionId);
+        console.log('Duplicate transaction detected');
         return new Response('Approved', {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
@@ -174,9 +244,17 @@ serve(async (req) => {
       .eq('id', userId)
       .maybeSingle();
 
-    const username = profile?.username || 'Unknown';
+    if (!profile) {
+      console.error('[Validation] User profile not found');
+      return new Response('Approved', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
 
-    // Update user balance using increment_balance function
+    const username = profile.username || 'Unknown';
+
+    // Update user balance
     const { error: balanceError } = await supabase.rpc('increment_balance', {
       user_id_input: userId,
       amount_input: payoutAmount,
@@ -190,7 +268,7 @@ serve(async (req) => {
       });
     }
 
-    console.log('Balance updated successfully for user:', userId);
+    console.log('Balance updated successfully');
 
     // Record the completed offer
     const { error: offerError } = await supabase
@@ -212,14 +290,13 @@ serve(async (req) => {
       console.log('Offer recorded successfully');
     }
 
-    // Return 200 OK with "Approved"
     return new Response('Approved', {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
     });
 
   } catch (error) {
-    console.error('Unexpected issue:', error);
+    console.error('Processing error:', error);
     return new Response('Approved', {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'text/plain' },

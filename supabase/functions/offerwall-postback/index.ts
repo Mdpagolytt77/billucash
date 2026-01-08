@@ -7,6 +7,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Security limits
+const MAX_PAYOUT = 1000; // Maximum $1000 per transaction
+const MAX_OFFER_NAME_LENGTH = 200;
+
 // Helper to convert bytes to hex string
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -31,7 +35,7 @@ async function verifyHmacSha256(secret: string, payload: string, signature: stri
   }
 }
 
-// MD5 hash for signature verification - Using Deno std crypto
+// MD5 hash for signature verification
 async function md5Hash(input: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
@@ -46,14 +50,14 @@ interface OfferwallConfig {
   enabled: boolean;
   provider: string;
   pointsConversionRate?: number;
-  profitMargin?: number; // Percentage to deduct
+  profitMargin?: number;
   minimumPayout?: number;
   apiKey?: string;
-  secretKey?: string; // Used for signature verification
+  secretKey?: string;
   subIdParam?: string;
 }
 
-// Secure signature verification using global or offerwall-specific secret
+// Secure signature verification
 async function verifySignature(
   params: URLSearchParams,
   headers: Headers,
@@ -62,13 +66,11 @@ async function verifySignature(
   supabaseClient: any,
   offerwallConfig: OfferwallConfig | null
 ): Promise<{ valid: boolean; reason?: string }> {
-  // Get the secret to use - prefer offerwall-specific, fallback to global
   const secretToUse = offerwallConfig?.secretKey || offerwallConfig?.apiKey || postbackSecret;
   
-  // SECURITY: If no secret is configured anywhere, REJECT all requests
   if (!secretToUse) {
-    console.error('SECURITY: No secret configured - rejecting request');
-    return { valid: false, reason: 'No secret key configured. Please configure it in offerwall settings or site settings.' };
+    console.error('[Security] No secret configured');
+    return { valid: false, reason: 'Configuration error' };
   }
 
   const signature = params.get('sig') || params.get('signature') || params.get('hash') || headers.get('x-signature');
@@ -77,15 +79,13 @@ async function verifySignature(
   const payout = params.get('payout') || params.get('amount') || params.get('reward');
   const transactionId = params.get('transaction_id') || params.get('tid') || params.get('oid') || params.get('id');
 
-  console.log('Verifying postback...', { 
+  console.log('[Security] Verifying postback...', { 
     hasSignature: !!signature, 
     hasApiKey: !!apiKey, 
-    isTestMode,
-    usingOfferwallSecret: !!offerwallConfig?.secretKey,
-    usingOfferwallApiKey: !!offerwallConfig?.apiKey
+    isTestMode
   });
 
-  // Test mode: Allow if user is an admin (verified server-side)
+  // Test mode: Allow if user is an admin
   if (isTestMode && userId) {
     const { data: adminCheck } = await supabaseClient
       .from('user_roles')
@@ -95,25 +95,24 @@ async function verifySignature(
       .maybeSingle();
     
     if (adminCheck) {
-      console.log('Test mode: Verified via admin status');
+      console.log('[Security] Test mode verified via admin status');
       return { valid: true };
     }
-    return { valid: false, reason: 'Test mode requires admin privileges' };
+    return { valid: false, reason: 'Unauthorized' };
   }
 
-  // 1. Check API key match against secret
+  // Check API key match
   if (apiKey === secretToUse) {
-    console.log('Verified via API key match');
+    console.log('[Security] Verified via API key');
     return { valid: true };
   }
 
-  // 2. Check offerwall-specific API key
   if (offerwallConfig?.apiKey && apiKey === offerwallConfig.apiKey) {
-    console.log('Verified via offerwall API key');
+    console.log('[Security] Verified via offerwall API key');
     return { valid: true };
   }
 
-  // 3. Check HMAC-SHA256/MD5 signature
+  // Check signature
   if (signature) {
     const secrets = [secretToUse];
     if (offerwallConfig?.secretKey && offerwallConfig.secretKey !== secretToUse) {
@@ -134,27 +133,22 @@ async function verifySignature(
 
       for (const payload of payloads) {
         if (await verifyHmacSha256(secret, payload, signature)) {
-          console.log('Verified via HMAC-SHA256 signature');
+          console.log('[Security] Verified via HMAC-SHA256');
           return { valid: true };
         }
         const md5Sig = await md5Hash(payload);
         if (md5Sig === signature.toLowerCase()) {
-          console.log('Verified via MD5 signature');
+          console.log('[Security] Verified via MD5');
           return { valid: true };
         }
       }
     }
   }
 
-  // 4. IP whitelist check (optional - can be added based on offerwall provider)
-  const clientIp = headers.get('x-forwarded-for') || headers.get('cf-connecting-ip');
-  console.log('Request from IP:', clientIp);
-
-  return { valid: false, reason: 'Invalid signature or API key' };
+  return { valid: false, reason: 'Unauthorized' };
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -163,33 +157,35 @@ serve(async (req) => {
     const url = new URL(req.url);
     const params = url.searchParams;
 
-    // Extract parameters from query string (universal format)
-    // Vortexwall uses: identity_id (user_id), payout, offer_name, transaction_id, etc.
     const userId = params.get('user_id') || params.get('identity_id') || params.get('subid') || params.get('sub_id') || params.get('click_id');
-    const offerName = params.get('offer_name') || params.get('offer') || params.get('campaign_name') || params.get('offer_title') || 'Unknown Offer';
+    let offerName = params.get('offer_name') || params.get('offer') || params.get('campaign_name') || params.get('offer_title') || 'Unknown Offer';
     const offerwallName = params.get('offerwall') || params.get('network') || params.get('source') || params.get('placement') || 'Unknown';
     const payout = params.get('payout') || params.get('amount') || params.get('reward') || params.get('usd') || '0';
     const transactionId = params.get('transaction_id') || params.get('tid') || params.get('oid') || params.get('id') || params.get('offer_id') || null;
     const ip = params.get('ip') || params.get('user_ip') || params.get('click_ip') || req.headers.get('x-forwarded-for') || null;
     const country = params.get('country') || params.get('geo') || params.get('country_code') || null;
 
-    console.log('=== Postback received ===', { userId, offerName, offerwallName, payout, transactionId, ip, country });
+    console.log('=== Postback received ===', { offerwall: offerwallName });
 
     // Validate required parameters
     if (!userId) {
-      console.error('Missing user_id parameter');
-      return new Response(JSON.stringify({ error: 'Missing user_id parameter' }), {
+      console.error('[Validation] Missing user_id');
+      return new Response(JSON.stringify({ error: 'Invalid request' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Create Supabase client with service role key for admin access
+    // Validate string field lengths
+    if (offerName.length > MAX_OFFER_NAME_LENGTH) {
+      offerName = offerName.substring(0, MAX_OFFER_NAME_LENGTH);
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get site settings including offerwall configurations
+    // Get site settings
     const { data: settings } = await supabase
       .from('site_settings')
       .select('postback_secret, offerwall_settings')
@@ -200,7 +196,7 @@ serve(async (req) => {
     const offerwallSettings = settings?.offerwall_settings as { offerwalls?: OfferwallConfig[] } | null;
     const offerwalls = offerwallSettings?.offerwalls || [];
 
-    // Find matching offerwall configuration
+    // Find matching offerwall
     let matchedOfferwall: OfferwallConfig | null = null;
     const normalizedName = offerwallName.toLowerCase().replace(/[^a-z0-9]/g, '');
     
@@ -212,7 +208,6 @@ serve(async (req) => {
       }
     }
 
-    // Also try to match by provider name
     if (!matchedOfferwall) {
       for (const ow of offerwalls) {
         if (ow.enabled && normalizedName.includes(ow.provider.toLowerCase())) {
@@ -222,52 +217,54 @@ serve(async (req) => {
       }
     }
 
-    console.log('Matched offerwall:', matchedOfferwall?.name || 'none', 'provider:', matchedOfferwall?.provider || 'unknown');
+    console.log('[Security] Matched offerwall:', matchedOfferwall?.name || 'none');
 
-    // Check for test mode
     const isTestMode = params.get('test_mode') === 'true';
-
-    // Verify the request signature using offerwall-specific or global secret
     const verificationResult = await verifySignature(params, req.headers, postbackSecret, isTestMode, supabase, matchedOfferwall);
 
     if (!verificationResult.valid) {
-      console.error('Verification failed:', verificationResult.reason);
-      return new Response(JSON.stringify({ error: `Unauthorized: ${verificationResult.reason}` }), {
+      console.error('[Security] Verification failed');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Parse payout and convert to coins using offerwall-specific rate or default (1000 coins = $1)
+    // Parse and validate payout
     const payoutValue = parseFloat(payout) || 0;
+    
+    // SECURITY: Maximum payout validation
+    if (payoutValue > MAX_PAYOUT) {
+      console.error(`[Security] Payout ${payoutValue} exceeds maximum ${MAX_PAYOUT}`);
+      return new Response(JSON.stringify({ error: 'Invalid request' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const conversionRate = matchedOfferwall?.pointsConversionRate || 1000;
     const profitMargin = matchedOfferwall?.profitMargin || 0;
-    // Apply profit margin: total points minus profit percentage
     const totalPoints = payoutValue * conversionRate;
     const coins = Math.round(totalPoints * (1 - profitMargin / 100));
 
-    // Check minimum payout threshold
     const minimumPayout = matchedOfferwall?.minimumPayout || 0;
     if (payoutValue < minimumPayout) {
-      console.log(`Payout ${payoutValue} below minimum ${minimumPayout}`);
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: `Payout ${payoutValue} is below minimum threshold ${minimumPayout}` 
-      }), {
+      console.log(`[Validation] Payout below minimum threshold`);
+      return new Response(JSON.stringify({ error: 'Invalid request' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     if (coins <= 0) {
-      console.error('Invalid payout value:', payout);
-      return new Response(JSON.stringify({ error: 'Invalid payout value' }), {
+      console.error('[Validation] Invalid payout value');
+      return new Response(JSON.stringify({ error: 'Invalid request' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Check if transaction already exists (prevent duplicates)
+    // Check for duplicate transaction
     if (transactionId) {
       const { data: existing } = await supabase
         .from('completed_offers')
@@ -276,14 +273,14 @@ serve(async (req) => {
         .maybeSingle();
 
       if (existing) {
-        console.log('Duplicate transaction:', transactionId);
+        console.log('Duplicate transaction detected');
         return new Response(JSON.stringify({ success: true, message: 'Already processed' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
     }
 
-    // Get user profile to get username
+    // Get user profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('username, balance')
@@ -291,14 +288,14 @@ serve(async (req) => {
       .maybeSingle();
 
     if (profileError || !profile) {
-      console.error('User not found:', userId, profileError);
-      return new Response(JSON.stringify({ error: 'User not found' }), {
-        status: 404,
+      console.error('[Validation] User not found');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Insert completed offer (transaction history)
+    // Insert completed offer
     const finalOfferwallName = matchedOfferwall?.name || offerwallName;
     const { error: insertError } = await supabase
       .from('completed_offers')
@@ -315,13 +312,13 @@ serve(async (req) => {
 
     if (insertError) {
       console.error('Failed to insert offer:', insertError);
-      return new Response(JSON.stringify({ error: 'Failed to record offer' }), {
+      return new Response(JSON.stringify({ error: 'Processing error' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Update user balance atomically
+    // Update user balance
     const newBalance = (profile.balance || 0) + coins;
     const { error: updateError } = await supabase
       .from('profiles')
@@ -332,15 +329,9 @@ serve(async (req) => {
       console.error('Failed to update balance:', updateError);
     }
 
-    const provider = matchedOfferwall?.provider || 'custom';
-    console.log('=== Postback processed successfully ===', { 
-      userId, 
+    console.log('=== Postback processed ===', { 
       offerwall: finalOfferwallName, 
-      provider,
-      payoutUSD: payoutValue,
-      conversionRate,
-      coinsAwarded: coins, 
-      newBalance 
+      coinsAwarded: coins
     });
 
     return new Response(JSON.stringify({ 
@@ -354,8 +345,8 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Postback error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error('Processing error:', error);
+    return new Response(JSON.stringify({ error: 'Processing error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

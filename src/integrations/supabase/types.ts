@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      balance_adjustments: {
+        Row: {
+          adjustment_amount: number
+          admin_id: string
+          created_at: string
+          id: string
+          new_balance: number
+          previous_balance: number
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          adjustment_amount?: number
+          admin_id: string
+          created_at?: string
+          id?: string
+          new_balance?: number
+          previous_balance?: number
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          adjustment_amount?: number
+          admin_id?: string
+          created_at?: string
+          id?: string
+          new_balance?: number
+          previous_balance?: number
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       completed_offers: {
         Row: {
           coin: number
@@ -196,6 +229,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_balance: {
+        Args: { _new_balance: number; _reason?: string; _user_id: string }
+        Returns: Json
+      }
       approve_withdrawal: { Args: { _request_id: string }; Returns: Json }
       get_public_site_settings: {
         Args: never

@@ -35,21 +35,41 @@ const AdminLogoCustomize = () => {
     }
   };
 
+  // Allowed file types for security (no SVG to prevent XSS)
+  const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+  
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) { 
-        toast.error('Max file size is 2MB'); 
-        return; 
-      }
-      
-      // Store the file for later upload
-      setSelectedFile(file);
-      
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setPreviewImage(previewUrl);
+    if (!file) return;
+    
+    // Security: Validate file size
+    if (file.size > MAX_FILE_SIZE) { 
+      toast.error('Max file size is 2MB'); 
+      return; 
     }
+    
+    // Security: Validate MIME type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      toast.error('Only JPG, PNG, and WebP images are allowed');
+      return;
+    }
+    
+    // Security: Validate file extension
+    const fileName = file.name.toLowerCase();
+    const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext));
+    if (!hasValidExtension) {
+      toast.error('Invalid file extension');
+      return;
+    }
+    
+    // Store the file for later upload
+    setSelectedFile(file);
+    
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewImage(previewUrl);
   };
 
   const uploadToStorage = async (file: File): Promise<string | null> => {

@@ -43,6 +43,9 @@ interface Offerwall {
   popupHeight?: string; // e.g., '50vh', '60vh', '70vh', '80vh', '90vh'
   // Popup animation
   popupAnimation?: 'fade' | 'slide' | 'scale';
+  // Popup border
+  popupBorderColor?: string;
+  popupBorderWidth?: string; // e.g., '0', '1', '2', '3', '4'
 }
 
 const PROVIDER_OPTIONS = [
@@ -124,6 +127,8 @@ const AdminOfferwallCustomize = () => {
       popupWidth: w.popupWidth || 'lg',
       popupHeight: w.popupHeight || '60vh',
       popupAnimation: w.popupAnimation || 'fade',
+      popupBorderColor: w.popupBorderColor || '#ffffff',
+      popupBorderWidth: w.popupBorderWidth || '1',
     })));
   };
 
@@ -169,6 +174,8 @@ const AdminOfferwallCustomize = () => {
       popupWidth: 'lg',
       popupHeight: '60vh',
       popupAnimation: 'fade',
+      popupBorderColor: '#ffffff',
+      popupBorderWidth: '1',
     };
     setOfferwalls([...offerwalls, newWall]);
     setNewOfferwall('');
@@ -500,8 +507,31 @@ const AdminOfferwallCustomize = () => {
                         <option value="scale">Scale</option>
                       </select>
                     </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Border Color</label>
+                      <input
+                        type="color"
+                        value={selectedWall.popupBorderColor || '#ffffff'}
+                        onChange={(e) => updateWall(selectedWall.id, { popupBorderColor: e.target.value })}
+                        className="w-12 h-10 rounded cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Border Width</label>
+                      <select
+                        value={selectedWall.popupBorderWidth || '1'}
+                        onChange={(e) => updateWall(selectedWall.id, { popupBorderWidth: e.target.value })}
+                        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
+                      >
+                        <option value="0">None</option>
+                        <option value="1">Thin (1px)</option>
+                        <option value="2">Medium (2px)</option>
+                        <option value="3">Thick (3px)</option>
+                        <option value="4">Extra (4px)</option>
+                      </select>
+                    </div>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">Controls popup size and opening animation</p>
+                  <p className="text-[10px] text-muted-foreground">Controls popup size, animation, and border style</p>
                 </div>
 
                 {/* Iframe URL with Macros */}

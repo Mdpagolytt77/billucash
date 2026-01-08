@@ -27,6 +27,8 @@ interface AdminOfferwall {
   popupWidth?: string;
   popupHeight?: string;
   popupAnimation?: 'fade' | 'slide' | 'scale';
+  popupBorderColor?: string;
+  popupBorderWidth?: string;
 }
 
 interface Notification {
@@ -49,7 +51,7 @@ const Dashboard = () => {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale'} | null>(null);
+  const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale'; popupBorderColor?: string; popupBorderWidth?: string} | null>(null);
   const [adminOfferwalls, setAdminOfferwalls] = useState<AdminOfferwall[]>([]);
   const [popupLoading, setPopupLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -174,8 +176,8 @@ const Dashboard = () => {
 
   // Use admin offerwalls if available, otherwise use defaults
   const offerwalls = adminOfferwalls.length > 0 
-    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '', popupWidth: w.popupWidth || 'lg', popupHeight: w.popupHeight || '60vh', popupAnimation: w.popupAnimation || 'fade' }))
-    : defaultOfferwalls.map(w => ({ ...w, popupWidth: 'lg', popupHeight: '60vh', popupAnimation: 'fade' as const }));
+    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '', popupWidth: w.popupWidth || 'lg', popupHeight: w.popupHeight || '60vh', popupAnimation: w.popupAnimation || 'fade', popupBorderColor: w.popupBorderColor || '#ffffff', popupBorderWidth: w.popupBorderWidth || '1' }))
+    : defaultOfferwalls.map(w => ({ ...w, popupWidth: 'lg', popupHeight: '60vh', popupAnimation: 'fade' as const, popupBorderColor: '#ffffff', popupBorderWidth: '1' }));
 
   const bgStyle = getBackgroundStyle(background, heroBg);
 
@@ -213,11 +215,19 @@ const Dashboard = () => {
             scale: 'animate-scale-in',
           };
           const popupAnimation = animationClasses[selectedOfferwall.popupAnimation || 'fade'] || 'animate-fade-in';
-
+          
+          // Border styles
+          const borderWidth = selectedOfferwall.popupBorderWidth || '1';
+          const borderColor = selectedOfferwall.popupBorderColor || '#ffffff';
           return (
             <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setSelectedOfferwall(null)}>
               <div 
-                className={`bg-background/98 backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden border border-white/20 shadow-2xl ${popupAnimation}`}
+                className={`bg-background/98 backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden shadow-2xl ${popupAnimation}`}
+                style={{ 
+                  borderWidth: `${borderWidth}px`,
+                  borderColor: `${borderColor}33`,
+                  borderStyle: 'solid'
+                }}
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between p-3 border-b border-border" style={{ borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>

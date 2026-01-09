@@ -76,10 +76,10 @@ const LiveEarningsTracker = () => {
     };
   }, []);
 
-  // Duplicate items for seamless loop
-  const displayItems = earnings.length > 0 ? [...earnings, ...earnings] : [];
-
   if (earnings.length === 0) return null;
+
+  // Only duplicate for seamless loop animation when there are enough items
+  const displayItems = earnings.length >= 5 ? [...earnings, ...earnings] : earnings;
 
   return (
     <div className="w-full bg-background/95 backdrop-blur-sm border-b border-border overflow-hidden">

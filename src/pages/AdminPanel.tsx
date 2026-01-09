@@ -2,8 +2,19 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Users, DollarSign, AlertCircle, CheckCircle, Clock,
-  RefreshCw, Menu, X, Zap, Settings, CreditCard, History, ArrowDownCircle
+  RefreshCw, Menu, X, Zap, Settings, CreditCard, History, ArrowDownCircle, RotateCcw
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -230,6 +241,28 @@ const AdminPanel = () => {
   const handleApproveAll = async () => { for (const req of withdrawalRequests) await handleApprove(req.id, req.username, req.amount); };
   const handleRejectAll = async () => { for (const req of withdrawalRequests) await handleReject(req.id, req.username); };
 
+  const [isResettingWithdrawals, setIsResettingWithdrawals] = useState(false);
+
+  const handleResetTotalWithdrawn = async () => {
+    setIsResettingWithdrawals(true);
+    try {
+      // Delete all approved withdrawal records
+      const { error } = await supabase
+        .from('withdrawal_requests')
+        .delete()
+        .eq('status', 'approved');
+      
+      if (error) throw error;
+      
+      toast.success('Total withdrawn has been reset successfully!');
+      fetchStats(); // Refresh stats
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reset withdrawals');
+    } finally {
+      setIsResettingWithdrawals(false);
+    }
+  };
+
   // Stat cards matching the reference image
   const statCards = [
     { label: 'All users', value: stats.allUsers.toLocaleString(), icon: Users, color: 'text-primary' },
@@ -239,7 +272,7 @@ const AdminPanel = () => {
   ];
 
   const statCards2 = [
-    { label: 'Total Withdrawn', value: `$ ${stats.totalWithdrawn.toFixed(2)}`, icon: CheckCircle, color: 'text-primary' },
+    { label: 'Total Withdrawn', value: `$ ${stats.totalWithdrawn.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', hasReset: true },
     { label: 'Pending Withdraw', value: stats.pendingWithdrawCount.toLocaleString(), icon: ArrowDownCircle, color: 'text-primary' },
     { label: 'All withdraw History', value: stats.allWithdrawHistory.toLocaleString(), icon: History, color: 'text-primary' },
     { label: 'Chargeback', value: `$ ${stats.chargeback}`, icon: CheckCircle, color: 'text-primary' },
@@ -277,12 +310,42 @@ const AdminPanel = () => {
         {/* Stats Row 2 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%] pt-3">
           {statCards2.map((stat, i) => (
-            <div key={i} className="glass-card p-4 text-center rounded-xl">
+            <div key={i} className="glass-card p-4 text-center rounded-xl relative">
               <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-2">
                 <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
               <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
               <div className="text-lg font-bold text-primary">{stat.value}</div>
+              {stat.hasReset && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button 
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-400 transition-colors"
+                      title="Reset Total Withdrawn"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset Total Withdrawn?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will delete all approved withdrawal records and reset the total withdrawn amount to $0. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleResetTotalWithdrawn}
+                        disabled={isResettingWithdrawals}
+                        className="bg-red-500 hover:bg-red-600"
+                      >
+                        {isResettingWithdrawals ? 'Resetting...' : 'Reset'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           ))}
         </div>

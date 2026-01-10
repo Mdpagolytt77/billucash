@@ -63,11 +63,21 @@ const PROVIDER_OPTIONS = [
 ];
 
 const SUPABASE_PROJECT_ID = 'xqcelwxqavzmgaqcgqps';
-const POSTBACK_BASE_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/offerwall-postback`;
+const SUPABASE_FUNCTIONS_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1`;
 
-const generatePostbackUrl = (wallName: string) => {
+// Provider-specific postback endpoints
+const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
+  vortexwall: 'vortexwall-postback',
+  primewall: 'primewall-postback',
+  // Add more provider-specific endpoints here
+};
+
+const generatePostbackUrl = (wallName: string, provider: string) => {
   const sanitizedName = wallName.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return `${POSTBACK_BASE_URL}?offerwall=${sanitizedName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`;
+  // Use provider-specific endpoint if available, otherwise use generic
+  const endpoint = PROVIDER_POSTBACK_ENDPOINTS[provider] || 'offerwall-postback';
+  const baseUrl = `${SUPABASE_FUNCTIONS_URL}/${endpoint}`;
+  return `${baseUrl}?offerwall=${sanitizedName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`;
 };
 
 // Apply macros to iframe URL
@@ -224,8 +234,8 @@ const AdminOfferwallCustomize = () => {
     }
   };
 
-  const copyPostbackUrl = async (wallId: string, wallName: string) => {
-    const url = generatePostbackUrl(wallName);
+  const copyPostbackUrl = async (wallId: string, wallName: string, provider: string) => {
+    const url = generatePostbackUrl(wallName, provider);
     await navigator.clipboard.writeText(url);
     setCopiedUrl(wallId);
     toast.success('Postback URL copied!');
@@ -236,6 +246,8 @@ const AdminOfferwallCustomize = () => {
     if (!user?.id) { toast.error('Login required'); return; }
     setTestingWall(wall.id);
     try {
+      const endpoint = PROVIDER_POSTBACK_ENDPOINTS[wall.provider] || 'offerwall-postback';
+      const postbackUrl = `${SUPABASE_FUNCTIONS_URL}/${endpoint}`;
       const testParams = new URLSearchParams({
         user_id: user.id,
         offerwall: wall.name.toLowerCase().replace(/[^a-z0-9]/g, ''),
@@ -246,7 +258,7 @@ const AdminOfferwallCustomize = () => {
         country: 'TEST',
         test_mode: 'true',
       });
-      const response = await fetch(`${POSTBACK_BASE_URL}?${testParams.toString()}`);
+      const response = await fetch(`${postbackUrl}?${testParams.toString()}`);
       const result = await response.json();
       if (response.ok && result.success) {
         toast.success(`Test passed! ${result.coins_awarded} coins credited.`);
@@ -555,8 +567,8 @@ const AdminOfferwallCustomize = () => {
                 <div className="p-3 bg-muted/50 rounded-lg border border-border">
                   <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><Globe className="w-3 h-3" /> Postback URL (copy to network)</label>
                   <div className="flex gap-2">
-                    <input type="text" value={generatePostbackUrl(selectedWall.name)} readOnly className="flex-1 px-3 py-2 bg-background/50 border border-border rounded-lg text-xs font-mono text-muted-foreground" />
-                    <button onClick={() => copyPostbackUrl(selectedWall.id, selectedWall.name)} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-xs flex items-center gap-1">
+                    <input type="text" value={generatePostbackUrl(selectedWall.name, selectedWall.provider)} readOnly className="flex-1 px-3 py-2 bg-background/50 border border-border rounded-lg text-xs font-mono text-muted-foreground" />
+                    <button onClick={() => copyPostbackUrl(selectedWall.id, selectedWall.name, selectedWall.provider)} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-xs flex items-center gap-1">
                       {copiedUrl === selectedWall.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                       Copy
                     </button>

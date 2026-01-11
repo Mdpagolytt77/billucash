@@ -69,7 +69,7 @@ const SUPABASE_FUNCTIONS_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/funct
 const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
   vortexwall: 'vortexwall-postback',
   primewall: 'primewall-postback',
-  // Add more provider-specific endpoints here
+  notik: 'notik-postback',
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {

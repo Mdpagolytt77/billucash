@@ -5,6 +5,7 @@ import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import LoginPopup from '@/components/LoginPopup';
 import Footer from '@/components/Footer';
+import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
@@ -190,6 +191,9 @@ const Signup = () => {
             </button>
           </div>
         </header>
+
+        {/* Live Earnings Tracker */}
+        <LiveEarningsTracker />
 
         {/* Main Content */}
         <main className="px-4 md:px-[5%] py-10 md:py-16">

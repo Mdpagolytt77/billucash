@@ -8,6 +8,7 @@ import LoginBox from '@/components/LoginBox';
 import PaymentSection from '@/components/PaymentSection';
 import Footer from '@/components/Footer';
 import LoginPopup from '@/components/LoginPopup';
+import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 
 const Index = () => {
@@ -47,6 +48,9 @@ const Index = () => {
       >
         {/* Header */}
         <Header onLoginClick={() => setIsLoginOpen(true)} />
+        
+        {/* Live Earnings Tracker */}
+        <LiveEarningsTracker />
 
         {/* Main Layout */}
         <main className="px-4 md:px-[5%] py-10 md:py-16">

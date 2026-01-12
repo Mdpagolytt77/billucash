@@ -72,14 +72,51 @@ const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
   notik: 'notik-postback',
 };
 
-// Provider-specific postback URL templates
+// Provider-specific postback URL templates with their unique parameter formats
 const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: string) => string> = {
+  // Notik uses aff_sub for user_id, offer_id for transaction, country_code for country
   notik: (baseUrl, wallName) => 
     `${baseUrl}?user_id={aff_sub}&payout={payout}&offer_name={offer_name}&transaction_id={offer_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
+  
+  // AdGem uses player_id for user_id, amount for payout
+  adgem: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={player_id}&payout={amount}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
+  
+  // OfferToro uses user_id, amount for payout, oid for offer_name
+  offertoro: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={user_id}&payout={amount}&offer_name={oid}&transaction_id={trans_id}&ip={ip}&country={cnt}&offerwall=${wallName}&sig={sig}`,
+  
+  // AdGate uses s1 for user_id, point_value for payout
+  adgate: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={s1}&payout={point_value}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&offerwall=${wallName}&sig={sig}`,
+  
+  // Wannads uses subid for user_id, reward for payout
+  wannads: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={subid}&payout={reward}&offer_name={campaign_name}&transaction_id={transaction_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
+  
+  // Adtowall uses aff_sub for user_id
+  adtowall: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={aff_sub}&payout={payout}&offer_name={offer_name}&transaction_id={click_id}&ip={ip}&country={country}&offerwall=${wallName}`,
+  
+  // Vortexwall standard format
   vortexwall: (baseUrl, wallName) => 
-    `${baseUrl}?offerwall=${wallName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`,
+    `${baseUrl}?user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&offerwall=${wallName}&sig={sig}`,
+  
+  // Primewall standard format
   primewall: (baseUrl, wallName) => 
-    `${baseUrl}?offerwall=${wallName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`,
+    `${baseUrl}?user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&offerwall=${wallName}&sig={sig}`,
+  
+  // Pubscale uses sub_id for user_id, revenue for payout
+  pubscale: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={sub_id}&payout={revenue}&offer_name={offer_name}&transaction_id={click_id}&ip={user_ip}&country={country}&offerwall=${wallName}`,
+  
+  // Revtoo uses userid for user_id, currency for payout
+  revtoo: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={userid}&payout={currency}&offer_name={offername}&transaction_id={transid}&ip={ip}&country={geo}&offerwall=${wallName}&sig={sig}`,
+  
+  // Upwall uses uid for user_id
+  upwall: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={uid}&payout={payout}&offer_name={offer_name}&transaction_id={txn_id}&ip={ip}&country={country}&offerwall=${wallName}`,
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {
@@ -94,7 +131,7 @@ const generatePostbackUrl = (wallName: string, provider: string) => {
     return templateFn(baseUrl, sanitizedName);
   }
   
-  // Default template for generic offerwalls
+  // Default template for custom/generic offerwalls
   return `${baseUrl}?offerwall=${sanitizedName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`;
 };
 

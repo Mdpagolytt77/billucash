@@ -72,11 +72,29 @@ const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
   notik: 'notik-postback',
 };
 
+// Provider-specific postback URL templates
+const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: string) => string> = {
+  notik: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={aff_sub}&payout={payout}&offer_name={offer_name}&transaction_id={offer_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
+  vortexwall: (baseUrl, wallName) => 
+    `${baseUrl}?offerwall=${wallName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`,
+  primewall: (baseUrl, wallName) => 
+    `${baseUrl}?offerwall=${wallName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`,
+};
+
 const generatePostbackUrl = (wallName: string, provider: string) => {
   const sanitizedName = wallName.toLowerCase().replace(/[^a-z0-9]/g, '');
   // Use provider-specific endpoint if available, otherwise use generic
   const endpoint = PROVIDER_POSTBACK_ENDPOINTS[provider] || 'offerwall-postback';
   const baseUrl = `${SUPABASE_FUNCTIONS_URL}/${endpoint}`;
+  
+  // Use provider-specific template if available
+  const templateFn = PROVIDER_POSTBACK_TEMPLATES[provider];
+  if (templateFn) {
+    return templateFn(baseUrl, sanitizedName);
+  }
+  
+  // Default template for generic offerwalls
   return `${baseUrl}?offerwall=${sanitizedName}&user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&sig={sig}`;
 };
 

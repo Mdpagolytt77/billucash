@@ -42,7 +42,12 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const params = url.searchParams;
+    
+    // Fix for HTML-encoded ampersands (&amp; -> &)
+    // Some offerwalls send URLs with HTML encoding
+    const rawQuery = url.search.replace(/&amp;/g, '&');
+    const fixedUrl = new URL(url.origin + url.pathname + rawQuery);
+    const params = fixedUrl.searchParams;
 
     // Get client IP (kept for logging + storage only)
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
@@ -51,20 +56,22 @@ serve(async (req) => {
 
     console.log('=== Notik Postback Received ===');
     console.log('Client IP:', clientIp);
+    console.log('Raw query:', url.search);
+    console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract Notik parameters
-    // Notik uses: user_id, app_id, pub_id, offer_id, payout, reward_name, ip, transaction_id, sig
-    const userId = params.get('user_id') || params.get('uid') || '';
+    // Extract Notik parameters - Notik uses aff_sub for user_id
+    // Notik macros: {aff_sub}, {payout}, {offer_name}, {offer_id}, {ip}, {country_code}
+    const userId = params.get('user_id') || params.get('aff_sub') || params.get('uid') || '';
     const appId = params.get('app_id') || '';
     const pubId = params.get('pub_id') || '';
     const offerId = params.get('offer_id') || '';
-    const txid = params.get('transaction_id') || params.get('txid') || '';
+    const txid = params.get('transaction_id') || params.get('offer_id') || params.get('txid') || '';
     const incomingHash = params.get('sig') || params.get('hash') || params.get('signature') || '';
     const status = params.get('status') || params.get('result') || 'completed';
     const payout = params.get('payout') || params.get('points') || params.get('reward') || '0';
     let offerName = params.get('offer_name') || params.get('campaign_name') || 'Notik Offer';
-    const country = params.get('country') || params.get('geo') || 'Unknown';
+    const country = params.get('country') || params.get('country_code') || params.get('geo') || 'Unknown';
     const userIp = params.get('ip') || clientIp || '';
 
     console.log('Parameters received:', { 

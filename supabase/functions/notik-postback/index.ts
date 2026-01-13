@@ -43,9 +43,18 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     
-    // Fix for HTML-encoded ampersands (&amp; -> &)
-    // Some offerwalls send URLs with HTML encoding
-    const rawQuery = url.search.replace(/&amp;/g, '&');
+    // Get the raw query string and fix multiple encoding issues
+    // 1. URL decode first to handle %26 -> &, %3B -> ;, etc.
+    // 2. Then fix HTML entities like &amp; -> &
+    let rawQuery = decodeURIComponent(url.search);
+    
+    // Fix HTML encoded ampersands (multiple variations)
+    rawQuery = rawQuery
+      .replace(/&amp;/gi, '&')  // &amp; -> &
+      .replace(/&amp%3B/gi, '&') // &amp%3B -> &
+      .replace(/amp;/gi, '');   // Remove any remaining amp; fragments
+    
+    // Rebuild URL with fixed query
     const fixedUrl = new URL(url.origin + url.pathname + rawQuery);
     const params = fixedUrl.searchParams;
 
@@ -56,7 +65,7 @@ serve(async (req) => {
 
     console.log('=== Notik Postback Received ===');
     console.log('Client IP:', clientIp);
-    console.log('Raw query:', url.search);
+    console.log('Original query:', url.search);
     console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
@@ -73,6 +82,8 @@ serve(async (req) => {
     let offerName = params.get('offer_name') || params.get('campaign_name') || 'Notik Offer';
     const country = params.get('country') || params.get('country_code') || params.get('geo') || 'Unknown';
     const userIp = params.get('ip') || clientIp || '';
+    
+    console.log('Parsed values:', { userId, payout, offerName, txid });
 
     console.log('Parameters received:', { 
       userId: !!userId, 

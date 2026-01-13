@@ -56,6 +56,7 @@ const PROVIDER_OPTIONS = [
   { value: 'adtowall', label: 'Adtowall' },
   { value: 'vortexwall', label: 'Vortexwall' },
   { value: 'notik', label: 'Notik' },
+  { value: 'offery', label: 'Offery' },
   { value: 'pubscale', label: 'Pubscale' },
   { value: 'revtoo', label: 'Revtoo' },
   { value: 'upwall', label: 'Upwall' },
@@ -70,12 +71,17 @@ const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
   vortexwall: 'vortexwall-postback',
   primewall: 'primewall-postback',
   notik: 'notik-postback',
+  offery: 'offery-postback',
 };
 
 // Provider-specific postback URL templates with their unique parameter formats
 const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: string) => string> = {
   // Notik uses aff_sub for user_id, offer_id for transaction, country_code for country
   notik: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={aff_sub}&payout={payout}&offer_name={offer_name}&transaction_id={offer_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
+  
+  // Offery uses aff_sub for user_id, offer_id for transaction
+  offery: (baseUrl, wallName) => 
     `${baseUrl}?user_id={aff_sub}&payout={payout}&offer_name={offer_name}&transaction_id={offer_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
   
   // AdGem uses player_id for user_id, amount for payout

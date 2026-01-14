@@ -6,7 +6,7 @@ import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import AppSidebar from '@/components/AppSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
-import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import { SiteLogo, CoinIcon } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import heroBg from '@/assets/hero-bg.jpg';
 
@@ -170,7 +170,7 @@ const Leaderboard = () => {
               <div className="text-[8px] text-muted-foreground">Users</div>
             </div>
             <div className="bg-background/90 border border-border rounded-lg p-2 text-center">
-              <TrendingUp className="w-3.5 h-3.5 text-green-400 mx-auto mb-1" />
+              <CoinIcon className="w-3.5 h-3.5 mx-auto mb-1" />
               <div className="text-sm font-bold">{stats.totalEarned.toLocaleString()}</div>
               <div className="text-[8px] text-muted-foreground">Coins</div>
             </div>
@@ -214,7 +214,10 @@ const Leaderboard = () => {
                       <span className="truncate font-medium text-[9px]">{user.username}</span>
                     </div>
                     <div className="text-right text-primary font-semibold text-[9px]">{user.offerCount}</div>
-                    <div className="text-right text-green-400 font-medium text-[9px]">{user.totalCoins.toLocaleString()}</div>
+                    <div className="text-right text-green-400 font-medium text-[9px] flex items-center justify-end gap-0.5">
+                      <CoinIcon className="w-3 h-3" />
+                      {user.totalCoins.toLocaleString()}
+                    </div>
                   </div>
                 ))}
               </div>

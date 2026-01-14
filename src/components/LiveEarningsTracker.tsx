@@ -348,15 +348,8 @@ const LiveEarningsTracker = () => {
                 <div 
                   key={`${earning.id}-${index}`}
                   onClick={() => handleOfferClick(earning)}
-                  className="flex-shrink-0 flex items-center gap-2 px-2 py-1.5 rounded-lg bg-card/70 border border-border/40 cursor-pointer hover:bg-card hover:border-primary/30 transition-all"
+                  className="flex-shrink-0 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-card/70 border border-border/40 cursor-pointer hover:bg-card hover:border-primary/30 transition-all"
                 >
-                  {/* Avatar */}
-                  <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center shadow-sm`}>
-                    <span className="text-[10px] font-bold text-white">
-                      {earning.username.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  
                   {/* Info - Username top, Offerwall bottom */}
                   <div className="flex flex-col leading-none">
                     <span className="text-[11px] font-semibold text-foreground">
@@ -368,7 +361,7 @@ const LiveEarningsTracker = () => {
                   </div>
                   
                   {/* Coins */}
-                  <span className="text-[11px] font-bold text-primary ml-1">
+                  <span className="text-[11px] font-bold text-primary">
                     +{earning.coins.toLocaleString()}
                   </span>
                 </div>

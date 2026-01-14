@@ -7,7 +7,7 @@ import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import AppSidebar from '@/components/AppSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
-import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import { SiteLogo, CoinIcon } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
@@ -122,7 +122,8 @@ const Withdraw = () => {
             <SiteLogo size="sm" />
           </div>
           <div className="flex items-center gap-2">
-            <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold">
+            <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold flex items-center gap-1">
+              <CoinIcon className="w-3.5 h-3.5" />
               ${profile?.balance?.toFixed(2) || '0.00'}
             </div>
             <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
@@ -202,9 +203,10 @@ const Withdraw = () => {
                   <div key={item.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg text-[10px]">
                     <div className="flex items-center gap-2">
                       {getStatusIcon(item.status)}
-                      <div>
+                      <div className="flex items-center gap-1">
+                        <CoinIcon className="w-3 h-3" />
                         <span className="font-medium">${item.amount.toFixed(2)}</span>
-                        <span className="text-muted-foreground ml-1.5">{item.method}</span>
+                        <span className="text-muted-foreground ml-1">{item.method}</span>
                       </div>
                     </div>
                     <span className={`capitalize px-1.5 py-0.5 rounded text-[9px] font-medium ${

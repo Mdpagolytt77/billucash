@@ -282,6 +282,16 @@ export type Database = {
         Returns: Json
       }
       approve_withdrawal: { Args: { _request_id: string }; Returns: Json }
+      get_live_tracker_offers: {
+        Args: { limit_count?: number }
+        Returns: {
+          coin: number
+          created_at: string
+          id: string
+          offerwall: string
+          username: string
+        }[]
+      }
       get_public_site_settings: {
         Args: never
         Returns: {

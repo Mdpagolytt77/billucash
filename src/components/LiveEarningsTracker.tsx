@@ -83,14 +83,11 @@ const LiveEarningsTracker = () => {
 
   useEffect(() => {
     const loadRecentOffers = async () => {
-      const { data } = await supabase
-        .from('completed_offers')
-        .select('id, username, coin, offerwall, created_at')
-        .order('created_at', { ascending: false })
-        .limit(20);
+      // Use secure function that only returns non-sensitive data (no IP, transaction_id, user_id)
+      const { data } = await supabase.rpc('get_live_tracker_offers', { limit_count: 20 });
       
       if (data) {
-        setEarnings(data.map(offer => ({
+        setEarnings(data.map((offer: { id: string; username: string; coin: number; offerwall: string; created_at: string }) => ({
           id: offer.id,
           username: offer.username,
           coins: offer.coin,

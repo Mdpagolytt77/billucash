@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Menu, UserPlus, LogIn } from 'lucide-react';
-import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import wallsCashLogo from '@/assets/wallscash-logo.png';
 import {
   Sheet,
   SheetContent,
@@ -24,7 +24,7 @@ const Header = ({ onLoginClick }: HeaderProps) => {
           </SheetTrigger>
           <SheetContent side="left" className="bg-background border-border">
             <div className="py-6">
-              <SiteLogo size="lg" />
+              <img src={wallsCashLogo} alt="WallsCash" className="h-10 object-contain" />
               <nav className="mt-8 space-y-4">
                 <Link to="/" className="block py-2 px-4 rounded-lg hover:bg-muted transition-colors">Home</Link>
                 <Link to="/signup" className="block py-2 px-4 rounded-lg hover:bg-muted transition-colors">Sign Up</Link>
@@ -33,6 +33,11 @@ const Header = ({ onLoginClick }: HeaderProps) => {
             </div>
           </SheetContent>
         </Sheet>
+        
+        {/* Logo in header */}
+        <Link to="/">
+          <img src={wallsCashLogo} alt="WallsCash" className="h-8 object-contain" />
+        </Link>
       </div>
       
       {/* Right - Auth Buttons */}

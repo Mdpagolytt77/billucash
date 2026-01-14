@@ -372,6 +372,12 @@ const AdminPanel = () => {
             >
               Admin Roles
             </button>
+            <button 
+              onClick={() => navigate('/admin/live-tracker')}
+              className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-semibold transition-colors"
+            >
+              Live Tracker
+            </button>
           </div>
         </div>
 

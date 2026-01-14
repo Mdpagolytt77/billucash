@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Trophy, Wallet, Shield, LogOut, X } from 'lucide-react';
+import { Home, User, Trophy, Wallet, Shield, LogOut, X, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { toast } from 'sonner';
@@ -22,6 +22,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
 
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
+    { icon: CheckCircle, label: 'My Offers', path: '/my-offers' },
     { icon: User, label: 'Profile', path: '/profile' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
     { icon: Wallet, label: 'Withdraw', path: '/withdraw' },

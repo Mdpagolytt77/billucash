@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
-import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import Header from '@/components/Header';
-import HeroSection from '@/components/HeroSection';
 import LoginBox from '@/components/LoginBox';
-import PaymentSection from '@/components/PaymentSection';
+import FeaturedOffersSection from '@/components/FeaturedOffersSection';
+import StatsSection from '@/components/StatsSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
+import ProvidersSection from '@/components/ProvidersSection';
+import FAQSection from '@/components/FAQSection';
+import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 import LoginPopup from '@/components/LoginPopup';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
-import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const { background } = useSiteSettings();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,8 +24,6 @@ const Index = () => {
 
     return () => clearTimeout(timer);
   }, []);
-
-  const bgStyle = getBackgroundStyle(background, heroBg);
 
   return (
     <>
@@ -43,8 +42,7 @@ const Index = () => {
 
       {/* Main Content */}
       <div 
-        className={`min-h-screen transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        style={bgStyle}
+        className={`min-h-screen bg-background transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
       >
         {/* Header */}
         <Header onLoginClick={() => setIsLoginOpen(true)} />
@@ -52,24 +50,39 @@ const Index = () => {
         {/* Live Earnings Tracker */}
         <LiveEarningsTracker />
 
-        {/* Main Layout */}
-        <main className="px-4 md:px-[5%] py-10 md:py-16">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center min-h-[calc(100vh-200px)]">
-            {/* Hero Content */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <HeroSection />
-            </div>
+        {/* Featured Offers */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <FeaturedOffersSection />
+        </div>
 
-            {/* Login Box */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <LoginBox />
-            </div>
-          </div>
-        </main>
+        {/* Login Box Section */}
+        <div className="animate-fade-in px-4 pb-6" style={{ animationDelay: '0.2s' }}>
+          <LoginBox />
+        </div>
 
-        {/* Payment Section */}
+        {/* Stats Section */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <StatsSection />
+        </div>
+
+        {/* How It Works */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <HowItWorksSection />
+        </div>
+
+        {/* Providers */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <ProvidersSection />
+        </div>
+
+        {/* FAQ */}
         <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-          <PaymentSection onLoginClick={() => setIsLoginOpen(true)} />
+          <FAQSection />
+        </div>
+
+        {/* CTA */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
+          <CTASection />
         </div>
 
         {/* Footer */}

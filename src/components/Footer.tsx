@@ -96,29 +96,44 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer ref={ref} className="bg-background border-t border-primary/30 mt-16">
-      {/* Gradient line at top */}
-      <div className="h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent" />
-      
-      <div className="py-12 px-4 md:px-[5%]">
+    <footer ref={ref} className="bg-background border-t border-border mt-8">
+      <div className="py-10 px-4 md:px-[5%]">
         <div className="max-w-6xl mx-auto">
           {/* Main Footer Content - 3 Column Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             
-            {/* Left Column - Logo & Description */}
-            <div className="text-center md:text-left">
-              <div className="text-2xl md:text-3xl font-display font-black text-gradient mb-4">
+            {/* Left Column - Logo & Copyright */}
+            <div>
+              <div className="text-xl font-display font-black text-primary mb-3">
                 <SiteLogo size="lg" />
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                A platform that contains various offerwall content for users.
+              <p className="text-xs text-muted-foreground">
+                Billucash | All rights reserved © {currentYear}
               </p>
             </div>
 
-            {/* Middle Column - Join Us */}
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-primary mb-4">Join us</h3>
-              <div className="flex justify-center gap-3 flex-wrap">
+            {/* About Column */}
+            <div>
+              <h3 className="text-sm font-semibold mb-3">About</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
+              </ul>
+            </div>
+
+            {/* Support Column */}
+            <div>
+              <h3 className="text-sm font-semibold mb-3">Support</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+
+            {/* Social Media Column */}
+            <div>
+              <h3 className="text-sm font-semibold mb-3">Social media</h3>
+              <div className="flex gap-2">
                 {joinUsLinks.length > 0 ? (
                   joinUsLinks.slice(0, 4).map((link) => {
                     const IconComponent = ICON_MAP[link.icon] || Globe;
@@ -128,86 +143,30 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
                         href={link.url || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30 transition-all duration-300 hover:-translate-y-1 hover:bg-primary/30 hover:shadow-lg hover:shadow-primary/20"
+                        className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground transition-all hover:bg-primary hover:text-primary-foreground"
                       >
-                        <IconComponent className="w-5 h-5" />
+                        <IconComponent className="w-4 h-4" />
                       </a>
                     );
                   })
                 ) : (
-                  // Default icons if no links configured
                   <>
-                    <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30">
-                      <Facebook className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                      <Linkedin className="w-4 h-4" />
                     </div>
-                    <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30">
-                      <Send className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                      <Facebook className="w-4 h-4" />
                     </div>
-                    <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30">
-                      <MessageCircle className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                      <Send className="w-4 h-4" />
                     </div>
-                    <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30">
-                      <Youtube className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                      <MessageCircle className="w-4 h-4" />
                     </div>
                   </>
                 )}
               </div>
             </div>
-
-            {/* Right Column - Support & Rating */}
-            <div className="text-center md:text-right">
-              <div className="flex flex-col md:flex-row md:justify-end gap-8">
-                {/* Support Section */}
-                <div>
-                  <h3 className="text-lg font-semibold text-primary mb-4">Support</h3>
-                  <div className="flex justify-center md:justify-end gap-3">
-                    {supportLinks.length > 0 ? (
-                      supportLinks.map((link) => {
-                        const IconComponent = ICON_MAP[link.icon] || Globe;
-                        return (
-                          <a
-                            key={link.id}
-                            href={link.icon === 'email' ? `mailto:${link.url}` : link.url || '#'}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30 transition-all duration-300 hover:-translate-y-1 hover:bg-primary/30 hover:shadow-lg hover:shadow-primary/20"
-                          >
-                            <IconComponent className="w-5 h-5" />
-                          </a>
-                        );
-                      })
-                    ) : (
-                      <>
-                        <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30">
-                          <Send className="w-5 h-5" />
-                        </div>
-                        <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-primary/20 text-primary border border-primary/30">
-                          <Mail className="w-5 h-5" />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* We are awesome - Star Rating */}
-                <div>
-                  <h3 className="text-lg font-semibold text-primary mb-4">We are awesome</h3>
-                  <div className="flex justify-center md:justify-end gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star 
-                        key={star} 
-                        className={`w-6 h-6 ${star <= 4 ? 'fill-primary text-primary' : 'text-primary'}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Copyright */}
-          <div className="text-center text-sm text-muted-foreground pt-6 border-t border-border/50">
-            © {currentYear} <SiteLogo className="inline" />
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import LiveEarningsBar from '@/components/dashboard/LiveEarningsBar';
+import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
@@ -339,8 +339,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Live Earnings Bar */}
-        <LiveEarningsBar />
+        {/* Live Earnings Tracker */}
+        <LiveEarningsTracker />
 
         {/* Main Content */}
         <main className="px-3 md:px-[5%] py-4">

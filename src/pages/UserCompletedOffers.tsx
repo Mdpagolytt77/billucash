@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface CompletedOffer {
   id: string;
+  username: string;
   offerwall: string;
   offer_name: string;
   coin: number;
@@ -28,16 +29,13 @@ const UserCompletedOffers = () => {
   const [offers, setOffers] = useState<CompletedOffer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user's completed offers
+  // Load ALL completed offers
   useEffect(() => {
     const loadOffers = async () => {
-      if (!profile?.username) return;
-      
       setIsLoading(true);
       const { data, error } = await supabase
         .from('completed_offers')
-        .select('id, offerwall, offer_name, coin, created_at')
-        .eq('username', profile.username)
+        .select('id, username, offerwall, offer_name, coin, created_at')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -50,34 +48,32 @@ const UserCompletedOffers = () => {
 
     loadOffers();
 
-    // Real-time subscription for user's offers
-    if (profile?.username) {
-      const channel = supabase
-        .channel('user-completed-offers-realtime')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'completed_offers',
-            filter: `username=eq.${profile.username}`,
-          },
-          (payload) => {
-            const newOffer = payload.new as CompletedOffer;
-            setOffers(prev => [newOffer, ...prev]);
-          }
-        )
-        .subscribe();
+    // Real-time subscription for all offers
+    const channel = supabase
+      .channel('all-completed-offers-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'completed_offers',
+        },
+        (payload) => {
+          const newOffer = payload.new as CompletedOffer;
+          setOffers(prev => [newOffer, ...prev]);
+        }
+      )
+      .subscribe();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [profile?.username]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
-  // Filter by search term and date
+  // Filter by search term (username, offer name) and date
   const filteredData = offers.filter(row => {
     const matchesSearch = 
+      row.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.offer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.offerwall.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -116,7 +112,7 @@ const UserCompletedOffers = () => {
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg"><Menu className="w-4 h-4" /></button>
             <SiteLogo size="sm" />
-            <span className="text-xs text-muted-foreground">/ My Offers</span>
+            <span className="text-xs text-muted-foreground">/ Completed Offers</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold flex items-center gap-1">
@@ -148,7 +144,7 @@ const UserCompletedOffers = () => {
           <div className="glass-card p-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
               <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4" /> My Completed Offers <span className="text-[10px] text-muted-foreground">({filteredData.length})</span>
+                <CheckCircle className="w-4 h-4" /> All Completed Offers <span className="text-[10px] text-muted-foreground">({filteredData.length})</span>
               </h2>
               <div className="flex gap-2 items-center flex-wrap">
                 <div className="relative">
@@ -157,7 +153,7 @@ const UserCompletedOffers = () => {
                     type="text" 
                     value={searchTerm} 
                     onChange={(e) => setSearchTerm(e.target.value)} 
-                    placeholder="Search offer name..." 
+                    placeholder="Search name/offer..." 
                     className="w-40 pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" 
                   />
                 </div>
@@ -193,6 +189,7 @@ const UserCompletedOffers = () => {
                     <thead className="sticky top-0 bg-muted/90">
                       <tr>
                         <th className="text-left p-2 text-muted-foreground">#</th>
+                        <th className="text-left p-2 text-muted-foreground">Username</th>
                         <th className="text-left p-2 text-muted-foreground">Offerwall</th>
                         <th className="text-left p-2 text-muted-foreground">Offer Name</th>
                         <th className="text-center p-2 text-muted-foreground">Coins</th>
@@ -203,12 +200,13 @@ const UserCompletedOffers = () => {
                       {pageData.map((row, index) => (
                         <tr key={row.id} className="border-t border-border/50 hover:bg-primary/5">
                           <td className="p-2 text-muted-foreground">{startIndex + index + 1}</td>
+                          <td className="p-2 font-medium text-primary">{row.username}</td>
                           <td className="p-2">
                             <span className="px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[9px] font-medium">
                               {row.offerwall}
                             </span>
                           </td>
-                          <td className="p-2 max-w-[200px] truncate font-medium" title={row.offer_name}>
+                          <td className="p-2 max-w-[200px] truncate" title={row.offer_name}>
                             {row.offer_name}
                           </td>
                           <td className="p-2 text-center">

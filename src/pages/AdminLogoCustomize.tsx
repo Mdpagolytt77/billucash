@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Palette, Menu, Save, RotateCcw, Eye, Upload, Image, Loader2 } from 'lucide-react';
+import { Palette, Menu, Save, RotateCcw, Eye, Upload, Image, Loader2, Coins } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -23,15 +23,23 @@ const AdminLogoCustomize = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Icon states
+  const [coinIconUrl, setCoinIconUrl] = useState<string | null>(null);
+  const [previewIconUrl, setPreviewIconUrl] = useState<string | null>(null);
+  const [selectedIconFile, setSelectedIconFile] = useState<File | null>(null);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
+  const iconInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { loadSettings(); }, []);
 
   const loadSettings = async () => {
-    const { data } = await supabase.from('site_settings').select('logo_type, logo_text, logo_image_url').eq('id', 'default').maybeSingle();
+    const { data } = await supabase.from('site_settings').select('logo_type, logo_text, logo_image_url, coin_icon_url').eq('id', 'default').maybeSingle();
     if (data) {
       if (data.logo_text) { setLogoText(data.logo_text); setPreviewText(data.logo_text); }
       if (data.logo_image_url) { setLogoImage(data.logo_image_url); setPreviewImage(data.logo_image_url); }
       if (data.logo_type) setLogoType(data.logo_type as 'text' | 'image');
+      if (data.coin_icon_url) { setCoinIconUrl(data.coin_icon_url); setPreviewIconUrl(data.coin_icon_url); }
     }
   };
 
@@ -72,21 +80,48 @@ const AdminLogoCustomize = () => {
     setPreviewImage(previewUrl);
   };
 
-  const uploadToStorage = async (file: File): Promise<string | null> => {
+  const handleIconSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > MAX_FILE_SIZE) { 
+      toast.error('Max file size is 2MB'); 
+      return; 
+    }
+    
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      toast.error('Only JPG, PNG, and WebP images are allowed');
+      return;
+    }
+    
+    const fileName = file.name.toLowerCase();
+    const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext));
+    if (!hasValidExtension) {
+      toast.error('Invalid file extension');
+      return;
+    }
+    
+    setSelectedIconFile(file);
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewIconUrl(previewUrl);
+  };
+
+  const uploadToStorage = async (file: File, folder: string = 'logos'): Promise<string | null> => {
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `logo-${Date.now()}.${fileExt}`;
-      const filePath = `logos/${fileName}`;
+      const fileName = `${folder === 'icons' ? 'icon' : 'logo'}-${Date.now()}.${fileExt}`;
+      const filePath = `${folder}/${fileName}`;
 
-      // Delete old logo if exists
-      if (logoImage && logoImage.includes('site-assets')) {
-        const oldPath = logoImage.split('/site-assets/')[1];
+      // Delete old file if exists
+      const existingUrl = folder === 'icons' ? coinIconUrl : logoImage;
+      if (existingUrl && existingUrl.includes('site-assets')) {
+        const oldPath = existingUrl.split('/site-assets/')[1];
         if (oldPath) {
           await supabase.storage.from('site-assets').remove([oldPath]);
         }
       }
 
-      // Upload new logo
+      // Upload new file
       const { error: uploadError } = await supabase.storage
         .from('site-assets')
         .upload(filePath, file, { 
@@ -115,11 +150,12 @@ const AdminLogoCustomize = () => {
     setIsSaving(true);
     try {
       let imageUrl = logoImage;
+      let iconUrl = coinIconUrl;
 
-      // If there's a new file selected, upload it
+      // If there's a new logo file selected, upload it
       if (selectedFile && logoType === 'image') {
         setIsUploading(true);
-        const uploadedUrl = await uploadToStorage(selectedFile);
+        const uploadedUrl = await uploadToStorage(selectedFile, 'logos');
         if (!uploadedUrl) {
           toast.error('Failed to upload logo');
           setIsSaving(false);
@@ -130,12 +166,27 @@ const AdminLogoCustomize = () => {
         setIsUploading(false);
       }
 
+      // If there's a new icon file selected, upload it
+      if (selectedIconFile) {
+        setIsUploadingIcon(true);
+        const uploadedIconUrl = await uploadToStorage(selectedIconFile, 'icons');
+        if (!uploadedIconUrl) {
+          toast.error('Failed to upload icon');
+          setIsSaving(false);
+          setIsUploadingIcon(false);
+          return;
+        }
+        iconUrl = uploadedIconUrl;
+        setIsUploadingIcon(false);
+      }
+
       const { error } = await supabase
         .from('site_settings')
         .update({ 
           logo_type: logoType, 
           logo_text: logoText, 
-          logo_image_url: logoType === 'image' ? imageUrl : null, 
+          logo_image_url: logoType === 'image' ? imageUrl : null,
+          coin_icon_url: iconUrl,
           updated_at: new Date().toISOString() 
         })
         .eq('id', 'default');
@@ -143,10 +194,13 @@ const AdminLogoCustomize = () => {
       if (error) throw error;
       
       setLogoImage(imageUrl);
+      setCoinIconUrl(iconUrl);
       setPreviewText(logoText); 
       setPreviewImage(imageUrl);
+      setPreviewIconUrl(iconUrl);
       setSelectedFile(null);
-      toast.success('Logo saved!');
+      setSelectedIconFile(null);
+      toast.success('Settings saved!');
     } catch (err) { 
       console.error(err);
       toast.error('Failed to save'); 
@@ -177,7 +231,28 @@ const AdminLogoCustomize = () => {
       updated_at: new Date().toISOString() 
     }).eq('id', 'default');
     
-    toast.success('Reset to default!');
+    toast.success('Logo reset to default!');
+  };
+
+  const handleResetIcon = async () => {
+    // Delete current icon from storage if exists
+    if (coinIconUrl && coinIconUrl.includes('site-assets')) {
+      const oldPath = coinIconUrl.split('/site-assets/')[1];
+      if (oldPath) {
+        await supabase.storage.from('site-assets').remove([oldPath]);
+      }
+    }
+
+    setCoinIconUrl(null);
+    setPreviewIconUrl(null);
+    setSelectedIconFile(null);
+    
+    await supabase.from('site_settings').update({ 
+      coin_icon_url: null, 
+      updated_at: new Date().toISOString() 
+    }).eq('id', 'default');
+    
+    toast.success('Icon reset to default!');
   };
 
   if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
@@ -192,12 +267,13 @@ const AdminLogoCustomize = () => {
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg"><Menu className="w-4 h-4" /></button>
             <SiteLogo size="sm" />
-            <span className="text-xs text-muted-foreground">/ Logo</span>
+            <span className="text-xs text-muted-foreground">/ Logo & Icon</span>
           </div>
           <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
         </header>
 
-        <main className="p-3 md:px-[5%] max-w-md mx-auto">
+        <main className="p-3 md:px-[5%] max-w-md mx-auto space-y-4">
+          {/* Logo Customize */}
           <div className="glass-card p-4">
             <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-4">
               <Palette className="w-4 h-4" /> Logo Customize
@@ -238,19 +314,68 @@ const AdminLogoCustomize = () => {
               )}
 
               <div className="flex gap-1.5">
-                <button onClick={handleSave} disabled={isSaving || isUploading} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold text-[10px] disabled:opacity-50">
-                  {isSaving || isUploading ? (
-                    <><Loader2 className="w-3 h-3 animate-spin" /> {isUploading ? 'Uploading...' : 'Saving...'}</>
-                  ) : (
-                    <><Save className="w-3 h-3" /> Save</>
-                  )}
-                </button>
                 <button onClick={handleReset} className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-muted border border-border text-muted-foreground font-semibold text-[10px]">
-                  <RotateCcw className="w-3 h-3" /> Reset
+                  <RotateCcw className="w-3 h-3" /> Reset Logo
                 </button>
               </div>
             </div>
           </div>
+
+          {/* Coin Icon Customize */}
+          <div className="glass-card p-4">
+            <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-4">
+              <Coins className="w-4 h-4" /> Coin Icon Customize
+            </h2>
+            <p className="text-[10px] text-muted-foreground mb-3">
+              This icon will appear in Live Tracker, Balance display, and other places.
+            </p>
+
+            <div className="mb-4 p-4 bg-muted/50 rounded-lg text-center border border-border">
+              <p className="text-[9px] text-muted-foreground mb-2 flex items-center justify-center gap-1"><Eye className="w-2.5 h-2.5" /> Preview</p>
+              <div className="flex items-center justify-center gap-3">
+                {previewIconUrl ? (
+                  <img src={previewIconUrl} alt="Coin Icon" className="w-10 h-10 object-contain rounded-lg" />
+                ) : (
+                  <img src="https://cdn-icons-png.flaticon.com/512/2173/2173478.png" alt="Default Coin" className="w-10 h-10 object-contain" />
+                )}
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-sm">
+                  {previewIconUrl ? (
+                    <img src={previewIconUrl} alt="Coin" className="w-4 h-4 object-contain" />
+                  ) : (
+                    <img src="https://cdn-icons-png.flaticon.com/512/2173/2173478.png" alt="Coin" className="w-4 h-4" />
+                  )}
+                  <span className="font-semibold">1,234.50</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <input ref={iconInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleIconSelect} className="hidden" />
+                <button onClick={() => iconInputRef.current?.click()} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-muted border border-dashed border-border rounded-lg text-[10px] hover:border-primary">
+                  <Upload className="w-3.5 h-3.5" /> {previewIconUrl ? 'Change Icon' : 'Upload Icon (PNG/JPG)'}
+                </button>
+                {selectedIconFile && (
+                  <p className="text-[9px] text-primary mt-1 text-center">
+                    New icon selected: {selectedIconFile.name}
+                  </p>
+                )}
+              </div>
+
+              <button onClick={handleResetIcon} className="w-full flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-muted border border-border text-muted-foreground font-semibold text-[10px]">
+                <RotateCcw className="w-3 h-3" /> Reset to Default
+              </button>
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <button onClick={handleSave} disabled={isSaving || isUploading || isUploadingIcon} className="w-full flex items-center justify-center gap-1 px-3 py-3 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold text-sm disabled:opacity-50">
+            {isSaving || isUploading || isUploadingIcon ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> {isUploading || isUploadingIcon ? 'Uploading...' : 'Saving...'}</>
+            ) : (
+              <><Save className="w-4 h-4" /> Save All Changes</>
+            )}
+          </button>
         </main>
       </div>
     </>

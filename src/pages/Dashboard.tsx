@@ -11,7 +11,7 @@ import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { useSiteSettings, SiteLogo, getBackgroundStyle, CoinIcon } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { supabase } from '@/integrations/supabase/client';
@@ -308,7 +308,7 @@ const Dashboard = () => {
 
           {/* Balance - Show in coins */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-sm">
-            <img src="https://cdn-icons-png.flaticon.com/512/2173/2173478.png" alt="Coin" className="w-4 h-4" />
+            <CoinIcon className="w-4 h-4" />
             <span className="font-semibold">{profile?.balance?.toFixed(2) || '0.00'}</span>
           </div>
 

@@ -125,6 +125,7 @@ export type Database = {
       site_settings: {
         Row: {
           background_settings: Json | null
+          coin_icon_url: string | null
           id: string
           logo_image_url: string | null
           logo_text: string | null
@@ -137,6 +138,7 @@ export type Database = {
         }
         Insert: {
           background_settings?: Json | null
+          coin_icon_url?: string | null
           id?: string
           logo_image_url?: string | null
           logo_text?: string | null
@@ -149,6 +151,7 @@ export type Database = {
         }
         Update: {
           background_settings?: Json | null
+          coin_icon_url?: string | null
           id?: string
           logo_image_url?: string | null
           logo_text?: string | null
@@ -238,6 +241,7 @@ export type Database = {
         Args: never
         Returns: {
           background_settings: Json
+          coin_icon_url: string
           id: string
           logo_image_url: string
           logo_text: string

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { CoinIcon } from '@/contexts/SiteSettingsContext';
 
 interface EarningEvent {
   id: string;
@@ -187,14 +188,17 @@ const LiveEarningsTracker = () => {
                 key={`${earning.id}-${index}`}
                 className="flex-shrink-0 flex items-center justify-between gap-4 px-3 py-1.5 rounded-md bg-muted/60 border border-border/40 min-w-[120px]"
               >
-                {/* Left side - Username & Offerwall */}
-                <div className="flex flex-col leading-tight">
-                  <span className="text-[10px] font-semibold text-foreground">
-                    {earning.username}
-                  </span>
-                  <span className="text-[9px] text-muted-foreground">
-                    {earning.offerwall}
-                  </span>
+                {/* Left side - Coin Icon + Username & Offerwall */}
+                <div className="flex items-center gap-2">
+                  <CoinIcon className="w-5 h-5" />
+                  <div className="flex flex-col leading-tight">
+                    <span className="text-[10px] font-semibold text-foreground">
+                      {earning.username}
+                    </span>
+                    <span className="text-[9px] text-muted-foreground">
+                      {earning.offerwall}
+                    </span>
+                  </div>
                 </div>
                 {/* Right side - Points number only */}
                 <span className="text-sm font-bold text-primary">

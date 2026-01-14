@@ -13,6 +13,7 @@ interface SiteSettings {
   logoType: 'text' | 'image';
   logoText: string;
   logoImageUrl: string | null;
+  coinIconUrl: string | null;
   background: BackgroundSettings;
   isLoading: boolean;
   refreshSettings: () => Promise<void>;
@@ -40,6 +41,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [logoType, setLogoType] = useState<'text' | 'image'>('text');
   const [logoText, setLogoText] = useState('BILLUCASH');
   const [logoImageUrl, setLogoImageUrl] = useState<string | null>(null);
+  const [coinIconUrl, setCoinIconUrl] = useState<string | null>(null);
   const [background, setBackground] = useState<BackgroundSettings>(defaultBackground);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,6 +59,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         if (settings.logo_type) setLogoType(settings.logo_type as 'text' | 'image');
         if (settings.logo_text) setLogoText(settings.logo_text);
         if (settings.logo_image_url) setLogoImageUrl(settings.logo_image_url);
+        setCoinIconUrl(settings.coin_icon_url || null);
         if (settings.background_settings && typeof settings.background_settings === 'object') {
           setBackground(prev => ({ ...prev, ...(settings.background_settings as unknown as BackgroundSettings) }));
         }
@@ -87,6 +90,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
           if (newData.logo_type) setLogoType(newData.logo_type);
           if (newData.logo_text) setLogoText(newData.logo_text);
           setLogoImageUrl(newData.logo_image_url || null);
+          setCoinIconUrl(newData.coin_icon_url || null);
           if (newData.background_settings && typeof newData.background_settings === 'object') {
             setBackground(prev => ({ ...prev, ...newData.background_settings }));
           }
@@ -104,6 +108,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
       logoType,
       logoText,
       logoImageUrl,
+      coinIconUrl,
       background,
       isLoading,
       refreshSettings: loadSettings,
@@ -113,7 +118,20 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// Default coin icon URL
+export const DEFAULT_COIN_ICON = 'https://cdn-icons-png.flaticon.com/512/2173/2173478.png';
 
+// Helper component for rendering coin icon
+export const CoinIcon = ({ className = 'w-4 h-4' }: { className?: string }) => {
+  const { coinIconUrl } = useSiteSettings();
+  return (
+    <img 
+      src={coinIconUrl || DEFAULT_COIN_ICON} 
+      alt="Coin" 
+      className={`object-contain ${className}`} 
+    />
+  );
+};
 
 // Helper component for rendering logo
 export const SiteLogo = forwardRef<HTMLSpanElement, { className?: string; size?: 'sm' | 'md' | 'lg' }>(

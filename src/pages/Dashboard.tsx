@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Gift, Bell, Menu, X, ChevronDown, ArrowLeft, Loader2, CheckCircle
+  Gift, X, ArrowLeft, Loader2, CheckCircle
 } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
-import SnowToggle from '@/components/SnowToggle';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
-import LiveEarningsTracker from '@/components/LiveEarningsTracker';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import LiveEarningsBar from '@/components/dashboard/LiveEarningsBar';
+import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
+import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSiteSettings, SiteLogo, getBackgroundStyle, CoinIcon } from '@/contexts/SiteSettingsContext';
+import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
 interface AdminOfferwall {
   id: string;
   name: string;
@@ -49,13 +52,11 @@ const Dashboard = () => {
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale'; popupBorderColor?: string; popupBorderWidth?: string} | null>(null);
   const [adminOfferwalls, setAdminOfferwalls] = useState<AdminOfferwall[]>([]);
   const [popupLoading, setPopupLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([
-    { id: '1', message: 'Welcome to Billucash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
+    { id: '1', message: 'Welcome to WallsCash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
     { id: '2', message: 'New offers available! Earn up to $5.', type: 'offer', read: false, time: '2m ago', created_at: new Date(Date.now() - 120000) },
   ]);
   
@@ -63,20 +64,16 @@ const Dashboard = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoadingScreen(false);
-      // Show welcome popup after loading screen
       setShowWelcomePopup(true);
-      // Hide popup after 2 seconds
       setTimeout(() => setShowWelcomePopup(false), 2000);
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
-  // Register balance increase callback for sound and notification
   useEffect(() => {
     onBalanceIncrease(() => {
       playBalanceSound();
       toast.success('Balance updated! 💰');
-      // Add notification when balance increases
       const newNotif: Notification = {
         id: Date.now().toString(),
         message: `Your balance has been updated!`,
@@ -89,7 +86,6 @@ const Dashboard = () => {
     });
   }, [onBalanceIncrease, playBalanceSound]);
 
-  // Load admin offerwalls from database
   useEffect(() => {
     const loadOfferwalls = async () => {
       const { data } = await supabase.rpc('get_public_site_settings');
@@ -104,7 +100,6 @@ const Dashboard = () => {
     
     loadOfferwalls();
 
-    // Real-time updates
     const channel = supabase
       .channel('offerwall-dashboard-updates')
       .on(
@@ -124,7 +119,6 @@ const Dashboard = () => {
     };
   }, []);
 
-  // Handle popup loading state
   useEffect(() => {
     if (selectedOfferwall) {
       setPopupLoading(true);
@@ -133,7 +127,6 @@ const Dashboard = () => {
     }
   }, [selectedOfferwall]);
 
-  // Clear all notifications
   const clearAllNotifications = () => {
     setNotifications([]);
   };
@@ -148,42 +141,66 @@ const Dashboard = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  // Default offerwalls (fallback if no admin walls)
-  const defaultOfferwalls = [
-    { id: '1', name: 'Pubscale', color: '#45B7D1', iframeUrl: '', logoUrl: '' },
-    { id: '2', name: 'Vortexwall', color: '#FF6B6B', iframeUrl: '', logoUrl: '' },
-    { id: '3', name: 'Notik', color: '#4ECDC4', iframeUrl: '', logoUrl: '' },
-    { id: '4', name: 'Revtoo', color: '#96CEB4', iframeUrl: '', logoUrl: '' },
-    { id: '5', name: 'Adgem', color: '#FFEAA7', iframeUrl: '', logoUrl: '' },
-    { id: '6', name: 'Upwall', color: '#DDA0DD', iframeUrl: '', logoUrl: '' },
-    { id: '7', name: 'Tplayed', color: '#98D8C8', iframeUrl: '', logoUrl: '' },
-    { id: '8', name: 'Taskwall', color: '#F7DC6F', iframeUrl: '', logoUrl: '' },
-    { id: '9', name: 'Offery', color: '#BB8FCE', iframeUrl: '', logoUrl: '' },
-    { id: '10', name: 'Adtowall', color: '#85C1E9', iframeUrl: '', logoUrl: '' },
-    { id: '11', name: 'Adswed', color: '#F8C471', iframeUrl: '', logoUrl: '' },
-    { id: '12', name: 'Adrevmedia', color: '#82E0AA', iframeUrl: '', logoUrl: '' },
-    { id: '13', name: 'Revlum', color: '#F1948A', iframeUrl: '', logoUrl: '' },
-    { id: '14', name: 'Primewall', color: '#85C1E9', iframeUrl: '', logoUrl: '' },
-    { id: '15', name: 'Admantium', color: '#D7BDE2', iframeUrl: '', logoUrl: '' },
-    { id: '16', name: 'Wannads', color: '#F9E79F', iframeUrl: '', logoUrl: '' },
-    { id: '17', name: 'Timewal', color: '#A9DFBF', iframeUrl: '', logoUrl: '' },
-    { id: '18', name: 'Monlix', color: '#F5B7B1', iframeUrl: '', logoUrl: '' },
-    { id: '19', name: 'Lootably', color: '#AED6F1', iframeUrl: '', logoUrl: '' },
-    { id: '20', name: 'Adspiritmedia', color: '#D2B4DE', iframeUrl: '', logoUrl: '' },
+  // Default offerwalls
+  const defaultOfferwalls: AdminOfferwall[] = [
+    { id: '1', name: 'Adscend', color: '#1a1a2e', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '2', name: 'Primewall', color: '#2d1f4e', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '3', name: 'Offery', color: '#0d3320', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '4', name: 'Admantium', color: '#3d1f1f', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '5', name: 'Upwall', color: '#1f2d3d', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '6', name: 'Mylead', color: '#2d2d44', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '7', name: 'AdToWall', color: '#1e3a5f', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '8', name: 'Lootably', color: '#3d2d4a', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '9', name: 'Adswed', color: '#0d4a4a', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '10', name: 'Pubscale', color: '#4a2d0d', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '11', name: 'Adgatemedia', color: '#2d4a0d', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '12', name: 'Pixylabs', color: '#0d2d4a', iframeUrl: '', enabled: true, apiKey: '' },
   ];
 
-  // Use admin offerwalls if available, otherwise use defaults
-  const offerwalls = adminOfferwalls.length > 0 
-    ? adminOfferwalls.map(w => ({ ...w, logoUrl: w.logoUrl || '', popupWidth: w.popupWidth || 'lg', popupHeight: w.popupHeight || '60vh', popupAnimation: w.popupAnimation || 'fade', popupBorderColor: w.popupBorderColor || '#ffffff', popupBorderWidth: w.popupBorderWidth || '1' }))
-    : defaultOfferwalls.map(w => ({ ...w, popupWidth: 'lg', popupHeight: '60vh', popupAnimation: 'fade' as const, popupBorderColor: '#ffffff', popupBorderWidth: '1' }));
+  const offerwalls = adminOfferwalls.length > 0 ? adminOfferwalls : defaultOfferwalls;
+
+  // Split into regular and premium partners with badges
+  const regularPartners = offerwalls.slice(0, 6).map((w, i) => ({
+    id: w.id,
+    name: w.name,
+    logoUrl: w.logoUrl,
+    color: w.color,
+    iframeUrl: w.iframeUrl,
+    rating: 4 + Math.random(),
+    badge: i === 1 ? { text: '+50%', type: 'bonus' as const } 
+         : i === 2 ? { text: 'New', type: 'new' as const }
+         : i === 3 ? { text: 'Hot', type: 'hot' as const }
+         : i === 4 ? { text: '+50%', type: 'bonus' as const }
+         : i === 5 ? { text: '+45%', type: 'bonus' as const }
+         : undefined,
+    popupWidth: w.popupWidth,
+    popupHeight: w.popupHeight,
+    popupAnimation: w.popupAnimation,
+  }));
+
+  const premiumPartners = offerwalls.slice(6, 12).map((w, i) => ({
+    id: w.id,
+    name: w.name,
+    logoUrl: w.logoUrl,
+    color: w.color,
+    iframeUrl: w.iframeUrl,
+    rating: 3.5 + Math.random() * 1.5,
+    badge: i < 5 ? { text: '+60%', type: 'bonus' as const } 
+         : { text: 'New', type: 'new' as const },
+    popupWidth: w.popupWidth,
+    popupHeight: w.popupHeight,
+    popupAnimation: w.popupAnimation,
+  }));
 
   const bgStyle = getBackgroundStyle(background, heroBg);
 
   if (isLoading || showLoadingScreen) {
     return <LoadingScreen isLoading={true} />;
   }
+
+  const handleOfferClick = (offer: { name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale' }) => {
+    setSelectedOfferwall(offer);
+  };
 
   return (
     <>
@@ -195,7 +212,6 @@ const Dashboard = () => {
       >
         {/* Offerwall Popup */}
         {selectedOfferwall && (() => {
-          // Map popup width to Tailwind class
           const widthClasses: Record<string, string> = {
             sm: 'max-w-sm',
             md: 'max-w-md',
@@ -208,7 +224,6 @@ const Dashboard = () => {
           const popupWidthClass = widthClasses[selectedOfferwall.popupWidth || 'lg'] || 'max-w-lg';
           const iframeHeight = selectedOfferwall.popupHeight || '60vh';
           
-          // Animation classes
           const animationClasses: Record<string, string> = {
             fade: 'animate-fade-in',
             slide: 'animate-[slideInUp_0.3s_ease-out]',
@@ -216,9 +231,9 @@ const Dashboard = () => {
           };
           const popupAnimation = animationClasses[selectedOfferwall.popupAnimation || 'fade'] || 'animate-fade-in';
           
-          // Border styles
           const borderWidth = selectedOfferwall.popupBorderWidth || '1';
           const borderColor = selectedOfferwall.popupBorderColor || '#ffffff';
+          
           return (
             <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setSelectedOfferwall(null)}>
               <div 
@@ -255,7 +270,6 @@ const Dashboard = () => {
                       <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     </div>
                   ) : (() => {
-                      // Dynamically generate iframe URL with user_id for specific offerwalls
                       const offerwallName = selectedOfferwall.name.toLowerCase();
                       let iframeUrl = '';
                       
@@ -298,99 +312,19 @@ const Dashboard = () => {
         <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         {/* Header */}
-        <header className="sticky top-0 z-30 px-3 md:px-[5%] py-2 bg-background/90 backdrop-blur-lg border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-white/10 rounded-lg">
-              <Menu className="w-5 h-5" />
-            </button>
-            <SiteLogo size="sm" />
-          </div>
+        <DashboardHeader
+          profile={profile}
+          userEmail={user?.email}
+          snowEnabled={snowEnabled}
+          toggleSnow={toggleSnow}
+          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          onLogout={handleLogout}
+          notifications={notifications}
+          onClearNotifications={clearAllNotifications}
+          onMarkAllRead={markAllRead}
+        />
 
-          {/* Balance - Show in coins */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-sm">
-            <CoinIcon className="w-4 h-4" />
-            <span className="font-semibold">{profile?.balance?.toFixed(2) || '0.00'}</span>
-          </div>
-
-          {/* User Menu */}
-          <div className="flex items-center gap-2">
-            {/* Snow Toggle */}
-            <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
-            
-            {/* Notifications */}
-            <div className="relative">
-              <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors relative"
-              >
-                <Bell className="w-4 h-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full text-[9px] font-bold flex items-center justify-center animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-              
-              {showNotifications && (
-                <div className="absolute right-0 top-10 w-64 bg-background border border-border rounded-xl shadow-xl p-2 max-h-72 overflow-auto z-50">
-                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-border">
-                    <span className="font-semibold text-primary text-xs">Notifications</span>
-                    <div className="flex gap-1.5 items-center">
-                      <button onClick={markAllRead} className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20">
-                        Read
-                      </button>
-                      <button onClick={clearAllNotifications} className="text-[9px] px-1.5 py-0.5 rounded bg-destructive/20 text-destructive hover:bg-destructive/30">
-                        Clear
-                      </button>
-                      <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {notifications.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-3 text-xs">No notifications</p>
-                    ) : (
-                      notifications.map(notif => (
-                        <div 
-                          key={notif.id} 
-                          className={`p-2 rounded-lg transition-all text-[11px] ${notif.read ? 'bg-muted/50' : 'bg-primary/10 border-l-2 border-primary'}`}
-                        >
-                          <p>{notif.message}</p>
-                          <span className="text-[9px] text-primary/70 mt-0.5 block">{notif.time}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* User */}
-            <div className="relative">
-              <button 
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-1.5 px-2 py-1 rounded-full hover:bg-white/10 transition-colors"
-              >
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-xs">
-                  {profile?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
-                </div>
-                <span className="hidden sm:block font-medium text-xs max-w-[80px] truncate">{profile?.username || 'User'}</span>
-                <ChevronDown className="w-3 h-3 hidden sm:block" />
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute right-0 top-10 w-32 bg-background border border-border rounded-xl shadow-xl py-1 z-50">
-                  <button onClick={handleLogout} className="w-full px-2.5 py-1.5 flex items-center gap-2 hover:bg-muted transition-colors text-xs text-destructive">
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Welcome Notification Popup - Modern Style */}
+        {/* Welcome Notification Popup */}
         {showWelcomePopup && (
           <div className="fixed top-20 right-4 z-50 animate-fade-in">
             <div className="px-4 py-3 rounded-2xl bg-background/95 backdrop-blur-xl border border-primary/30 shadow-2xl shadow-primary/20 flex items-center gap-3">
@@ -405,40 +339,35 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Live Earnings Ticker */}
-        <LiveEarningsTracker />
+        {/* Live Earnings Bar */}
+        <LiveEarningsBar />
 
         {/* Main Content */}
-        <main className="px-3 md:px-[5%] py-6">
-          <h2 className="text-2xl font-display font-bold text-gradient mb-4 flex items-center gap-2">
-            <Gift className="w-6 h-6" /> Our Partners
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {offerwalls.map(offer => (
-              <div 
-                key={offer.id}
-                onClick={() => setSelectedOfferwall({ name: offer.name, color: offer.color, iframeUrl: offer.iframeUrl || '', popupWidth: offer.popupWidth, popupHeight: offer.popupHeight, popupAnimation: offer.popupAnimation })}
-                className="relative overflow-hidden rounded-xl cursor-pointer hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 group aspect-[4/3]"
-                style={{ 
-                  background: `linear-gradient(135deg, ${offer.color}, ${offer.color}88, ${offer.color}55)` 
-                }}
-              >
-                <div className="absolute inset-0 flex items-center justify-center p-4">
-                  {offer.logoUrl ? (
-                    <img 
-                      src={offer.logoUrl} 
-                      alt={offer.name}
-                      className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300"
-                    />
-                  ) : (
-                    <span className="text-white font-bold text-2xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      {offer.name}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+        <main className="px-3 md:px-[5%] py-4">
+          {/* Featured Offers */}
+          <FeaturedOffersSection onOfferClick={handleOfferClick} />
+
+          {/* Offers Partners */}
+          <OfferPartnersSection
+            title="Offers Partners"
+            partners={regularPartners}
+            onPartnerClick={handleOfferClick}
+          />
+
+          {/* Premium Partners */}
+          <OfferPartnersSection
+            title="Premium Partners"
+            partners={premiumPartners}
+            isPremium={true}
+            onPartnerClick={handleOfferClick}
+          />
+
+          {/* Survey Partners - Using same section style */}
+          <OfferPartnersSection
+            title="Survey Partners"
+            partners={regularPartners.slice(0, 4).map(p => ({ ...p, badge: undefined }))}
+            onPartnerClick={handleOfferClick}
+          />
         </main>
 
         <Footer />

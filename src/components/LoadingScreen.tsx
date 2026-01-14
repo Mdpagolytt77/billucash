@@ -5,8 +5,6 @@ interface LoadingScreenProps {
   isLoading: boolean;
 }
 
-// This component fetches logo settings independently to avoid circular dependency
-// and to show the correct logo even before main settings context loads
 const LoadingScreen = ({ isLoading }: LoadingScreenProps) => {
   const [logoType, setLogoType] = useState<'text' | 'image'>('text');
   const [logoText, setLogoText] = useState('');
@@ -39,18 +37,31 @@ const LoadingScreen = ({ isLoading }: LoadingScreenProps) => {
   return (
     <div className="fixed inset-0 bg-background flex justify-center items-center z-[9999] flex-col">
       <div className="text-center">
-        <div className="mb-3 min-h-[64px] flex items-center justify-center">
+        {/* Logo */}
+        <div className="mb-6 min-h-[64px] flex items-center justify-center">
           {settingsLoaded ? (
             logoType === 'image' && logoImageUrl ? (
               <img src={logoImageUrl} alt="Logo" className="max-h-16 object-contain mx-auto" />
             ) : logoText ? (
-              <span className="logo-3d text-2xl font-display font-black">{logoText}</span>
+              <span className="logo-3d text-3xl font-display font-black">{logoText}</span>
             ) : null
           ) : null}
         </div>
-        <div className="w-8 h-8 border-2 border-muted border-t-primary rounded-full animate-spin-slow mx-auto mb-2" />
-        <div className="text-muted-foreground text-[10px]">
-          Loading...
+        
+        {/* Three Bouncing Dots */}
+        <div className="flex items-center justify-center gap-2">
+          <div 
+            className="w-3 h-3 rounded-full bg-primary animate-bounce"
+            style={{ animationDelay: '0ms', animationDuration: '0.6s' }}
+          />
+          <div 
+            className="w-3 h-3 rounded-full bg-primary animate-bounce"
+            style={{ animationDelay: '150ms', animationDuration: '0.6s' }}
+          />
+          <div 
+            className="w-3 h-3 rounded-full bg-primary animate-bounce"
+            style={{ animationDelay: '300ms', animationDuration: '0.6s' }}
+          />
         </div>
       </div>
     </div>

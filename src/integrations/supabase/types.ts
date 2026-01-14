@@ -132,6 +132,7 @@ export type Database = {
           logo_type: string
           offerwall_settings: Json | null
           postback_secret: string | null
+          provider_logos: Json | null
           social_links_settings: Json | null
           sound_settings: Json | null
           updated_at: string
@@ -145,6 +146,7 @@ export type Database = {
           logo_type?: string
           offerwall_settings?: Json | null
           postback_secret?: string | null
+          provider_logos?: Json | null
           social_links_settings?: Json | null
           sound_settings?: Json | null
           updated_at?: string
@@ -158,6 +160,7 @@ export type Database = {
           logo_type?: string
           offerwall_settings?: Json | null
           postback_secret?: string | null
+          provider_logos?: Json | null
           social_links_settings?: Json | null
           sound_settings?: Json | null
           updated_at?: string
@@ -247,6 +250,7 @@ export type Database = {
           logo_text: string
           logo_type: string
           offerwall_settings: Json
+          provider_logos: Json
           social_links_settings: Json
           sound_settings: Json
           updated_at: string

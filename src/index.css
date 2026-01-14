@@ -6,41 +6,41 @@
 
 @layer base {
   :root {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 145 63% 49%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 338 82% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 145 63% 34%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 338 70% 45%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 145 63% 42%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 338 75% 50%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217 33% 25%;
-    --input: 217 33% 20%;
-    --ring: 145 63% 49%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 338 82% 58%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --glass-bg: 0 0% 100% / 0.08;
-    --glass-border: 0 0% 100% / 0.25;
-    --glow-primary: 145 63% 49% / 0.3;
-    --gradient-primary: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --glass-bg: 0 0% 100% / 0.05;
+    --glass-border: 0 0% 100% / 0.15;
+    --glow-primary: 338 82% 58% / 0.3;
+    --gradient-primary: linear-gradient(135deg, hsl(338 82% 58%), hsl(338 70% 45%));
   }
 
   .dark {
@@ -87,7 +87,7 @@
   .glass-card:hover {
     box-shadow: 
       0 20px 40px rgba(0,0,0,0.4),
-      0 0 0 1px hsl(145 63% 49% / 0.2),
+      0 0 0 1px hsl(338 82% 58% / 0.2),
       0 0 50px hsl(var(--glow-primary));
   }
 
@@ -95,11 +95,11 @@
     @apply font-display font-black;
     color: hsl(var(--primary));
     text-shadow: 
-      0 1px 0 hsl(145 50% 28%),
-      0 2px 0 hsl(145 50% 28%),
-      0 3px 0 hsl(145 50% 28%),
-      0 4px 0 hsl(145 50% 28%),
-      0 5px 0 hsl(145 50% 28%),
+      0 1px 0 hsl(338 70% 35%),
+      0 2px 0 hsl(338 70% 35%),
+      0 3px 0 hsl(338 70% 35%),
+      0 4px 0 hsl(338 70% 35%),
+      0 5px 0 hsl(338 70% 35%),
       0 6px 1px rgba(0,0,0,0.1),
       0 0 5px rgba(0,0,0,0.1),
       0 1px 3px rgba(0,0,0,0.3),

@@ -292,6 +292,20 @@ export type Database = {
           username: string
         }[]
       }
+      get_offer_details: {
+        Args: { offer_id: string }
+        Returns: {
+          coin: number
+          country: string
+          created_at: string
+          id: string
+          ip: string
+          offer_name: string
+          offerwall: string
+          transaction_id: string
+          username: string
+        }[]
+      }
       get_public_site_settings: {
         Args: never
         Returns: {

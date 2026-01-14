@@ -25,6 +25,10 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleOfferClick = () => {
+    setIsLoginOpen(true);
+  };
+
   return (
     <>
       {/* SEO Meta Tags */}
@@ -50,9 +54,9 @@ const Index = () => {
         {/* Live Earnings Tracker */}
         <LiveEarningsTracker />
 
-        {/* Featured Offers */}
+        {/* Featured Offers - clicking opens login popup */}
         <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <FeaturedOffersSection />
+          <FeaturedOffersSection onOfferClick={handleOfferClick} />
         </div>
 
         {/* Login Box Section */}

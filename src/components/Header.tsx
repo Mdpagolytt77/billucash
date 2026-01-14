@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Menu, UserPlus, LogIn } from 'lucide-react';
-import wallsCashLogo from '@/assets/wallscash-logo.png';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import {
   Sheet,
   SheetContent,
@@ -24,7 +24,7 @@ const Header = ({ onLoginClick }: HeaderProps) => {
           </SheetTrigger>
           <SheetContent side="left" className="bg-background border-border">
             <div className="py-6">
-              <img src={wallsCashLogo} alt="WallsCash" className="h-10 object-contain" />
+              <SiteLogo size="md" />
               <nav className="mt-8 space-y-4">
                 <Link to="/" className="block py-2 px-4 rounded-lg hover:bg-muted transition-colors">Home</Link>
                 <Link to="/signup" className="block py-2 px-4 rounded-lg hover:bg-muted transition-colors">Sign Up</Link>
@@ -36,7 +36,7 @@ const Header = ({ onLoginClick }: HeaderProps) => {
         
         {/* Logo in header */}
         <Link to="/">
-          <img src={wallsCashLogo} alt="WallsCash" className="h-8 object-contain" />
+          <SiteLogo size="sm" />
         </Link>
       </div>
       
@@ -47,7 +47,7 @@ const Header = ({ onLoginClick }: HeaderProps) => {
           className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-lg"
         >
           <UserPlus className="w-4 h-4" />
-          <span className="hidden sm:inline">Join Now</span>
+          <span className="hidden sm:inline">Sign Up</span>
         </Link>
         <button 
           onClick={onLoginClick}

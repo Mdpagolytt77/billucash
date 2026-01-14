@@ -24,6 +24,7 @@ import AdminLiveTrackerCustomize from "./pages/AdminLiveTrackerCustomize";
 import ProfileSettings from "./pages/ProfileSettings";
 import Leaderboard from "./pages/Leaderboard";
 import Withdraw from "./pages/Withdraw";
+import UserCompletedOffers from "./pages/UserCompletedOffers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/my-offers" element={<ProtectedRoute><UserCompletedOffers /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminPanel /></ProtectedRoute>} />
                 <Route path="/admin/users" element={<ProtectedRoute requireAdmin><AdminAllUsers /></ProtectedRoute>} />
                 <Route path="/admin/withdraw" element={<ProtectedRoute requireAdmin><AdminWithdraw /></ProtectedRoute>} />

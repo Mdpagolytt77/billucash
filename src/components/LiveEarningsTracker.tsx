@@ -1,11 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
+import { X, Globe, Server, Clock, Gift, Coins, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
 interface EarningEvent {
   id: string;
   username: string;
   coins: number;
   offerwall: string;
   created_at: Date;
+}
+
+interface OfferDetails {
+  id: string;
+  username: string;
+  coin: number;
+  offerwall: string;
+  offer_name: string;
+  ip: string | null;
+  country: string | null;
+  transaction_id: string | null;
+  created_at: string;
 }
 
 interface TrackerSettings {
@@ -15,12 +30,15 @@ interface TrackerSettings {
 }
 
 const LiveEarningsTracker = () => {
+  const { user } = useAuth();
   const [earnings, setEarnings] = useState<EarningEvent[]>([]);
   const [settings, setSettings] = useState<TrackerSettings>({
     enabled: true,
     speed: 25,
     manualScrollEnabled: false,
   });
+  const [selectedOffer, setSelectedOffer] = useState<OfferDetails | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -41,6 +59,22 @@ const LiveEarningsTracker = () => {
     }
     const days = Math.floor(seconds / 86400);
     return `${days}d ago`;
+  };
+
+  const handleOfferClick = async (earning: EarningEvent) => {
+    if (!user) return; // Only authenticated users can see details
+    
+    setLoadingDetails(true);
+    try {
+      const { data } = await supabase.rpc('get_offer_details', { offer_id: earning.id });
+      if (data && data.length > 0) {
+        setSelectedOffer(data[0] as OfferDetails);
+      }
+    } catch (error) {
+      console.error('Failed to load offer details:', error);
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
   useEffect(() => {
@@ -81,7 +115,6 @@ const LiveEarningsTracker = () => {
 
   useEffect(() => {
     const loadRecentOffers = async () => {
-      // Use secure function that only returns non-sensitive data (no IP, transaction_id, user_id)
       const { data } = await supabase.rpc('get_live_tracker_offers', { limit_count: 20 });
       
       if (data) {
@@ -182,58 +215,169 @@ const LiveEarningsTracker = () => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-r from-background via-card/50 to-background border-b border-border/30 overflow-hidden">
-      <div className="flex items-center h-9 px-1">
+    <>
+      {/* Details Popup */}
+      {selectedOffer && (
         <div 
-          ref={scrollRef}
-          className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleMouseUp}
+          className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setSelectedOffer(null)}
         >
           <div 
-            className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
-            style={{
-              animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
-              animationPlayState: isDragging ? 'paused' : 'running',
-            }}
+            className="bg-background border border-border rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-scale-in"
+            onClick={e => e.stopPropagation()}
           >
-            {displayItems.map((earning, index) => (
-              <div 
-                key={`${earning.id}-${index}`}
-                className="flex-shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-card/60 border border-border/30"
-              >
-                {/* Avatar - smaller */}
-                <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center`}>
-                  <span className="text-[9px] font-bold text-white">
-                    {earning.username.charAt(0).toUpperCase()}
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/10 to-secondary/10">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAvatarColor(selectedOffer.username)} flex items-center justify-center shadow-lg`}>
+                  <span className="text-sm font-bold text-white">
+                    {selectedOffer.username.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                
-                {/* Name & Offerwall - compact */}
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] font-semibold text-foreground">
-                    {earning.username}
-                  </span>
-                  <span className="text-[8px] text-muted-foreground">
-                    • {earning.offerwall}
-                  </span>
+                <div>
+                  <h3 className="font-bold text-foreground">{selectedOffer.username}</h3>
+                  <p className="text-xs text-muted-foreground">Offer Details</p>
                 </div>
-                
-                {/* Coins - no icon, just number */}
-                <span className="text-[10px] font-bold text-primary">
-                  +{earning.coins.toLocaleString()}
-                </span>
               </div>
-            ))}
+              <button 
+                onClick={() => setSelectedOffer(null)}
+                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Details */}
+            <div className="p-4 space-y-3">
+              {/* Coins */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30">
+                <Coins className="w-5 h-5 text-primary" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Coins Earned</p>
+                  <p className="font-bold text-lg text-primary">+{selectedOffer.coin.toLocaleString()}</p>
+                </div>
+              </div>
+
+              {/* Offer Name */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
+                <Gift className="w-5 h-5 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground">Offer Name</p>
+                  <p className="font-medium text-sm text-foreground truncate">{selectedOffer.offer_name || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Offerwall */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
+                <Server className="w-5 h-5 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Offerwall</p>
+                  <p className="font-medium text-sm text-foreground capitalize">{selectedOffer.offerwall}</p>
+                </div>
+              </div>
+
+              {/* IP & Country */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 border border-border">
+                  <Globe className="w-4 h-4 text-muted-foreground" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground">IP Address</p>
+                    <p className="font-medium text-xs text-foreground truncate">{selectedOffer.ip || 'Hidden'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 border border-border">
+                  <Globe className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground">Country</p>
+                    <p className="font-medium text-xs text-foreground">{selectedOffer.country || 'Unknown'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transaction ID */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
+                <FileText className="w-5 h-5 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground">Transaction ID</p>
+                  <p className="font-mono text-xs text-foreground truncate">{selectedOffer.transaction_id || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Time */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
+                <Clock className="w-5 h-5 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Completed</p>
+                  <p className="font-medium text-sm text-foreground">{getTimeAgo(new Date(selectedOffer.created_at))}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading overlay */}
+      {loadingDetails && (
+        <div className="fixed inset-0 bg-black/50 z-[99] flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
+      {/* Tracker */}
+      <div className="w-full bg-gradient-to-r from-background via-card/50 to-background border-b border-border/30 overflow-hidden">
+        <div className="flex items-center h-10 px-1">
+          <div 
+            ref={scrollRef}
+            className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleMouseUp}
+          >
+            <div 
+              className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
+              style={{
+                animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
+                animationPlayState: isDragging ? 'paused' : 'running',
+              }}
+            >
+              {displayItems.map((earning, index) => (
+                <div 
+                  key={`${earning.id}-${index}`}
+                  onClick={() => handleOfferClick(earning)}
+                  className="flex-shrink-0 flex items-center gap-2 px-2 py-1.5 rounded-lg bg-card/70 border border-border/40 cursor-pointer hover:bg-card hover:border-primary/30 transition-all"
+                >
+                  {/* Avatar */}
+                  <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center shadow-sm`}>
+                    <span className="text-[10px] font-bold text-white">
+                      {earning.username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  {/* Info - Username top, Offerwall bottom */}
+                  <div className="flex flex-col leading-none">
+                    <span className="text-[11px] font-semibold text-foreground">
+                      {earning.username}
+                    </span>
+                    <span className="text-[9px] text-muted-foreground capitalize">
+                      {earning.offerwall}
+                    </span>
+                  </div>
+                  
+                  {/* Coins */}
+                  <span className="text-[11px] font-bold text-primary ml-1">
+                    +{earning.coins.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

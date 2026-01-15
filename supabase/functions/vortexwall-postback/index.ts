@@ -54,14 +54,39 @@ serve(async (req) => {
     console.log('Client IP:', clientIp);
 
     // Extract Vortexwall parameters
-    const identityId = params.get('identity_id');
-    const campaignId = params.get('campaign_id') || params.get('cid') || '';
-    const txid = params.get('txid') || params.get('transaction_id') || '';
-    const incomingHash = params.get('hash') || params.get('sig') || '';
-    const result = params.get('result') || 'completed';
-    const points = params.get('points') || params.get('payout') || '0';
-    let offerName = params.get('offer_name') || params.get('campaign_name') || 'Vortexwall Offer';
-    const country = params.get('country') || params.get('geo') || 'Unknown';
+    // Support multiple parameter names for flexibility
+    const identityId = params.get('identity_id') || params.get('user_id') || params.get('uid');
+    const campaignId = params.get('campaign_id') || params.get('cid') || params.get('offer_id') || '';
+    const txid = params.get('txid') || params.get('transaction_id') || params.get('tid') || '';
+    const incomingHash = params.get('hash') || params.get('sig') || params.get('signature') || '';
+    const result = params.get('result') || params.get('status') || 'completed';
+    const points = params.get('points') || params.get('payout') || params.get('reward') || params.get('amount') || '0';
+    
+    // Get offer name - check multiple parameter names and decode URL encoding
+    let offerNameRaw = params.get('offer_name') || params.get('offer') || params.get('campaign_name') || 
+                       params.get('offername') || params.get('name') || params.get('campaign') || '';
+    
+    // Decode URL-encoded offer name and check if it's a placeholder
+    let offerName = offerNameRaw ? decodeURIComponent(offerNameRaw) : '';
+    
+    // Check if the value is still a placeholder macro (not replaced by the offerwall)
+    const placeholderPatterns = [
+      /^\{.*\}$/,           // {OFFER_NAME}, {offer_name}
+      /^\[.*\]$/,           // [OFFER_NAME], [offer_name]
+      /^%.*%$/,             // %OFFER_NAME%, %offer_name%
+      /^\$\{.*\}$/,         // ${OFFER_NAME}
+      /^{{.*}}$/,           // {{OFFER_NAME}}
+    ];
+    
+    const isPlaceholder = placeholderPatterns.some(pattern => pattern.test(offerName));
+    
+    if (!offerName || isPlaceholder) {
+      // If no valid offer name, try to use campaign_id as fallback
+      offerName = campaignId ? `Offer #${campaignId}` : 'Vortexwall Offer';
+      console.log('[Info] Using fallback offer name:', offerName, '(original was placeholder or empty)');
+    }
+    
+    const country = params.get('country') || params.get('geo') || params.get('country_code') || 'Unknown';
 
     console.log('Parameters received:', { identityId: !!identityId, txid: !!txid, result, points: !!points });
 

@@ -55,9 +55,6 @@ const Index = () => {
         {/* Live Earnings Tracker */}
         <LiveEarningsTracker />
 
-        {/* Hero Section */}
-        <HeroSection />
-
         {/* Featured Offers - clicking opens login popup */}
         <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
           <FeaturedOffersSection onOfferClick={handleOfferClick} />
@@ -68,8 +65,13 @@ const Index = () => {
           <LoginBox />
         </div>
 
-        {/* Stats Section */}
+        {/* Hero Section - After Login Box */}
         <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <HeroSection />
+        </div>
+
+        {/* Stats Section */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <StatsSection />
         </div>
 

@@ -118,8 +118,8 @@ const HeroSection = () => {
             </button>
           </div>
 
-          {/* Right side - 3D Illustration */}
-          <div className="flex-1 flex items-center justify-center relative min-h-[280px] md:min-h-[350px]">
+          {/* Right side - 3D Illustration (visible on all screens) */}
+          <div className="flex-1 flex items-center justify-center relative min-h-[250px] md:min-h-[350px]">
             {/* Glowing circle background */}
             <div 
               className="absolute w-64 h-64 rounded-full opacity-40 blur-3xl"

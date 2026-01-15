@@ -13,7 +13,7 @@ const faqData: Record<string, { question: string; answer: string }[]> = {
   General: [
     {
       question: 'Are surveys reliable?',
-      answer: 'All surveys on Billucash are secure. Any information you provide in the surveys is kept anonymous, and the survey providers implement numerous measures to guarantee the safety of the surveys. We do not have access to the details you enter, as only the survey administrators can view and manage this information.',
+      answer: 'All surveys on WallsCash are secure. Any information you provide in the surveys is kept anonymous, and the survey providers implement numerous measures to guarantee the safety of the surveys. We do not have access to the details you enter, as only the survey administrators can view and manage this information.',
     },
     {
       question: 'What steps do I need to take to begin?',
@@ -28,8 +28,8 @@ const faqData: Record<string, { question: string; answer: string }[]> = {
       answer: 'Be respectful to other users, no spam or advertising, and follow our community guidelines.',
     },
     {
-      question: 'What is Billucash all about?',
-      answer: 'Billucash is a rewards platform where you can earn money by completing surveys, watching videos, playing games, and referring friends.',
+      question: 'What is WallsCash all about?',
+      answer: 'WallsCash is a rewards platform where you can earn money by completing surveys, watching videos, playing games, and referring friends.',
     },
     {
       question: 'Who manages the offer/survey walls displayed?',
@@ -85,10 +85,10 @@ const FAQSection = () => {
     <section className="py-10 px-4">
       <div className="text-center mb-6">
         <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-2">
-          Your Billucash questions answered
+          Your WallsCash questions answered
         </h2>
         <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-          Here are some frequently asked questions to help you if you are unsure about something, or if you have any questions about how to earn money on Billucash.
+          Here are some frequently asked questions to help you if you are unsure about something, or if you have any questions about how to earn money on WallsCash.
         </p>
       </div>
       

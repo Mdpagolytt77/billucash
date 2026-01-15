@@ -39,7 +39,7 @@ export const useSiteSettings = () => {
 
 export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [logoType, setLogoType] = useState<'text' | 'image'>('text');
-  const [logoText, setLogoText] = useState('BILLUCASH');
+  const [logoText, setLogoText] = useState('WALLSCASH');
   const [logoImageUrl, setLogoImageUrl] = useState<string | null>(null);
   const [coinIconUrl, setCoinIconUrl] = useState<string | null>(null);
   const [background, setBackground] = useState<BackgroundSettings>(defaultBackground);

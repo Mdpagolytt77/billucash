@@ -21,8 +21,8 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
 
   // Load saved credentials on mount
   useEffect(() => {
-    const savedEmail = localStorage.getItem('billucash_email');
-    const savedRemember = localStorage.getItem('billucash_remember');
+    const savedEmail = localStorage.getItem('wallscash_email');
+    const savedRemember = localStorage.getItem('wallscash_remember');
     if (savedRemember === 'true' && savedEmail) {
       setEmail(savedEmail);
       setRememberMe(true);
@@ -43,11 +43,11 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
 
     // Save to localStorage if remember me is checked
     if (rememberMe) {
-      localStorage.setItem('billucash_email', email);
-      localStorage.setItem('billucash_remember', 'true');
+      localStorage.setItem('wallscash_email', email);
+      localStorage.setItem('wallscash_remember', 'true');
     } else {
-      localStorage.removeItem('billucash_email');
-      localStorage.removeItem('billucash_remember');
+      localStorage.removeItem('wallscash_email');
+      localStorage.removeItem('wallscash_remember');
     }
 
     const { error } = await signIn(email, password);

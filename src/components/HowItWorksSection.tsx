@@ -29,7 +29,7 @@ const HowItWorksSection = () => {
           Your simple path to extra income
         </h2>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          Complete easy tasks in your spare time and start earning today. Join Billucash and turn every moment into a rewarding opportunity
+          Complete easy tasks in your spare time and start earning today. Join WallsCash and turn every moment into a rewarding opportunity
         </p>
       </div>
       

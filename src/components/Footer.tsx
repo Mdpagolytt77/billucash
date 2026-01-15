@@ -108,7 +108,7 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
                 <SiteLogo size="lg" />
               </div>
               <p className="text-xs text-muted-foreground">
-                Billucash | All rights reserved © {currentYear}
+                WallsCash | All rights reserved © {currentYear}
               </p>
             </div>
 

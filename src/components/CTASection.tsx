@@ -8,7 +8,7 @@ const CTASection = () => {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
             <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-4">
-              Start earning<br />with Billucash<br />today
+              Start earning<br />with WallsCash<br />today
             </h2>
             <p className="text-muted-foreground text-sm mb-6">
               Become a website and game tester, share your opinions in surveys, and earn cashback on your online shopping. Join now and start making money easily!

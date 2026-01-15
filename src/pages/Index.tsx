@@ -33,8 +33,8 @@ const Index = () => {
   return (
     <>
       {/* SEO Meta Tags */}
-      <title>Billucash - Earn Money Online | Complete Tasks & Get Paid</title>
-      <meta name="description" content="Join Billucash and start earning real money online. Complete simple tasks, play games, watch videos, and refer friends. Instant withdrawals with 24/7 support." />
+      <title>WallsCash - Earn Money Online | Complete Tasks & Get Paid</title>
+      <meta name="description" content="Join WallsCash and start earning real money online. Complete simple tasks, play games, watch videos, and refer friends. Instant withdrawals with 24/7 support." />
 
       {/* Loading Screen */}
       <LoadingScreen isLoading={isLoading} />

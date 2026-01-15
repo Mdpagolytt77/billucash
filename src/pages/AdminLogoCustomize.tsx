@@ -14,8 +14,8 @@ const AdminLogoCustomize = () => {
   const { isAdmin } = useAuth();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [logoText, setLogoText] = useState('BILLUCASH');
-  const [previewText, setPreviewText] = useState('BILLUCASH');
+  const [logoText, setLogoText] = useState('WALLSCASH');
+  const [previewText, setPreviewText] = useState('WALLSCASH');
   const [logoImage, setLogoImage] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [logoType, setLogoType] = useState<'text' | 'image'>('text');
@@ -217,8 +217,8 @@ const AdminLogoCustomize = () => {
       }
     }
 
-    setLogoText('BILLUCASH'); 
-    setPreviewText('BILLUCASH'); 
+    setLogoText('WALLSCASH'); 
+    setPreviewText('WALLSCASH');
     setLogoImage(null); 
     setPreviewImage(null); 
     setLogoType('text');
@@ -226,7 +226,7 @@ const AdminLogoCustomize = () => {
     
     await supabase.from('site_settings').update({ 
       logo_type: 'text', 
-      logo_text: 'BILLUCASH', 
+      logo_text: 'WALLSCASH', 
       logo_image_url: null, 
       updated_at: new Date().toISOString() 
     }).eq('id', 'default');

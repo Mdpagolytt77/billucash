@@ -1,30 +1,9 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { DollarSign } from 'lucide-react';
 import heroIllustration from '@/assets/hero-illustration.png';
+
 const HeroSection = () => {
-  const [offersCount, setOffersCount] = useState(530);
-  const [maxReward, setMaxReward] = useState(14.99);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { count } = await supabase
-          .from('completed_offers')
-          .select('*', { count: 'exact', head: true });
-        
-        if (count && count > 0) {
-          setOffersCount(count);
-        }
-      } catch (err) {
-        console.error('Failed to fetch offers count:', err);
-      }
-    };
-
-    fetchStats();
-  }, []);
 
   // Floating coin positions
   const floatingCoins = [
@@ -129,27 +108,11 @@ const HeroSection = () => {
               Become a website and game tester, share your opinions in surveys, and earn cashback on your online shopping. Join now and start making money easily!
             </p>
 
-            {/* Stats */}
-            <div 
-              className="flex items-center gap-3 text-sm text-muted-foreground mb-8 animate-fade-in"
-              style={{ animationDelay: '0.4s' }}
-            >
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-green-400 font-semibold">{offersCount}</span>
-                <span>available offers</span>
-              </span>
-              <span className="text-border">•</span>
-              <span>
-                Up to <span className="text-primary font-semibold">${maxReward.toFixed(2)}</span> per offer
-              </span>
-            </div>
-
             {/* CTA Button */}
             <button 
               onClick={() => navigate('/signup')}
               className="btn-primary text-base px-10 py-4 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all animate-fade-in"
-              style={{ animationDelay: '0.5s' }}
+              style={{ animationDelay: '0.4s' }}
             >
               SIGN UP
             </button>

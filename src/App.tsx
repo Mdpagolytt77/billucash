@@ -29,6 +29,7 @@ import Withdraw from "./pages/Withdraw";
 import UserCompletedOffers from "./pages/UserCompletedOffers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import OfferyPostbackProxy from "./pages/OfferyPostbackProxy";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
                 <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
                 <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
+                <Route path="/api/offery-postback" element={<OfferyPostbackProxy />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </SoundProvider>

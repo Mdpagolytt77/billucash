@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import heroIllustration from '@/assets/hero-illustration.png';
 const HeroSection = () => {
   const [offersCount, setOffersCount] = useState(530);
   const [maxReward, setMaxReward] = useState(14.99);
@@ -155,20 +155,23 @@ const HeroSection = () => {
             </button>
           </div>
 
-          {/* Right side - Visual placeholder (3D illustration area) */}
-          <div className="flex-1 hidden md:flex items-center justify-center relative min-h-[300px]">
+          {/* Right side - 3D Illustration */}
+          <div className="flex-1 flex items-center justify-center relative min-h-[280px] md:min-h-[350px]">
             {/* Glowing circle background */}
             <div 
-              className="absolute w-64 h-64 rounded-full opacity-30 blur-3xl"
+              className="absolute w-64 h-64 rounded-full opacity-40 blur-3xl"
               style={{
-                background: 'radial-gradient(circle, hsl(var(--primary) / 0.5) 0%, transparent 70%)'
+                background: 'radial-gradient(circle, hsl(var(--primary) / 0.6) 0%, transparent 70%)'
               }}
             />
-            {/* Arc/semicircle decoration */}
-            <div 
-              className="absolute w-72 h-36 border-t-4 border-primary/40 rounded-t-full"
-              style={{
-                boxShadow: '0 -10px 30px hsl(var(--primary) / 0.2)'
+            {/* 3D Illustration Image */}
+            <img 
+              src={heroIllustration} 
+              alt="Earn money online illustration" 
+              className="relative z-10 w-full max-w-xs md:max-w-sm lg:max-w-md h-auto object-contain animate-fade-in drop-shadow-2xl"
+              style={{ 
+                animationDelay: '0.3s',
+                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))'
               }}
             />
           </div>

@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.primewall-postback]
 verify_jwt = false
+
+[functions.offery-postback]
+verify_jwt = false

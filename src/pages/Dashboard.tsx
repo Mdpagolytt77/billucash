@@ -277,6 +277,8 @@ const Dashboard = () => {
                         iframeUrl = `https://vortexwall.com/ow/694d43d853920bb7ed5519a6/${user?.id || ''}`;
                       } else if (offerwallName.includes('primewall') || offerwallName.includes('prime')) {
                         iframeUrl = `https://primewall.io/offer/Pz6Cs5/${user?.id || ''}`;
+                      } else if (offerwallName.includes('offery')) {
+                        iframeUrl = `https://offery.io/offerwall/cnpvos7wmzy531uuu52drbmcjmqsv/${user?.id || ''}`;
                       } else {
                         iframeUrl = selectedOfferwall.iframeUrl
                           ?.replace(/{uid}/g, user?.id || '')

@@ -6,33 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Offery Configuration - from environment variables
-const OFFERY_SECRET_KEY = Deno.env.get('OFFERY_SECRET_KEY');
-
 // Security limits
 const MAX_PAYOUT = 1000; // Maximum $1000 per transaction
 const MAX_OFFER_NAME_LENGTH = 200;
-
-// Helper to convert bytes to hex string
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// MD5 hash function
-async function md5Hash(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('MD5', data);
-  return bytesToHex(new Uint8Array(hashBuffer));
-}
-
-// SHA256 hash function
-async function sha256Hash(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return bytesToHex(new Uint8Array(hashBuffer));
-}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -42,19 +18,7 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    
-    // Get the raw query string and fix multiple encoding issues
-    let rawQuery = decodeURIComponent(url.search);
-    
-    // Fix HTML encoded ampersands (multiple variations)
-    rawQuery = rawQuery
-      .replace(/&amp;/gi, '&')
-      .replace(/&amp%3B/gi, '&')
-      .replace(/amp;/gi, '');
-    
-    // Rebuild URL with fixed query
-    const fixedUrl = new URL(url.origin + url.pathname + rawQuery);
-    const params = fixedUrl.searchParams;
+    const params = url.searchParams;
 
     // Get client IP
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
@@ -63,88 +27,70 @@ serve(async (req) => {
 
     console.log('=== Offery Postback Received ===');
     console.log('Client IP:', clientIp);
-    console.log('Original query:', url.search);
-    console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
     // Extract Offery parameters
-    // Offery macros: {aff_sub}, {payout}, {offer_name}, {offer_id}, {ip}, {country_code}
-    const userId = params.get('user_id') || params.get('aff_sub') || params.get('subid') || params.get('uid') || '';
-    const txid = params.get('transaction_id') || params.get('offer_id') || params.get('txid') || params.get('click_id') || '';
-    const incomingHash = params.get('sig') || params.get('hash') || params.get('signature') || '';
+    // Offery uses: subid (User ID), reward (coins), offer_name, transid (transaction ID)
+    const userId = params.get('subid') || params.get('user_id') || params.get('aff_sub') || params.get('uid') || '';
+    const reward = params.get('reward') || params.get('payout') || params.get('points') || params.get('amount') || '0';
+    const txid = params.get('transid') || params.get('transaction_id') || params.get('offer_id') || params.get('txid') || '';
     const status = params.get('status') || params.get('result') || 'completed';
-    const payout = params.get('payout') || params.get('points') || params.get('reward') || params.get('amount') || '0';
-    let offerName = params.get('offer_name') || params.get('campaign_name') || params.get('offer') || 'Offery Offer';
     const country = params.get('country') || params.get('country_code') || params.get('geo') || 'Unknown';
-    const userIp = params.get('ip') || clientIp || '';
+    const userIp = params.get('ip') || params.get('user_ip') || clientIp || '';
     
-    console.log('Parsed values:', { userId, payout, offerName, txid });
+    // Get offer name with multiple fallbacks and decode URL encoding
+    let offerNameRaw = params.get('offer_name') || params.get('offername') || params.get('offer') || 
+                       params.get('campaign_name') || params.get('name') || params.get('campaign') || '';
+    
+    let offerName = offerNameRaw ? decodeURIComponent(offerNameRaw) : '';
+    
+    // Check if the value is still a placeholder macro (not replaced by the offerwall)
+    const placeholderPatterns = [
+      /^\{.*\}$/,           // {OFFER_NAME}, {offer_name}
+      /^\[.*\]$/,           // [OFFER_NAME], [offer_name]
+      /^%.*%$/,             // %OFFER_NAME%, %offer_name%
+      /^\$\{.*\}$/,         // ${OFFER_NAME}
+      /^{{.*}}$/,           // {{OFFER_NAME}}
+    ];
+    
+    const isPlaceholder = placeholderPatterns.some(pattern => pattern.test(offerName));
+    
+    if (!offerName || isPlaceholder) {
+      offerName = txid ? `Offer #${txid}` : 'Offery Offer';
+      console.log('[Info] Using fallback offer name:', offerName, '(original was placeholder or empty)');
+    }
+    
+    console.log('Parsed values:', { userId, reward, offerName, txid, status });
 
     // Validate required parameters
     if (!userId) {
-      console.error('[Validation] Missing user_id parameter');
+      console.error('[Validation] Missing user_id/subid parameter');
       return new Response(JSON.stringify({ success: false, error: 'Missing user_id' }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // SECURITY: Signature Verification (if secret key is configured)
-    if (OFFERY_SECRET_KEY && incomingHash) {
-      const signatureFormats = [
-        `${userId}${payout}${OFFERY_SECRET_KEY}`,
-        `${userId}${txid}${payout}${OFFERY_SECRET_KEY}`,
-        `${txid}${userId}${payout}${OFFERY_SECRET_KEY}`,
-      ];
-
-      let signatureValid = false;
-
-      for (const format of signatureFormats) {
-        try {
-          const md5Expected = await md5Hash(format);
-          if (md5Expected.toLowerCase() === incomingHash.toLowerCase()) {
-            signatureValid = true;
-            console.log('[Security] MD5 signature verification passed');
-            break;
-          }
-        } catch (e) {
-          console.log('[Security] MD5 not supported, trying SHA256');
-        }
-
-        const sha256Expected = await sha256Hash(format);
-        if (sha256Expected.toLowerCase() === incomingHash.toLowerCase()) {
-          signatureValid = true;
-          console.log('[Security] SHA256 signature verification passed');
-          break;
-        }
-      }
-
-      if (!signatureValid) {
-        console.warn('[Security] Signature verification failed, but proceeding');
-      }
-    } else if (!incomingHash) {
-      console.log('[Security] No signature provided, skipping verification');
-    }
-
-    // Parse payout
-    let payoutValue = parseFloat(payout) || 0;
+    // Parse reward value
+    let rewardValue = parseFloat(reward) || 0;
 
     // SECURITY: Maximum payout validation
-    if (Math.abs(payoutValue) > MAX_PAYOUT) {
-      console.error(`[Security] Payout ${payoutValue} exceeds maximum ${MAX_PAYOUT}`);
-      return new Response(JSON.stringify({ success: false, error: 'Payout exceeds limit' }), {
+    if (Math.abs(rewardValue) > MAX_PAYOUT) {
+      console.error(`[Security] Reward ${rewardValue} exceeds maximum ${MAX_PAYOUT}`);
+      return new Response(JSON.stringify({ success: false, error: 'Invalid reward amount' }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Handle status
-    const lowerStatus = status.toLowerCase();
-    if (lowerStatus === 'rejected' || lowerStatus === 'chargeback' || lowerStatus === 'reversed') {
-      if (payoutValue > 0) {
-        payoutValue = -payoutValue;
+    // Handle status for chargebacks/rejections
+    if (status.toLowerCase() === 'rejected' || status.toLowerCase() === 'chargeback' || status.toLowerCase() === 'reversed') {
+      if (rewardValue > 0) {
+        rewardValue = -rewardValue;
       }
-      console.log('Processing rejection/chargeback, payout:', payoutValue);
+      console.log('Processing rejection/chargeback, reward:', rewardValue);
+    } else if (status.toLowerCase() !== 'completed' && status.toLowerCase() !== 'approved' && status.toLowerCase() !== 'success') {
+      console.log('Unknown status, proceeding anyway:', status);
     }
 
     // Validate string field lengths
@@ -158,7 +104,6 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Check for duplicate transaction
-    const transactionId = txid || `offery_${Date.now()}_${userId}`;
     if (txid) {
       const { data: existing } = await supabase
         .from('completed_offers')
@@ -190,21 +135,14 @@ serve(async (req) => {
       });
     }
 
-    // Calculate coins to award
-    const coinsToAward = Math.round(payoutValue);
-
     // Use the increment_balance function
     const { error: balanceError } = await supabase.rpc('increment_balance', {
       user_id_input: userId,
-      amount_input: coinsToAward
+      amount_input: rewardValue
     });
 
     if (balanceError) {
       console.error('Failed to update balance:', balanceError);
-      return new Response(JSON.stringify({ success: false, error: 'Failed to update balance' }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     }
 
     // Get updated balance
@@ -224,8 +162,8 @@ serve(async (req) => {
         username: profile.username,
         offer_name: offerName,
         offerwall: 'Offery',
-        coin: coinsToAward,
-        transaction_id: transactionId,
+        coin: rewardValue,
+        transaction_id: txid || `offery_${Date.now()}`,
         ip: userIp || null,
         country: country,
       });
@@ -234,20 +172,18 @@ serve(async (req) => {
       console.error('Failed to insert offer:', insertError);
     }
 
-    console.log('=== Offery Postback Processed Successfully ===', {
-      userId,
+    console.log('=== Offery Postback Processed ===', {
+      status,
+      reward: rewardValue,
       offerName,
-      coinsAwarded: coinsToAward,
-      newBalance,
-      transactionId
+      newBalance
     });
 
-    // Return success response
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'Postback processed',
-      coins_awarded: coinsToAward,
-      new_balance: newBalance
+      message: 'Postback processed successfully',
+      reward: rewardValue,
+      newBalance 
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

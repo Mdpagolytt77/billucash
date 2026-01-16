@@ -61,18 +61,16 @@ serve(async (req) => {
     console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract RadientWall parameters
-    // Common parameter names used by offerwalls
-    const userId = params.get('user_id') || params.get('uid') || params.get('subid') || '';
-    const txid = params.get('transaction_id') || params.get('txn_id') || params.get('tid') || '';
-    let offerName = params.get('offer_name') || params.get('offer') || params.get('name') || 'RadientWall Offer';
-    const payout = params.get('payout') || params.get('amount') || params.get('reward') || params.get('points') || '0';
+    // Extract RadientWall parameters - specifically use user_id
+    const userId = url.searchParams.get('user_id') || '';
+    const txid = url.searchParams.get('transaction_id') || '';
+    let offerName = url.searchParams.get('offer_name') || 'RadientWall Offer';
+    const payout = url.searchParams.get('payout') || '0';
     
     // Additional optional parameters
-    const incomingHash = params.get('sig') || params.get('hash') || params.get('signature') || '';
-    const status = params.get('status') || params.get('result') || 'completed';
-    const country = params.get('country') || params.get('country_code') || params.get('geo') || 'Unknown';
-    const userIp = params.get('ip') || clientIp || '';
+    const status = url.searchParams.get('status') || 'completed';
+    const country = url.searchParams.get('country') || 'Unknown';
+    const userIp = url.searchParams.get('ip') || clientIp || '';
     
     console.log('Parsed RadientWall values:', { userId, txid, offerName, payout });
 

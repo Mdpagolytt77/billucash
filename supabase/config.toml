@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.offery-postback]
 verify_jwt = false
+
+[functions.notik-postback]
+verify_jwt = false
+
+[functions.radientwall-postback]
+verify_jwt = false

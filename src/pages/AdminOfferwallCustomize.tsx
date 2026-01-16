@@ -60,6 +60,7 @@ const PROVIDER_OPTIONS = [
   { value: 'pubscale', label: 'Pubscale' },
   { value: 'revtoo', label: 'Revtoo' },
   { value: 'upwall', label: 'Upwall' },
+  { value: 'radientwall', label: 'RadientWall' },
   { value: 'custom', label: 'Custom' },
 ];
 
@@ -72,6 +73,7 @@ const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
   primewall: 'primewall-postback',
   notik: 'notik-postback',
   offery: 'offery-postback',
+  radientwall: 'radientwall-postback',
 };
 
 // Provider-specific postback URL templates with their unique parameter formats
@@ -123,6 +125,10 @@ const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: st
   // Upwall uses uid for user_id
   upwall: (baseUrl, wallName) => 
     `${baseUrl}?user_id={uid}&payout={payout}&offer_name={offer_name}&transaction_id={txn_id}&ip={ip}&country={country}&offerwall=${wallName}`,
+  
+  // RadientWall uses user_id, payout, offer_name, transaction_id
+  radientwall: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&offerwall=${wallName}`,
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {

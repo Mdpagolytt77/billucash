@@ -61,9 +61,9 @@ serve(async (req) => {
     console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract RadientWall parameters - user_id is mapped from {subid}
-    const userId = url.searchParams.get('user_id') || '';
-    const txid = url.searchParams.get('transaction_id') || '';
+    // Extract RadientWall parameters - RadientWall sends subId (capital I)
+    const userId = url.searchParams.get('subId') || url.searchParams.get('user_id') || '';
+    const txid = url.searchParams.get('transId') || url.searchParams.get('transaction_id') || '';
     let offerName = url.searchParams.get('offer_name') || 'RadientWall Offer';
     // Use reward parameter for coins
     const reward = url.searchParams.get('reward') || '0';
@@ -71,7 +71,7 @@ serve(async (req) => {
     // Additional optional parameters
     const status = url.searchParams.get('status') || 'completed';
     const country = url.searchParams.get('country') || 'Unknown';
-    const userIp = url.searchParams.get('ip') || clientIp || '';
+    const userIp = url.searchParams.get('userIp') || url.searchParams.get('ip') || clientIp || '';
     
     console.log('Parsed RadientWall values:', { userId, txid, offerName, reward });
 

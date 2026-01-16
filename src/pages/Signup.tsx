@@ -11,6 +11,7 @@ import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSe
 import { useSoundContext } from '@/contexts/SoundContext';
 import { toast } from 'sonner';
 import heroBg from '@/assets/hero-bg.jpg';
+import signupIllustration from '@/assets/signup-illustration.png';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -199,14 +200,23 @@ const Signup = () => {
         <main className="px-4 md:px-[5%] py-10 md:py-16">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center min-h-[calc(100vh-200px)]">
             
-            {/* Left Side - Hero Content */}
+            {/* Left Side - Hero Content with Illustration */}
             <div className="animate-fade-in text-center lg:text-left" style={{ animationDelay: '0.2s' }}>
-              <div className="mb-6">
-                <div className="text-4xl md:text-5xl inline-block mb-1">
-                  <SiteLogo size="lg" />
-                </div>
-                <div className="text-primary text-sm tracking-[0.2em] font-semibold uppercase">
-                  earn & grow
+              {/* 3D Illustration */}
+              <div className="flex justify-center lg:justify-start mb-8">
+                <div className="relative">
+                  {/* Glow effect behind illustration */}
+                  <div 
+                    className="absolute inset-0 blur-3xl opacity-40"
+                    style={{
+                      background: 'radial-gradient(circle, hsl(var(--primary) / 0.6) 0%, transparent 70%)'
+                    }}
+                  />
+                  <img 
+                    src={signupIllustration} 
+                    alt="Signup illustration" 
+                    className="relative z-10 w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl"
+                  />
                 </div>
               </div>
 

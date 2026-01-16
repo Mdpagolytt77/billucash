@@ -1,4 +1,5 @@
 import { UserPlus, ListTodo, Wallet } from 'lucide-react';
+import howItWorksIllustration from '@/assets/how-it-works-illustration.png';
 
 const steps = [
   {
@@ -31,6 +32,15 @@ const HowItWorksSection = () => {
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
           Complete easy tasks in your spare time and start earning today. Join WallsCash and turn every moment into a rewarding opportunity
         </p>
+      </div>
+
+      {/* 3D Illustration */}
+      <div className="flex justify-center mb-8">
+        <img 
+          src={howItWorksIllustration} 
+          alt="How it works" 
+          className="w-full max-w-2xl h-auto object-contain drop-shadow-lg"
+        />
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">

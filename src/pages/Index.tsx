@@ -8,7 +8,7 @@ import StatsSection from '@/components/StatsSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import ProvidersSection from '@/components/ProvidersSection';
 import FAQSection from '@/components/FAQSection';
-import CTASection from '@/components/CTASection';
+
 import Footer from '@/components/Footer';
 import LoginPopup from '@/components/LoginPopup';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
@@ -82,11 +82,6 @@ const Index = () => {
         {/* FAQ */}
         <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
           <FAQSection />
-        </div>
-
-        {/* CTA */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
-          <CTASection />
         </div>
 
         {/* Footer */}

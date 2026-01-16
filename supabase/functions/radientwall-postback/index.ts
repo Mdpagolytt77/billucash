@@ -3,8 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 /**
  * RadientWall Postback Endpoint
- * - Receives GET requests with: subId, transId, reward
- * - Returns ONLY plain text: OK | DUP | ...debug strings (no JSON)
+ * - Receives GET requests with: subId, transId, reward, signature
+ * - Verifies signature: md5(subId + transId + reward + secret)
+ * - Returns ONLY plain text: OK | DUP | ERROR...
  */
 
 const textHeaders = { "Content-Type": "text/plain" };
@@ -21,6 +22,16 @@ function stringifyError(e: unknown): string {
   }
 }
 
+// MD5 hash function
+async function md5(input: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest("MD5", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 serve(async (req) => {
   try {
     // Log full incoming URL + params for debugging
@@ -35,13 +46,25 @@ serve(async (req) => {
 
     const userId = url.searchParams.get("subId") ?? "";
     const transactionId = url.searchParams.get("transId") ?? "";
-    const rewardRaw = url.searchParams.get("reward");
+    const rewardRaw = url.searchParams.get("reward") ?? "";
+    const signature = url.searchParams.get("signature") ?? "";
 
     if (!userId) return respond("MISSING_SUBID", 200);
     if (!transactionId) return respond("MISSING_TRANSID", 200);
-
-    // Reward check requested by user
     if (!rewardRaw) return respond("REWARD_MISSING", 200);
+
+    // Signature verification: md5(subId + transId + reward + secret)
+    const secretKey = Deno.env.get("RADIENTWALL_SECRET_KEY");
+    if (!secretKey) return respond("SECRET_KEY_MISSING", 200);
+
+    const expectedSig = await md5(userId + transactionId + rewardRaw + secretKey);
+    if (signature.toLowerCase() !== expectedSig.toLowerCase()) {
+      console.log("[radientwall-postback] Signature mismatch:", {
+        received: signature,
+        expected: expectedSig,
+      });
+      return respond("ERROR: Signature mismatch", 200);
+    }
 
     const coins = Math.round(Number(rewardRaw));
     if (!Number.isFinite(coins)) return respond("INVALID_REWARD", 200);

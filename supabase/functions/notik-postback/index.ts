@@ -69,28 +69,30 @@ serve(async (req) => {
     console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract Notik parameters - Notik uses aff_sub for user_id
-    // Notik macros: {aff_sub}, {payout}, {offer_name}, {offer_id}, {ip}, {country_code}
-    const userId = params.get('user_id') || params.get('aff_sub') || params.get('uid') || '';
-    const appId = params.get('app_id') || '';
-    const pubId = params.get('pub_id') || '';
-    const offerId = params.get('offer_id') || '';
-    const txid = params.get('transaction_id') || params.get('offer_id') || params.get('txid') || '';
+    // Extract Notik parameters based on user's postback URL configuration:
+    // {user_id} -> user_id
+    // {txn_id} -> transaction_id (txn_id)
+    // {offer_name} -> offer_name
+    // {amount} or {payout} -> points/payout
+    const userId = params.get('user_id') || '';
+    const txid = params.get('txn_id') || params.get('transaction_id') || '';
+    let offerName = params.get('offer_name') || 'Notik Offer';
+    const payout = params.get('amount') || params.get('payout') || params.get('points') || '0';
+    
+    // Additional optional parameters
     const incomingHash = params.get('sig') || params.get('hash') || params.get('signature') || '';
     const status = params.get('status') || params.get('result') || 'completed';
-    const payout = params.get('payout') || params.get('points') || params.get('reward') || '0';
-    let offerName = params.get('offer_name') || params.get('campaign_name') || 'Notik Offer';
     const country = params.get('country') || params.get('country_code') || params.get('geo') || 'Unknown';
     const userIp = params.get('ip') || clientIp || '';
     
-    console.log('Parsed values:', { userId, payout, offerName, txid });
+    console.log('Parsed Notik values:', { userId, txid, offerName, payout });
 
     console.log('Parameters received:', { 
       userId: !!userId, 
-      appId: !!appId,
       txid: !!txid, 
       status, 
       payout: !!payout,
+      offerName: !!offerName,
       hasSignature: !!incomingHash
     });
 
@@ -110,7 +112,6 @@ serve(async (req) => {
       const signatureFormats = [
         `${userId}${payout}${NOTIK_SECRET_KEY}`,
         `${userId}${txid}${payout}${NOTIK_SECRET_KEY}`,
-        `${appId}${userId}${payout}${NOTIK_SECRET_KEY}`,
         `${txid}${userId}${payout}${NOTIK_SECRET_KEY}`,
       ];
 

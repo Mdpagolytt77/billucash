@@ -8,22 +8,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
  */
 serve(async (req) => {
   try {
-    if (req.method !== "GET") return new Response("ERROR");
-
+    // Log full incoming URL + params for debugging
+    console.log("[radientwall-postback] Incoming:", req.method, req.url);
     const url = new URL(req.url);
+    console.log(
+      "[radientwall-postback] Params:",
+      Object.fromEntries(url.searchParams.entries()),
+    );
+
+    if (req.method !== "GET") return new Response("METHOD_NOT_ALLOWED");
 
     const userId = url.searchParams.get("subId") ?? "";
     const transactionId = url.searchParams.get("transId") ?? "";
-    const rewardRaw = url.searchParams.get("reward") ?? "";
+    const rewardRaw = url.searchParams.get("reward");
 
-    if (!userId || !transactionId || !rewardRaw) return new Response("ERROR");
+    if (!userId) return new Response("MISSING_SUBID");
+    if (!transactionId) return new Response("MISSING_TRANSID");
+
+    // Reward check requested by user
+    if (!rewardRaw) return new Response("REWARD_MISSING");
 
     const coins = Math.round(Number(rewardRaw));
-    if (!Number.isFinite(coins)) return new Response("ERROR");
+    if (!Number.isFinite(coins)) return new Response("INVALID_REWARD");
+    if (coins === 0) return new Response("REWARD_MISSING");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!supabaseUrl || !supabaseServiceKey) return new Response("ERROR");
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return new Response("CONFIG_MISSING");
+    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -34,7 +47,7 @@ serve(async (req) => {
       .eq("transaction_id", transactionId)
       .maybeSingle();
 
-    if (dupErr) return new Response("ERROR");
+    if (dupErr) throw dupErr;
     if (existing) return new Response("DUP");
 
     // Update balance
@@ -43,7 +56,7 @@ serve(async (req) => {
       amount_input: coins,
     });
 
-    if (balErr) return new Response("ERROR");
+    if (balErr) throw balErr;
 
     // Record the transaction
     const { error: insErr } = await supabase.from("completed_offers").insert({
@@ -55,10 +68,13 @@ serve(async (req) => {
       country: "Unknown",
     });
 
-    if (insErr) return new Response("ERROR");
+    if (insErr) throw insErr;
 
     return new Response("OK");
-  } catch (_e) {
-    return new Response("ERROR");
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[radientwall-postback] ERROR:", message);
+    return new Response(message || "ERROR");
   }
 });
+

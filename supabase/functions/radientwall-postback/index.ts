@@ -4,8 +4,23 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 /**
  * RadientWall Postback Endpoint
  * - Receives GET requests with: subId, transId, reward
- * - Returns ONLY plain text: OK | DUP | ERROR (no JSON)
+ * - Returns ONLY plain text: OK | DUP | ...debug strings (no JSON)
  */
+
+const textHeaders = { "Content-Type": "text/plain" };
+const respond = (text: string, status = 200) =>
+  new Response(text, { status, headers: textHeaders });
+
+function stringifyError(e: unknown): string {
+  if (e instanceof Error) return e.message || "ERROR";
+  if (typeof e === "string") return e;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return "ERROR";
+  }
+}
+
 serve(async (req) => {
   try {
     // Log full incoming URL + params for debugging
@@ -16,26 +31,26 @@ serve(async (req) => {
       Object.fromEntries(url.searchParams.entries()),
     );
 
-    if (req.method !== "GET") return new Response("METHOD_NOT_ALLOWED");
+    if (req.method !== "GET") return respond("METHOD_NOT_ALLOWED", 200);
 
     const userId = url.searchParams.get("subId") ?? "";
     const transactionId = url.searchParams.get("transId") ?? "";
     const rewardRaw = url.searchParams.get("reward");
 
-    if (!userId) return new Response("MISSING_SUBID");
-    if (!transactionId) return new Response("MISSING_TRANSID");
+    if (!userId) return respond("MISSING_SUBID", 200);
+    if (!transactionId) return respond("MISSING_TRANSID", 200);
 
     // Reward check requested by user
-    if (!rewardRaw) return new Response("REWARD_MISSING");
+    if (!rewardRaw) return respond("REWARD_MISSING", 200);
 
     const coins = Math.round(Number(rewardRaw));
-    if (!Number.isFinite(coins)) return new Response("INVALID_REWARD");
-    if (coins === 0) return new Response("REWARD_MISSING");
+    if (!Number.isFinite(coins)) return respond("INVALID_REWARD", 200);
+    if (coins === 0) return respond("REWARD_MISSING", 200);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!supabaseUrl || !supabaseServiceKey) {
-      return new Response("CONFIG_MISSING");
+      return respond("CONFIG_MISSING", 200);
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -48,7 +63,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (dupErr) throw dupErr;
-    if (existing) return new Response("DUP");
+    if (existing) return respond("DUP", 200);
 
     // Update balance
     const { error: balErr } = await supabase.rpc("increment_balance", {
@@ -70,11 +85,11 @@ serve(async (req) => {
 
     if (insErr) throw insErr;
 
-    return new Response("OK");
+    return respond("OK", 200);
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
+    const message = stringifyError(e);
     console.error("[radientwall-postback] ERROR:", message);
-    return new Response(message || "ERROR");
+    return respond(message || "ERROR", 200);
   }
 });
 

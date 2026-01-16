@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import Header from '@/components/Header';
-import HeroSection from '@/components/HeroSection';
 import LoginBox from '@/components/LoginBox';
 import FeaturedOffersSection from '@/components/FeaturedOffersSection';
 import StatsSection from '@/components/StatsSection';
@@ -65,13 +64,8 @@ const Index = () => {
           <LoginBox />
         </div>
 
-        {/* Hero Section - After Login Box */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <HeroSection />
-        </div>
-
         {/* Stats Section */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <StatsSection />
         </div>
 

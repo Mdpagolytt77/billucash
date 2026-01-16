@@ -65,6 +65,15 @@ serve(async (req) => {
     if (dupErr) throw dupErr;
     if (existing) return respond("DUP", 200);
 
+    // Fetch username from profiles (fallback to subId if not found)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const username = profile?.username || userId;
+
     // Update balance
     const { error: balErr } = await supabase.rpc("increment_balance", {
       user_id_input: userId,
@@ -76,6 +85,7 @@ serve(async (req) => {
     // Record the transaction
     const { error: insErr } = await supabase.from("completed_offers").insert({
       user_id: userId,
+      username: username,
       offerwall: "RadientWall",
       coin: coins,
       transaction_id: transactionId,

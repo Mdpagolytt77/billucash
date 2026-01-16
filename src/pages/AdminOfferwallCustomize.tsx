@@ -76,9 +76,9 @@ const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
 
 // Provider-specific postback URL templates with their unique parameter formats
 const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: string) => string> = {
-  // Notik uses aff_sub for user_id, offer_id for transaction, country_code for country
+  // Notik uses: user_id from {user_id}, txn_id for transaction, offer_name, amount/payout for points
   notik: (baseUrl, wallName) => 
-    `${baseUrl}?user_id={aff_sub}&payout={payout}&offer_name={offer_name}&transaction_id={offer_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
+    `${baseUrl}?user_id={user_id}&txn_id={txn_id}&offer_name={offer_name}&amount={amount}&payout={payout}&ip={ip}&country={country_code}&offerwall=${wallName}`,
   
   // Offery uses aff_sub for user_id, offer_id for transaction
   offery: (baseUrl, wallName) => 

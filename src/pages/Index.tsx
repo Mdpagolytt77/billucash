@@ -9,6 +9,7 @@ import StatsSection from '@/components/StatsSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import ProvidersSection from '@/components/ProvidersSection';
 import FAQSection from '@/components/FAQSection';
+import FloatingCoinsBackground from '@/components/FloatingCoinsBackground';
 
 import Footer from '@/components/Footer';
 import LoginPopup from '@/components/LoginPopup';
@@ -47,52 +48,60 @@ const Index = () => {
 
       {/* Main Content */}
       <div 
-        className={`min-h-screen bg-background transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        className={`min-h-screen bg-background transition-opacity duration-500 relative ${isLoading ? 'opacity-0' : 'opacity-100'}`}
       >
-        {/* Header */}
-        <Header onLoginClick={() => setIsLoginOpen(true)} />
-        
-        {/* Live Earnings Tracker */}
-        <LiveEarningsTracker />
-
-        {/* Featured Offers - clicking opens login popup */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <FeaturedOffersSection onOfferClick={handleOfferClick} />
+        {/* Global Floating Coins Background */}
+        <div className="fixed inset-0 z-0">
+          <FloatingCoinsBackground density="high" showGlow={true} showBeams={true} />
         </div>
 
-        {/* Login Box Section */}
-        <div className="animate-fade-in px-4 pb-6" style={{ animationDelay: '0.2s' }}>
-          <LoginBox />
-        </div>
+        {/* Content wrapper with relative z-index */}
+        <div className="relative z-10">
+          {/* Header */}
+          <Header onLoginClick={() => setIsLoginOpen(true)} />
+          
+          {/* Live Earnings Tracker */}
+          <LiveEarningsTracker />
 
-        {/* Hero Section */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <HeroSection />
-        </div>
+          {/* Featured Offers - clicking opens login popup */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <FeaturedOffersSection onOfferClick={handleOfferClick} />
+          </div>
 
-        {/* Stats Section */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <StatsSection />
-        </div>
+          {/* Login Box Section */}
+          <div className="animate-fade-in px-4 pb-6" style={{ animationDelay: '0.2s' }}>
+            <LoginBox />
+          </div>
 
-        {/* How It Works */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <HowItWorksSection />
-        </div>
+          {/* Hero Section */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <HeroSection />
+          </div>
 
-        {/* Providers */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          <ProvidersSection />
-        </div>
+          {/* Stats Section */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <StatsSection />
+          </div>
 
-        {/* FAQ */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-          <FAQSection />
-        </div>
+          {/* How It Works */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <HowItWorksSection />
+          </div>
 
-        {/* Footer */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
-          <Footer />
+          {/* Providers */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <ProvidersSection />
+          </div>
+
+          {/* FAQ */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <FAQSection />
+          </div>
+
+          {/* Footer */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            <Footer />
+          </div>
         </div>
       </div>
     </>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { X, Loader2, Eye, EyeOff, Rocket } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSoundContext } from '@/contexts/SoundContext';
@@ -17,10 +17,8 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
   const { signIn } = useAuth();
   const { playLoginSound } = useSoundContext();
   const { logoText } = useSiteSettings();
-  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -75,47 +73,6 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
     }, 500);
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email || !password || !username) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-
-    setIsLoading(true);
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username }
-      }
-    });
-
-    if (error) {
-      toast.error(error.message);
-      setIsLoading(false);
-      return;
-    }
-
-    if (data.user) {
-      playLoginSound();
-      toast.success('Account created! Redirecting...');
-      onClose();
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
-    }
-
-    setIsLoading(false);
-  };
-
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -140,9 +97,7 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
       >
         {/* Header */}
         <div className="flex justify-between items-center p-4 pb-0">
-          <h2 className="text-lg font-semibold text-foreground">
-            {activeTab === 'login' ? 'Log In' : 'Sign Up'}
-          </h2>
+          <h2 className="text-lg font-semibold text-foreground">Log In</h2>
           <button 
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
@@ -151,61 +106,19 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
           </button>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex gap-2 p-4">
-          <button
-            onClick={() => setActiveTab('login')}
-            className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'login'
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                : 'bg-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <span className="text-lg">🎮</span>
-            Log in
-          </button>
-          <button
-            onClick={() => setActiveTab('signup')}
-            className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'signup'
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                : 'bg-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Join Now
-            <span className="text-lg">🎮</span>
-          </button>
-        </div>
-
         {/* Logo & Welcome */}
-        <div className="px-4 pb-2">
+        <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
             <SiteLogo className="h-8 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
-            {activeTab === 'login' 
-              ? 'Please log-in to your account and start the adventure' 
-              : 'Create your account and start earning'
-            }
+            Please log-in to your account and start the adventure
             <Rocket className="w-4 h-4 text-primary" />
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={activeTab === 'login' ? handleLogin : handleSignup} className="p-4 pt-2 space-y-4">
-          {activeTab === 'signup' && (
-            <div>
-              <label className="text-sm text-muted-foreground mb-1.5 block">Username</label>
-              <input
-                type="text"
-                placeholder="Choose a username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-muted/50 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-muted-foreground/50"
-              />
-            </div>
-          )}
-
+        <form onSubmit={handleLogin} className="p-4 pt-0 space-y-4">
           <div>
             <label className="text-sm text-muted-foreground mb-1.5 block">Email</label>
             <input
@@ -220,11 +133,9 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
           <div>
             <div className="flex justify-between items-center mb-1.5">
               <label className="text-sm text-muted-foreground">Password</label>
-              {activeTab === 'login' && (
-                <button type="button" className="text-xs text-primary hover:underline">
-                  Forgot Password?
-                </button>
-              )}
+              <button type="button" className="text-xs text-primary hover:underline">
+                Forgot Password?
+              </button>
             </div>
             <div className="relative">
               <input
@@ -269,7 +180,7 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
             {isLoading ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Please wait...</>
             ) : (
-              activeTab === 'login' ? 'Login' : 'Create Account'
+              'Login'
             )}
           </button>
         </form>
@@ -277,27 +188,18 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
         {/* Bottom Links */}
         <div className="px-4 pb-4 space-y-3">
           <div className="text-center text-sm text-muted-foreground">
-            {activeTab === 'login' ? (
-              <>
-                New on our platform?{' '}
-                <button 
-                  onClick={() => setActiveTab('signup')}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Create an account
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{' '}
-                <button 
-                  onClick={() => setActiveTab('login')}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Log in
-                </button>
-              </>
-            )}
+            New on our platform?{' '}
+            <a 
+              href="/signup"
+              onClick={(e) => {
+                e.preventDefault();
+                onClose();
+                navigate('/signup');
+              }}
+              className="text-primary font-semibold hover:underline"
+            >
+              Create an account
+            </a>
           </div>
 
           {/* Divider */}

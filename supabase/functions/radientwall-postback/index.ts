@@ -61,47 +61,48 @@ serve(async (req) => {
     console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract RadientWall parameters - specifically use user_id
+    // Extract RadientWall parameters - user_id is mapped from {subid}
     const userId = url.searchParams.get('user_id') || '';
     const txid = url.searchParams.get('transaction_id') || '';
     let offerName = url.searchParams.get('offer_name') || 'RadientWall Offer';
-    const payout = url.searchParams.get('payout') || '0';
+    // Use reward parameter for coins
+    const reward = url.searchParams.get('reward') || '0';
     
     // Additional optional parameters
     const status = url.searchParams.get('status') || 'completed';
     const country = url.searchParams.get('country') || 'Unknown';
     const userIp = url.searchParams.get('ip') || clientIp || '';
     
-    console.log('Parsed RadientWall values:', { userId, txid, offerName, payout });
+    console.log('Parsed RadientWall values:', { userId, txid, offerName, reward });
 
     // Validate required parameters
     if (!userId) {
       console.error('[Validation] Missing user_id parameter');
-      return new Response(JSON.stringify({ success: false, error: 'Missing user_id' }), {
+      return new Response('ERROR', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Parse payout
-    let payoutValue = parseFloat(payout) || 0;
+    // Parse reward (coins to add)
+    let rewardValue = parseFloat(reward) || 0;
 
     // SECURITY: Maximum payout validation
-    if (Math.abs(payoutValue) > MAX_PAYOUT) {
-      console.error(`[Security] Payout ${payoutValue} exceeds maximum ${MAX_PAYOUT}`);
-      return new Response(JSON.stringify({ success: false, error: 'Payout exceeds limit' }), {
+    if (Math.abs(rewardValue) > MAX_PAYOUT) {
+      console.error(`[Security] Reward ${rewardValue} exceeds maximum ${MAX_PAYOUT}`);
+      return new Response('ERROR', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
     // Handle status
     const lowerStatus = status.toLowerCase();
     if (lowerStatus === 'rejected' || lowerStatus === 'chargeback' || lowerStatus === 'reversed') {
-      if (payoutValue > 0) {
-        payoutValue = -payoutValue;
+      if (rewardValue > 0) {
+        rewardValue = -rewardValue;
       }
-      console.log('Processing rejection/chargeback, payout:', payoutValue);
+      console.log('Processing rejection/chargeback, reward:', rewardValue);
     }
 
     // Validate string field lengths
@@ -125,9 +126,9 @@ serve(async (req) => {
 
       if (existing) {
         console.log('Duplicate transaction, already processed');
-        return new Response(JSON.stringify({ success: true, message: 'Already processed' }), {
+        return new Response('DUP', {
           status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
         });
       }
     }
@@ -141,14 +142,14 @@ serve(async (req) => {
 
     if (profileError || !profile) {
       console.error('[Validation] User not found:', userId);
-      return new Response(JSON.stringify({ success: false, error: 'User not found' }), {
+      return new Response('ERROR', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Calculate coins to award
-    const coinsToAward = Math.round(payoutValue);
+    // Calculate coins to award from reward parameter
+    const coinsToAward = Math.round(rewardValue);
 
     // Use the increment_balance function
     const { error: balanceError } = await supabase.rpc('increment_balance', {
@@ -158,9 +159,9 @@ serve(async (req) => {
 
     if (balanceError) {
       console.error('Failed to update balance:', balanceError);
-      return new Response(JSON.stringify({ success: false, error: 'Failed to update balance' }), {
+      return new Response('ERROR', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
@@ -199,22 +200,17 @@ serve(async (req) => {
       transactionId
     });
 
-    // Return success response
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Postback processed',
-      coins_awarded: coinsToAward,
-      new_balance: newBalance
-    }), {
+    // Return plain text OK on success
+    return new Response('OK', {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
     });
 
   } catch (error) {
     console.error('Processing error:', error);
-    return new Response(JSON.stringify({ success: false, error: 'Internal error' }), {
+    return new Response('ERROR', {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
     });
   }
 });

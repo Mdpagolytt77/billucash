@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import md5 from "https://esm.sh/md5@2.3.0";
 
 /**
  * RadientWall Postback Endpoint
@@ -20,16 +21,6 @@ function stringifyError(e: unknown): string {
   } catch {
     return "ERROR";
   }
-}
-
-// MD5 hash function
-async function md5(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest("MD5", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
 }
 
 serve(async (req) => {
@@ -57,7 +48,7 @@ serve(async (req) => {
     const secretKey = Deno.env.get("RADIENTWALL_SECRET_KEY");
     if (!secretKey) return respond("SECRET_KEY_MISSING", 200);
 
-    const expectedSig = await md5(userId + transactionId + rewardRaw + secretKey);
+    const expectedSig = md5(userId + transactionId + rewardRaw + secretKey);
     if (signature.toLowerCase() !== expectedSig.toLowerCase()) {
       console.log("[radientwall-postback] Signature mismatch:", {
         received: signature,

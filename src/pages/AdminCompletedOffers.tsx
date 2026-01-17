@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Menu, Search, Loader2, Trash2, AlertTriangle, Pencil } from 'lucide-react';
+import { CheckCircle, Menu, Search, Loader2, Trash2, AlertTriangle, Pencil, Calendar } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -48,6 +48,7 @@ const AdminCompletedOffers = () => {
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
   const [offers, setOffers] = useState<CompletedOffer[]>([]);
@@ -119,17 +120,21 @@ const AdminCompletedOffers = () => {
     };
   }, []);
 
-  const filteredData = offers.filter(row =>
-    row.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    row.offerwall.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (row.country || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = offers.filter(row => {
+    const matchesSearch = row.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.offerwall.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (row.country || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesDate = !dateFilter || row.created_at.startsWith(dateFilter);
+    
+    return matchesSearch && matchesDate;
+  });
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const pageData = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, rowsPerPage]);
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, dateFilter, rowsPerPage]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -305,6 +310,23 @@ const AdminCompletedOffers = () => {
                   <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
                   <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search user..." className="w-full pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" />
                 </div>
+                <div className="relative">
+                  <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                  <input 
+                    type="date" 
+                    value={dateFilter} 
+                    onChange={(e) => setDateFilter(e.target.value)} 
+                    className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" 
+                  />
+                </div>
+                {dateFilter && (
+                  <button 
+                    onClick={() => setDateFilter('')} 
+                    className="px-2 py-1.5 bg-destructive/20 text-destructive rounded-lg text-[10px] hover:bg-destructive/30"
+                  >
+                    Clear
+                  </button>
+                )}
                 <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]">
                   {[10, 15, 25, 50].map(n => <option key={n} value={n}>{n} rows</option>)}
                 </select>
@@ -334,6 +356,7 @@ const AdminCompletedOffers = () => {
                             className="w-3 h-3 rounded border-border"
                           />
                         </th>
+                        <th className="text-center p-1.5 text-muted-foreground w-10">#</th>
                         <th className="text-left p-1.5 text-muted-foreground">User ID</th>
                         <th className="text-left p-1.5 text-muted-foreground">Username</th>
                         <th className="text-left p-1.5 text-muted-foreground">Offerwall</th>
@@ -348,7 +371,7 @@ const AdminCompletedOffers = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {pageData.map((row) => (
+                      {pageData.map((row, index) => (
                         <tr key={row.id} className={`border-t border-border/50 hover:bg-primary/5 ${selectedIds.has(row.id) ? 'bg-primary/10' : ''}`}>
                           <td className="p-1.5">
                             <input
@@ -358,6 +381,7 @@ const AdminCompletedOffers = () => {
                               className="w-3 h-3 rounded border-border"
                             />
                           </td>
+                          <td className="p-1.5 text-center text-muted-foreground font-medium">{startIndex + index + 1}</td>
                           <td className="p-1.5 text-muted-foreground text-[8px] max-w-[80px] truncate" title={row.user_id}>{row.user_id.slice(0, 8)}...</td>
                           <td className="p-1.5 font-medium">{row.username}</td>
                           <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>

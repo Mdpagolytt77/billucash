@@ -54,11 +54,11 @@ const Leaderboard = () => {
         });
       });
 
-      // Convert to array and sort by offer count (descending)
+      // Convert to array and sort by offer count (descending) - Top 20 only
       const sorted = Array.from(userMap.entries())
         .map(([username, stats]) => ({ username, ...stats }))
         .sort((a, b) => b.offerCount - a.offerCount)
-        .slice(0, 50)
+        .slice(0, 20)
         .map((user, index) => ({ ...user, rank: index + 1 }));
 
       setLeaderboardData(sorted);
@@ -160,7 +160,7 @@ const Leaderboard = () => {
             <h1 className="text-lg font-bold text-gradient flex items-center justify-center gap-2 mb-1">
               <Trophy className="w-4 h-4" /> Leaderboard
             </h1>
-            <p className="text-[10px] text-muted-foreground">Top 50 earners (Real-time)</p>
+            <p className="text-[10px] text-muted-foreground">Top 20 earners (Real-time)</p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 mb-3">

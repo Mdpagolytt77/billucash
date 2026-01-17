@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Menu, Search, Loader2, Trash2, AlertTriangle, Pencil, Calendar } from 'lucide-react';
+import { CheckCircle, Menu, Search, Loader2, Trash2, AlertTriangle, Pencil, Calendar, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -410,9 +410,15 @@ const AdminCompletedOffers = () => {
                 <div className="flex items-center justify-between mt-3 text-[10px]">
                   <span className="text-muted-foreground">Showing {startIndex + 1}-{Math.min(startIndex + rowsPerPage, filteredData.length)} of {filteredData.length}</span>
                   <div className="flex gap-1">
+                    <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-2 py-1 rounded bg-muted disabled:opacity-40" title="First Page">
+                      <ChevronsLeft className="w-3 h-3" />
+                    </button>
                     <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-2 py-1 rounded bg-muted disabled:opacity-40">← Prev</button>
                     <span className="px-2 py-1 rounded bg-primary text-white">{currentPage}</span>
                     <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-2 py-1 rounded bg-muted disabled:opacity-40">Next →</button>
+                    <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-2 py-1 rounded bg-muted disabled:opacity-40" title="Last Page">
+                      <ChevronsRight className="w-3 h-3" />
+                    </button>
                   </div>
                 </div>
               </>

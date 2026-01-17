@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, ChevronLeft, ChevronRight, Menu, RefreshCw, Edit, Eye, Copy, Check } from 'lucide-react';
+import { Users, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Menu, RefreshCw, Edit, Eye, Copy, Check } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -284,12 +284,18 @@ const AdminAllUsers = () => {
 
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-2 mt-3">
-                <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-1 rounded bg-muted disabled:opacity-50">
+                <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="p-1 rounded bg-muted disabled:opacity-50" title="First Page">
+                  <ChevronsLeft className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-1 rounded bg-muted disabled:opacity-50" title="Previous Page">
                   <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-primary/20 text-primary font-medium">{currentPage} / {totalPages}</span>
-                <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-1 rounded bg-muted disabled:opacity-50">
+                <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-1 rounded bg-muted disabled:opacity-50" title="Next Page">
                   <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="p-1 rounded bg-muted disabled:opacity-50" title="Last Page">
+                  <ChevronsRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}

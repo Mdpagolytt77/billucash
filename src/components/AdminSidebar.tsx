@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Users, Wallet, FileCheck, Palette, Layers, 
-  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2, Shield, Building2, Star 
+  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2, Shield, Building2, Star, CreditCard 
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
@@ -28,6 +28,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Users, label: 'All Users', path: '/admin/users' },
     { icon: Shield, label: 'Admin Roles', path: '/admin/roles' },
     { icon: Wallet, label: 'Withdraw', path: '/admin/withdraw' },
+    { icon: CreditCard, label: 'Payment Methods', path: '/admin/payment-methods' },
     { icon: FileCheck, label: 'Completed', path: '/admin/offers' },
     { icon: Palette, label: 'Logo', path: '/admin/logo' },
     { icon: Layers, label: 'Offerwall', path: '/admin/offerwall' },

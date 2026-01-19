@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, History } from 'lucide-react';
+import { Menu, History, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import SnowEffect from '@/components/SnowEffect';
@@ -29,32 +29,11 @@ interface WithdrawalHistory {
 interface PaymentMethod {
   id: string;
   name: string;
-  icon: string;
+  icon_url: string | null;
   gradient: string;
   category: 'crypto' | 'giftcard' | 'cash';
-  minAmount: number;
+  min_amount: number;
 }
-
-const paymentMethods: PaymentMethod[] = [
-  // Crypto
-  { id: 'binance', name: 'Binance', icon: '💎', gradient: 'from-yellow-600 to-yellow-800', category: 'crypto', minAmount: 5 },
-  { id: 'litecoin', name: 'Litecoin', icon: 'Ł', gradient: 'from-gray-500 to-gray-700', category: 'crypto', minAmount: 5 },
-  { id: 'tron', name: 'Tron', icon: '◈', gradient: 'from-red-500 to-red-700', category: 'crypto', minAmount: 3 },
-  { id: 'bitcoin', name: 'Bitcoin', icon: '₿', gradient: 'from-amber-500 to-amber-700', category: 'crypto', minAmount: 10 },
-  { id: 'dogecoin', name: 'Dogecoin', icon: '🐕', gradient: 'from-yellow-400 to-yellow-600', category: 'crypto', minAmount: 2 },
-  
-  // Gift Cards
-  { id: 'google_play', name: 'Google Play', icon: '▶', gradient: 'from-green-600 to-blue-600', category: 'giftcard', minAmount: 5 },
-  { id: 'walmart', name: 'Walmart', icon: '★', gradient: 'from-blue-500 to-blue-700', category: 'giftcard', minAmount: 10 },
-  { id: 'paypal_gc', name: 'PayPal', icon: 'P', gradient: 'from-blue-400 to-blue-600', category: 'giftcard', minAmount: 5 },
-  
-  // Cash
-  { id: 'wise', name: 'Wise', icon: '➜', gradient: 'from-green-400 to-teal-600', category: 'cash', minAmount: 5 },
-  { id: 'payoneer', name: 'Payoneer', icon: '◉', gradient: 'from-orange-500 to-red-600', category: 'cash', minAmount: 10 },
-  { id: 'payeer', name: 'Payeer', icon: '₽', gradient: 'from-blue-500 to-cyan-600', category: 'cash', minAmount: 1 },
-  { id: 'bkash', name: 'bKash', icon: '৳', gradient: 'from-pink-600 to-pink-800', category: 'cash', minAmount: 1 },
-  { id: 'nagad', name: 'Nagad', icon: '৳', gradient: 'from-orange-500 to-orange-700', category: 'cash', minAmount: 1 },
-];
 
 const Withdraw = () => {
   const { user, profile, isLoading } = useAuth();
@@ -67,6 +46,7 @@ const Withdraw = () => {
   const [submitting, setSubmitting] = useState(false);
   const [history, setHistory] = useState<WithdrawalHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [methods, setMethods] = useState<PaymentMethod[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowLoading(false), 800);
@@ -74,8 +54,18 @@ const Withdraw = () => {
   }, []);
 
   useEffect(() => {
+    fetchMethods();
     if (user) fetchHistory();
   }, [user]);
+
+  const fetchMethods = async () => {
+    const { data } = await supabase
+      .from('payment_methods')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    if (data) setMethods(data as PaymentMethod[]);
+  };
 
   const fetchHistory = async () => {
     const { data } = await supabase
@@ -94,8 +84,8 @@ const Withdraw = () => {
       return;
     }
     const amountNum = parseFloat(amount);
-    if (amountNum < selectedMethod.minAmount) {
-      toast.error(`Minimum withdrawal for ${selectedMethod.name} is $${selectedMethod.minAmount}`);
+    if (amountNum < selectedMethod.min_amount) {
+      toast.error(`Minimum withdrawal for ${selectedMethod.name} is $${selectedMethod.min_amount}`);
       return;
     }
     if (amountNum > (profile?.balance || 0)) {
@@ -133,9 +123,9 @@ const Withdraw = () => {
     }
   };
 
-  const cryptoMethods = paymentMethods.filter(m => m.category === 'crypto');
-  const giftcardMethods = paymentMethods.filter(m => m.category === 'giftcard');
-  const cashMethods = paymentMethods.filter(m => m.category === 'cash');
+  const cryptoMethods = methods.filter(m => m.category === 'crypto');
+  const giftcardMethods = methods.filter(m => m.category === 'giftcard');
+  const cashMethods = methods.filter(m => m.category === 'cash');
 
   if (isLoading || showLoading) {
     return <LoadingScreen isLoading={true} />;
@@ -179,61 +169,79 @@ const Withdraw = () => {
           </h1>
 
           {/* Crypto Section */}
-          <section className="mb-8">
-            <h2 className="text-sm font-semibold text-foreground mb-3">Crypto</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-              {cryptoMethods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedMethod(method)}
-                  className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
-                    selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
-                  }`}
-                >
-                  <span className="text-2xl sm:text-3xl">{method.icon}</span>
-                  <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
-                </button>
-              ))}
-            </div>
-          </section>
+          {cryptoMethods.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-sm font-semibold text-foreground mb-3">Crypto</h2>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                {cryptoMethods.map((method) => (
+                  <button
+                    key={method.id}
+                    onClick={() => setSelectedMethod(method)}
+                    className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
+                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
+                    }`}
+                  >
+                    {method.icon_url ? (
+                      <img src={method.icon_url} alt={method.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                    ) : (
+                      <CreditCard className="w-8 h-8 text-white/70" />
+                    )}
+                    <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Gift Card Section */}
-          <section className="mb-8">
-            <h2 className="text-sm font-semibold text-foreground mb-3">Gift Card</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-              {giftcardMethods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedMethod(method)}
-                  className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
-                    selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
-                  }`}
-                >
-                  <span className="text-2xl sm:text-3xl">{method.icon}</span>
-                  <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
-                </button>
-              ))}
-            </div>
-          </section>
+          {giftcardMethods.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-sm font-semibold text-foreground mb-3">Gift Card</h2>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                {giftcardMethods.map((method) => (
+                  <button
+                    key={method.id}
+                    onClick={() => setSelectedMethod(method)}
+                    className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
+                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
+                    }`}
+                  >
+                    {method.icon_url ? (
+                      <img src={method.icon_url} alt={method.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                    ) : (
+                      <CreditCard className="w-8 h-8 text-white/70" />
+                    )}
+                    <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Cash Section */}
-          <section className="mb-8">
-            <h2 className="text-sm font-semibold text-foreground mb-3">Cash</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-              {cashMethods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedMethod(method)}
-                  className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
-                    selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
-                  }`}
-                >
-                  <span className="text-2xl sm:text-3xl">{method.icon}</span>
-                  <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
-                </button>
-              ))}
-            </div>
-          </section>
+          {cashMethods.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-sm font-semibold text-foreground mb-3">Cash</h2>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                {cashMethods.map((method) => (
+                  <button
+                    key={method.id}
+                    onClick={() => setSelectedMethod(method)}
+                    className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
+                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
+                    }`}
+                  >
+                    {method.icon_url ? (
+                      <img src={method.icon_url} alt={method.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                    ) : (
+                      <CreditCard className="w-8 h-8 text-white/70" />
+                    )}
+                    <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
         </main>
       </div>
 
@@ -242,8 +250,12 @@ const Withdraw = () => {
         <DialogContent className="sm:max-w-md bg-background border-border">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${selectedMethod?.gradient} flex items-center justify-center text-xl`}>
-                {selectedMethod?.icon}
+              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${selectedMethod?.gradient} flex items-center justify-center`}>
+                {selectedMethod?.icon_url ? (
+                  <img src={selectedMethod.icon_url} alt={selectedMethod.name} className="w-6 h-6 object-contain" />
+                ) : (
+                  <CreditCard className="w-5 h-5 text-white" />
+                )}
               </div>
               Withdraw via {selectedMethod?.name}
             </DialogTitle>
@@ -252,15 +264,15 @@ const Withdraw = () => {
           <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <div>
               <label className="text-xs text-muted-foreground block mb-1.5">
-                Amount (Min: ${selectedMethod?.minAmount})
+                Amount (Min: ${selectedMethod?.min_amount})
               </label>
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder={`Minimum $${selectedMethod?.minAmount}`}
+                placeholder={`Minimum $${selectedMethod?.min_amount}`}
                 step="0.01"
-                min={selectedMethod?.minAmount}
+                min={selectedMethod?.min_amount}
                 className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
               />
             </div>

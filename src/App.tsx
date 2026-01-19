@@ -23,6 +23,7 @@ import AdminRoleManagement from "./pages/AdminRoleManagement";
 import AdminLiveTrackerCustomize from "./pages/AdminLiveTrackerCustomize";
 import AdminProvidersCustomize from "./pages/AdminProvidersCustomize";
 import AdminFeaturedOffers from "./pages/AdminFeaturedOffers";
+import AdminPaymentMethods from "./pages/AdminPaymentMethods";
 import ProfileSettings from "./pages/ProfileSettings";
 import Leaderboard from "./pages/Leaderboard";
 import Withdraw from "./pages/Withdraw";
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/admin/live-tracker" element={<ProtectedRoute requireAdmin><AdminLiveTrackerCustomize /></ProtectedRoute>} />
                 <Route path="/admin/providers" element={<ProtectedRoute requireAdmin><AdminProvidersCustomize /></ProtectedRoute>} />
                 <Route path="/admin/featured-offers" element={<ProtectedRoute requireAdmin><AdminFeaturedOffers /></ProtectedRoute>} />
+                <Route path="/admin/payment-methods" element={<ProtectedRoute requireAdmin><AdminPaymentMethods /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
                 <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />

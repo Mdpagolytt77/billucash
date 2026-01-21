@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Globe, Server, Clock, Gift, Coins, FileText } from 'lucide-react';
+import { X, Globe, Server, Clock, Gift, Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -276,30 +276,12 @@ const LiveEarningsTracker = () => {
                 </div>
               </div>
 
-              {/* IP & Country */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 border border-border">
-                  <Globe className="w-4 h-4 text-muted-foreground" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground">IP Address</p>
-                    <p className="font-medium text-xs text-foreground truncate">{selectedOffer.ip || 'Hidden'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 border border-border">
-                  <Globe className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-[10px] text-muted-foreground">Country</p>
-                    <p className="font-medium text-xs text-foreground">{selectedOffer.country || 'Unknown'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Transaction ID */}
+              {/* Country */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
-                <FileText className="w-5 h-5 text-muted-foreground" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground">Transaction ID</p>
-                  <p className="font-mono text-xs text-foreground truncate">{selectedOffer.transaction_id || 'N/A'}</p>
+                <Globe className="w-5 h-5 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Country</p>
+                  <p className="font-medium text-sm text-foreground">{selectedOffer.country || 'Unknown'}</p>
                 </div>
               </div>
 

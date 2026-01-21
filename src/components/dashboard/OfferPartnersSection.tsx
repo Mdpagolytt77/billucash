@@ -88,7 +88,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
         </button>
       </div>
       
-      <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         {partners.map((partner) => (
           <div
             key={partner.id}
@@ -100,19 +100,19 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               popupHeight: partner.popupHeight,
               popupAnimation: partner.popupAnimation,
             })}
-            className="flex-shrink-0 w-28 cursor-pointer group"
+            className="cursor-pointer group"
           >
-            {/* Card - 3D Effect */}
+            {/* Card - Rectangular compact design */}
             <div 
-              className={`relative w-full aspect-square rounded-2xl overflow-hidden mb-2 border transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-1 ${
+              className={`relative w-full h-16 rounded-xl overflow-hidden border transition-all duration-300 transform group-hover:scale-[1.02] group-hover:-translate-y-0.5 flex items-center gap-2.5 px-3 ${
                 isPremium ? 'border-transparent' : 'border-border/30'
               }`}
               style={getGradientStyle(partner.color, isPremium)}
             >
               {/* Badge */}
               {partner.badge && (
-                <div className={`absolute top-1.5 right-1.5 px-2 py-0.5 rounded-lg text-[9px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
-                  {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
+                <div className={`absolute top-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
+                  {partner.badge.type === 'hot' && <Flame className="w-2 h-2" />}
                   {partner.badge.text}
                 </div>
               )}
@@ -121,7 +121,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               {/* Logo */}
-              <div className="absolute inset-0 flex items-center justify-center p-4">
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
                 {partner.logoUrl ? (
                   <img 
                     src={partner.logoUrl} 
@@ -129,24 +129,21 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
                     className="max-w-full max-h-full object-contain drop-shadow-lg"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                    <span className="text-xl font-bold text-white drop-shadow-lg">
+                  <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                    <span className="text-sm font-bold text-white drop-shadow-lg">
                       {partner.name.substring(0, 2).toUpperCase()}
                     </span>
                   </div>
                 )}
               </div>
               
-              {/* Bottom gradient */}
-              <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black/40 to-transparent" />
-            </div>
-            
-            {/* Name */}
-            <h4 className="text-xs font-bold text-center text-foreground truncate group-hover:text-primary transition-colors">{partner.name}</h4>
-            
-            {/* Rating */}
-            <div className="flex justify-center mt-1">
-              {renderStars(partner.rating)}
+              {/* Name & Rating */}
+              <div className="flex flex-col min-w-0 flex-1">
+                <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{partner.name}</h4>
+                <div className="flex mt-0.5">
+                  {renderStars(partner.rating)}
+                </div>
+              </div>
             </div>
           </div>
         ))}

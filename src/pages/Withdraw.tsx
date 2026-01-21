@@ -170,23 +170,23 @@ const Withdraw = () => {
 
           {/* Crypto Section */}
           {cryptoMethods.length > 0 && (
-            <section className="mb-8">
+            <section className="mb-6">
               <h2 className="text-sm font-semibold text-foreground mb-3">Crypto</h2>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {cryptoMethods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method)}
-                    className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
+                    className={`group relative h-14 rounded-xl bg-gradient-to-br ${method.gradient} px-3 flex items-center gap-2.5 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 border-2 ${
                       selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
                     }`}
                   >
                     {method.icon_url ? (
-                      <img src={method.icon_url} alt={method.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                      <img src={method.icon_url} alt={method.name} className="w-8 h-8 object-contain flex-shrink-0" />
                     ) : (
-                      <CreditCard className="w-8 h-8 text-white/70" />
+                      <CreditCard className="w-6 h-6 text-white/70 flex-shrink-0" />
                     )}
-                    <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
+                    <span className="text-xs font-medium text-white/90 truncate">{method.name}</span>
                   </button>
                 ))}
               </div>
@@ -195,23 +195,23 @@ const Withdraw = () => {
 
           {/* Gift Card Section */}
           {giftcardMethods.length > 0 && (
-            <section className="mb-8">
+            <section className="mb-6">
               <h2 className="text-sm font-semibold text-foreground mb-3">Gift Card</h2>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {giftcardMethods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method)}
-                    className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
+                    className={`group relative h-14 rounded-xl bg-gradient-to-br ${method.gradient} px-3 flex items-center gap-2.5 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 border-2 ${
                       selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
                     }`}
                   >
                     {method.icon_url ? (
-                      <img src={method.icon_url} alt={method.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                      <img src={method.icon_url} alt={method.name} className="w-8 h-8 object-contain flex-shrink-0" />
                     ) : (
-                      <CreditCard className="w-8 h-8 text-white/70" />
+                      <CreditCard className="w-6 h-6 text-white/70 flex-shrink-0" />
                     )}
-                    <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
+                    <span className="text-xs font-medium text-white/90 truncate">{method.name}</span>
                   </button>
                 ))}
               </div>
@@ -220,23 +220,23 @@ const Withdraw = () => {
 
           {/* Cash Section */}
           {cashMethods.length > 0 && (
-            <section className="mb-8">
+            <section className="mb-6">
               <h2 className="text-sm font-semibold text-foreground mb-3">Cash</h2>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {cashMethods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method)}
-                    className={`group relative aspect-square rounded-xl bg-gradient-to-br ${method.gradient} p-3 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/20 border-2 ${
+                    className={`group relative h-14 rounded-xl bg-gradient-to-br ${method.gradient} px-3 flex items-center gap-2.5 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 border-2 ${
                       selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
                     }`}
                   >
                     {method.icon_url ? (
-                      <img src={method.icon_url} alt={method.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                      <img src={method.icon_url} alt={method.name} className="w-8 h-8 object-contain flex-shrink-0" />
                     ) : (
-                      <CreditCard className="w-8 h-8 text-white/70" />
+                      <CreditCard className="w-6 h-6 text-white/70 flex-shrink-0" />
                     )}
-                    <span className="text-[10px] sm:text-xs font-medium text-white/90 text-center leading-tight">{method.name}</span>
+                    <span className="text-xs font-medium text-white/90 truncate">{method.name}</span>
                   </button>
                 ))}
               </div>

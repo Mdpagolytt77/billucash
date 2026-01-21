@@ -325,6 +325,7 @@ export type Database = {
         Args: { limit_count?: number }
         Returns: {
           coin: number
+          country: string
           created_at: string
           id: string
           offerwall: string

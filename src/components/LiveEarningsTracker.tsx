@@ -29,6 +29,39 @@ interface TrackerSettings {
   manualScrollEnabled: boolean;
 }
 
+// Country name to flag emoji mapping
+const getCountryFlag = (country: string | null): string => {
+  if (!country || country === 'Unknown') return '🌍';
+  
+  const countryFlags: Record<string, string> = {
+    'Afghanistan': '🇦🇫', 'Albania': '🇦🇱', 'Algeria': '🇩🇿', 'Argentina': '🇦🇷', 'Australia': '🇦🇺',
+    'Austria': '🇦🇹', 'Bangladesh': '🇧🇩', 'Belgium': '🇧🇪', 'Brazil': '🇧🇷', 'Canada': '🇨🇦',
+    'Chile': '🇨🇱', 'China': '🇨🇳', 'Colombia': '🇨🇴', 'Czech Republic': '🇨🇿', 'Denmark': '🇩🇰',
+    'Egypt': '🇪🇬', 'Finland': '🇫🇮', 'France': '🇫🇷', 'Germany': '🇩🇪', 'Greece': '🇬🇷',
+    'Hong Kong': '🇭🇰', 'Hungary': '🇭🇺', 'India': '🇮🇳', 'Indonesia': '🇮🇩', 'Iran': '🇮🇷',
+    'Iraq': '🇮🇶', 'Ireland': '🇮🇪', 'Israel': '🇮🇱', 'Italy': '🇮🇹', 'Japan': '🇯🇵',
+    'Kenya': '🇰🇪', 'South Korea': '🇰🇷', 'Korea': '🇰🇷', 'Malaysia': '🇲🇾', 'Mexico': '🇲🇽',
+    'Morocco': '🇲🇦', 'Netherlands': '🇳🇱', 'New Zealand': '🇳🇿', 'Nigeria': '🇳🇬', 'Norway': '🇳🇴',
+    'Pakistan': '🇵🇰', 'Peru': '🇵🇪', 'Philippines': '🇵🇭', 'Poland': '🇵🇱', 'Portugal': '🇵🇹',
+    'Romania': '🇷🇴', 'Russia': '🇷🇺', 'Saudi Arabia': '🇸🇦', 'Singapore': '🇸🇬', 'South Africa': '🇿🇦',
+    'Spain': '🇪🇸', 'Sweden': '🇸🇪', 'Switzerland': '🇨🇭', 'Taiwan': '🇹🇼', 'Thailand': '🇹🇭',
+    'Turkey': '🇹🇷', 'Ukraine': '🇺🇦', 'United Arab Emirates': '🇦🇪', 'UAE': '🇦🇪',
+    'United Kingdom': '🇬🇧', 'UK': '🇬🇧', 'GB': '🇬🇧', 'United States': '🇺🇸', 'US': '🇺🇸', 'USA': '🇺🇸',
+    'Vietnam': '🇻🇳', 'Venezuela': '🇻🇪',
+  };
+  
+  // Try exact match first
+  if (countryFlags[country]) return countryFlags[country];
+  
+  // Try case-insensitive match
+  const lowerCountry = country.toLowerCase();
+  for (const [key, flag] of Object.entries(countryFlags)) {
+    if (key.toLowerCase() === lowerCountry) return flag;
+  }
+  
+  return '🌍';
+};
+
 const LiveEarningsTracker = () => {
   const { user } = useAuth();
   const [earnings, setEarnings] = useState<EarningEvent[]>([]);
@@ -278,7 +311,7 @@ const LiveEarningsTracker = () => {
 
               {/* Country */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
-                <Globe className="w-5 h-5 text-muted-foreground" />
+                <span className="text-2xl">{getCountryFlag(selectedOffer.country)}</span>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Country</p>
                   <p className="font-medium text-sm text-foreground">{selectedOffer.country || 'Unknown'}</p>

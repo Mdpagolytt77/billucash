@@ -172,21 +172,36 @@ const Withdraw = () => {
           {cryptoMethods.length > 0 && (
             <section className="mb-6">
               <h2 className="text-sm font-semibold text-foreground mb-3">Crypto</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              <div className="flex gap-2.5 overflow-x-auto pb-3 scrollbar-hide">
                 {cryptoMethods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method)}
-                    className={`group relative h-14 rounded-xl bg-gradient-to-br ${method.gradient} px-3 flex items-center gap-2.5 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 border-2 ${
-                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
-                    }`}
+                    className={`flex-shrink-0 w-[85px] group`}
                   >
-                    {method.icon_url ? (
-                      <img src={method.icon_url} alt={method.name} className="w-8 h-8 object-contain flex-shrink-0" />
-                    ) : (
-                      <CreditCard className="w-6 h-6 text-white/70 flex-shrink-0" />
-                    )}
-                    <span className="text-xs font-medium text-white/90 truncate">{method.name}</span>
+                    <div className={`relative w-full h-[110px] rounded-xl bg-gradient-to-br ${method.gradient} p-2 flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-1 border-2 ${
+                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
+                    }`}>
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      {/* Icon - centered */}
+                      <div className="flex items-center justify-center mb-2">
+                        {method.icon_url ? (
+                          <img src={method.icon_url} alt={method.name} className="w-10 h-10 object-contain drop-shadow-lg" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                            <CreditCard className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Name */}
+                      <span className="text-[10px] font-bold text-center text-white truncate w-full px-1">{method.name}</span>
+                      
+                      {/* Min amount */}
+                      <span className="text-[8px] text-white/60 mt-0.5">${method.min_amount}</span>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -197,21 +212,36 @@ const Withdraw = () => {
           {giftcardMethods.length > 0 && (
             <section className="mb-6">
               <h2 className="text-sm font-semibold text-foreground mb-3">Gift Card</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              <div className="flex gap-2.5 overflow-x-auto pb-3 scrollbar-hide">
                 {giftcardMethods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method)}
-                    className={`group relative h-14 rounded-xl bg-gradient-to-br ${method.gradient} px-3 flex items-center gap-2.5 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 border-2 ${
-                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
-                    }`}
+                    className={`flex-shrink-0 w-[85px] group`}
                   >
-                    {method.icon_url ? (
-                      <img src={method.icon_url} alt={method.name} className="w-8 h-8 object-contain flex-shrink-0" />
-                    ) : (
-                      <CreditCard className="w-6 h-6 text-white/70 flex-shrink-0" />
-                    )}
-                    <span className="text-xs font-medium text-white/90 truncate">{method.name}</span>
+                    <div className={`relative w-full h-[110px] rounded-xl bg-gradient-to-br ${method.gradient} p-2 flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-1 border-2 ${
+                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
+                    }`}>
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      {/* Icon - centered */}
+                      <div className="flex items-center justify-center mb-2">
+                        {method.icon_url ? (
+                          <img src={method.icon_url} alt={method.name} className="w-10 h-10 object-contain drop-shadow-lg" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                            <CreditCard className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Name */}
+                      <span className="text-[10px] font-bold text-center text-white truncate w-full px-1">{method.name}</span>
+                      
+                      {/* Min amount */}
+                      <span className="text-[8px] text-white/60 mt-0.5">${method.min_amount}</span>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -222,21 +252,36 @@ const Withdraw = () => {
           {cashMethods.length > 0 && (
             <section className="mb-6">
               <h2 className="text-sm font-semibold text-foreground mb-3">Cash</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              <div className="flex gap-2.5 overflow-x-auto pb-3 scrollbar-hide">
                 {cashMethods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method)}
-                    className={`group relative h-14 rounded-xl bg-gradient-to-br ${method.gradient} px-3 flex items-center gap-2.5 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 border-2 ${
-                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
-                    }`}
+                    className={`flex-shrink-0 w-[85px] group`}
                   >
-                    {method.icon_url ? (
-                      <img src={method.icon_url} alt={method.name} className="w-8 h-8 object-contain flex-shrink-0" />
-                    ) : (
-                      <CreditCard className="w-6 h-6 text-white/70 flex-shrink-0" />
-                    )}
-                    <span className="text-xs font-medium text-white/90 truncate">{method.name}</span>
+                    <div className={`relative w-full h-[110px] rounded-xl bg-gradient-to-br ${method.gradient} p-2 flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-1 border-2 ${
+                      selectedMethod?.id === method.id ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'
+                    }`}>
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      {/* Icon - centered */}
+                      <div className="flex items-center justify-center mb-2">
+                        {method.icon_url ? (
+                          <img src={method.icon_url} alt={method.name} className="w-10 h-10 object-contain drop-shadow-lg" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                            <CreditCard className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Name */}
+                      <span className="text-[10px] font-bold text-center text-white truncate w-full px-1">{method.name}</span>
+                      
+                      {/* Min amount */}
+                      <span className="text-[8px] text-white/60 mt-0.5">${method.min_amount}</span>
+                    </div>
                   </button>
                 ))}
               </div>

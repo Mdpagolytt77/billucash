@@ -88,7 +88,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
         </button>
       </div>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+      <div className="flex gap-2.5 overflow-x-auto pb-3 scrollbar-hide">
         {partners.map((partner) => (
           <div
             key={partner.id}
@@ -100,11 +100,11 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               popupHeight: partner.popupHeight,
               popupAnimation: partner.popupAnimation,
             })}
-            className="cursor-pointer group"
+            className="flex-shrink-0 w-[85px] cursor-pointer group"
           >
-            {/* Card - Rectangular compact design */}
+            {/* Card - Tall portrait design like reference */}
             <div 
-              className={`relative w-full h-16 rounded-xl overflow-hidden border transition-all duration-300 transform group-hover:scale-[1.02] group-hover:-translate-y-0.5 flex items-center gap-2.5 px-3 ${
+              className={`relative w-full h-[110px] rounded-xl overflow-hidden border transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-1 flex flex-col items-center justify-center p-2 ${
                 isPremium ? 'border-transparent' : 'border-border/30'
               }`}
               style={getGradientStyle(partner.color, isPremium)}
@@ -120,13 +120,13 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               {/* Shine effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
-              {/* Logo */}
-              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+              {/* Logo - centered */}
+              <div className="flex items-center justify-center mb-2">
                 {partner.logoUrl ? (
                   <img 
                     src={partner.logoUrl} 
                     alt={partner.name}
-                    className="max-w-full max-h-full object-contain drop-shadow-lg"
+                    className="w-10 h-10 object-contain drop-shadow-lg"
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
@@ -137,12 +137,12 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
                 )}
               </div>
               
-              {/* Name & Rating */}
-              <div className="flex flex-col min-w-0 flex-1">
-                <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{partner.name}</h4>
-                <div className="flex mt-0.5">
-                  {renderStars(partner.rating)}
-                </div>
+              {/* Name */}
+              <h4 className="text-[10px] font-bold text-center text-white truncate w-full px-1 group-hover:text-primary transition-colors">{partner.name}</h4>
+              
+              {/* Rating */}
+              <div className="flex justify-center mt-1">
+                {renderStars(partner.rating)}
               </div>
             </div>
           </div>

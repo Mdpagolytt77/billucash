@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Menu, RefreshCw, Edit, Eye, Copy, Check } from 'lucide-react';
+import { Users, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Menu, RefreshCw, Edit, Eye, Copy, Check, Calendar } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -46,6 +46,7 @@ const AdminAllUsers = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 15;
 
@@ -188,10 +189,12 @@ const AdminAllUsers = () => {
     }
   };
 
-  const filteredUsers = users.filter(u =>
-    u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDate = !dateFilter || (u.created_at && u.created_at.startsWith(dateFilter));
+    return matchesSearch && matchesDate;
+  });
 
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
@@ -223,11 +226,28 @@ const AdminAllUsers = () => {
               <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
                 <Users className="w-4 h-4" /> All Users ({filteredUsers.length})
               </h2>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <div className="relative">
                   <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-7 pr-2 py-1.5 bg-muted border border-border rounded-lg text-xs w-36" />
                 </div>
+                <div className="relative">
+                  <Calendar className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input 
+                    type="date" 
+                    value={dateFilter} 
+                    onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }} 
+                    className="pl-7 pr-2 py-1.5 bg-muted border border-border rounded-lg text-xs"
+                  />
+                </div>
+                {dateFilter && (
+                  <button 
+                    onClick={() => { setDateFilter(''); setCurrentPage(1); }} 
+                    className="px-2 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] hover:bg-red-500/30"
+                  >
+                    Clear
+                  </button>
+                )}
                 <button onClick={fetchUsers} disabled={isLoading} className="p-1.5 bg-primary/20 rounded-lg hover:bg-primary/30">
                   <RefreshCw className={`w-3.5 h-3.5 text-primary ${isLoading ? 'animate-spin' : ''}`} />
                 </button>

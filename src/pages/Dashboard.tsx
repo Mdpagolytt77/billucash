@@ -279,11 +279,17 @@ const Dashboard = () => {
                         iframeUrl = `https://primewall.io/offer/Pz6Cs5/${user?.id || ''}`;
                       } else if (offerwallName.includes('offery')) {
                         iframeUrl = `https://offery.io/offerwall/cnpvos7wmzy531uuu52drbmcjmqsv/${user?.id || ''}`;
+                      } else if (offerwallName.includes('upwall')) {
+                        // Upwall iframe: app_id needs to be set in admin panel, userid is user's ID
+                        const upwallApiKey = 'YOUR_UPWALL_APP_ID'; // Replace with actual app_id from admin
+                        iframeUrl = `https://offerwall.upwall.io/?app_id=${upwallApiKey}&userid=${user?.id || ''}`;
                       } else {
                         iframeUrl = selectedOfferwall.iframeUrl
                           ?.replace(/{uid}/g, user?.id || '')
                           ?.replace(/{user_id}/g, user?.id || '')
-                          ?.replace(/{subid}/g, user?.id || '') || '';
+                          ?.replace(/{subid}/g, user?.id || '')
+                          ?.replace(/{api_key}/g, '') // For custom iframe URLs
+                          ?.replace(/{user_id}/g, user?.id || '') || '';
                       }
                       
                       return iframeUrl ? (

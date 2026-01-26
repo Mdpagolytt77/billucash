@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.radientwall-postback]
 verify_jwt = false
+
+[functions.upwall-postback]
+verify_jwt = false

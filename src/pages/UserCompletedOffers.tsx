@@ -23,7 +23,8 @@ const UserCompletedOffers = () => {
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
   const [offers, setOffers] = useState<CompletedOffer[]>([]);
@@ -70,14 +71,24 @@ const UserCompletedOffers = () => {
     };
   }, []);
 
-  // Filter by search term (username, offer name) and date
+  // Filter by search term (username, offer name) and date range
   const filteredData = offers.filter(row => {
     const matchesSearch = 
       row.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.offer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.offerwall.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesDate = !dateFilter || row.created_at.startsWith(dateFilter);
+    let matchesDate = true;
+    if (row.created_at) {
+      const offerDate = new Date(row.created_at).toISOString().split('T')[0];
+      if (dateFrom && dateTo) {
+        matchesDate = offerDate >= dateFrom && offerDate <= dateTo;
+      } else if (dateFrom) {
+        matchesDate = offerDate >= dateFrom;
+      } else if (dateTo) {
+        matchesDate = offerDate <= dateTo;
+      }
+    }
     
     return matchesSearch && matchesDate;
   });
@@ -86,7 +97,7 @@ const UserCompletedOffers = () => {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const pageData = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, dateFilter, rowsPerPage]);
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, dateFrom, dateTo, rowsPerPage]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -157,15 +168,38 @@ const UserCompletedOffers = () => {
                     className="w-40 pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" 
                   />
                 </div>
-                <div className="relative">
-                  <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                  <input 
-                    type="date" 
-                    value={dateFilter} 
-                    onChange={(e) => setDateFilter(e.target.value)} 
-                    className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" 
-                  />
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-muted-foreground">From:</span>
+                  <div className="relative">
+                    <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                    <input 
+                      type="date" 
+                      value={dateFrom} 
+                      onChange={(e) => setDateFrom(e.target.value)} 
+                      className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-32"
+                    />
+                  </div>
                 </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-muted-foreground">To:</span>
+                  <div className="relative">
+                    <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                    <input 
+                      type="date" 
+                      value={dateTo} 
+                      onChange={(e) => setDateTo(e.target.value)} 
+                      className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-32"
+                    />
+                  </div>
+                </div>
+                {(dateFrom || dateTo) && (
+                  <button 
+                    onClick={() => { setDateFrom(''); setDateTo(''); }} 
+                    className="px-2 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] hover:bg-red-500/30"
+                  >
+                    Clear
+                  </button>
+                )}
                 <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]">
                   {[10, 15, 25, 50].map(n => <option key={n} value={n}>{n} rows</option>)}
                 </select>

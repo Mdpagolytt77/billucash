@@ -46,7 +46,8 @@ const AdminAllUsers = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 15;
 
@@ -192,7 +193,19 @@ const AdminAllUsers = () => {
   const filteredUsers = users.filter(u => {
     const matchesSearch = u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDate = !dateFilter || (u.created_at && u.created_at.startsWith(dateFilter));
+    
+    let matchesDate = true;
+    if (u.created_at) {
+      const userDate = new Date(u.created_at).toISOString().split('T')[0];
+      if (dateFrom && dateTo) {
+        matchesDate = userDate >= dateFrom && userDate <= dateTo;
+      } else if (dateFrom) {
+        matchesDate = userDate >= dateFrom;
+      } else if (dateTo) {
+        matchesDate = userDate <= dateTo;
+      }
+    }
+    
     return matchesSearch && matchesDate;
   });
 
@@ -231,18 +244,33 @@ const AdminAllUsers = () => {
                   <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-7 pr-2 py-1.5 bg-muted border border-border rounded-lg text-xs w-36" />
                 </div>
-                <div className="relative">
-                  <Calendar className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input 
-                    type="date" 
-                    value={dateFilter} 
-                    onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }} 
-                    className="pl-7 pr-2 py-1.5 bg-muted border border-border rounded-lg text-xs"
-                  />
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-muted-foreground">From:</span>
+                  <div className="relative">
+                    <Calendar className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input 
+                      type="date" 
+                      value={dateFrom} 
+                      onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }} 
+                      className="pl-7 pr-2 py-1.5 bg-muted border border-border rounded-lg text-xs w-32"
+                    />
+                  </div>
                 </div>
-                {dateFilter && (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-muted-foreground">To:</span>
+                  <div className="relative">
+                    <Calendar className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input 
+                      type="date" 
+                      value={dateTo} 
+                      onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }} 
+                      className="pl-7 pr-2 py-1.5 bg-muted border border-border rounded-lg text-xs w-32"
+                    />
+                  </div>
+                </div>
+                {(dateFrom || dateTo) && (
                   <button 
-                    onClick={() => { setDateFilter(''); setCurrentPage(1); }} 
+                    onClick={() => { setDateFrom(''); setDateTo(''); setCurrentPage(1); }} 
                     className="px-2 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] hover:bg-red-500/30"
                   >
                     Clear

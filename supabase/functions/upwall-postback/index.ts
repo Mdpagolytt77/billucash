@@ -61,26 +61,30 @@ serve(async (req) => {
     console.log('Client IP:', clientIp);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract Upwall parameters - support multiple parameter names
-    const userId = params.get('user_id') || params.get('subid') || params.get('sub_id') || 
-                   params.get('uid') || params.get('click_id') || params.get('aff_sub');
-    const transactionId = params.get('transaction_id') || params.get('txid') || params.get('tid') || 
-                          params.get('offer_id') || params.get('id') || '';
-    const payout = params.get('payout') || params.get('reward') || params.get('points') || 
-                   params.get('amount') || params.get('coins') || '0';
-    const offerNameRaw = params.get('offer_name') || params.get('offer') || params.get('name') || 
-                         params.get('campaign') || params.get('offer_title') || '';
-    const signature = params.get('sig') || params.get('signature') || params.get('hash') || 
-                      params.get('sign') || params.get('key') || '';
-    const country = params.get('country') || params.get('geo') || params.get('country_code') || 'Unknown';
-    const status = params.get('status') || params.get('result') || 'completed';
+    // Extract Upwall parameters based on their macro system
+    // {userid} - unique identifier for user
+    const userId = params.get('userid') || params.get('user_id') || params.get('subid') || '';
+    // {transactionID} - transaction ID of completed offer
+    const transactionId = params.get('transactionID') || params.get('transaction_id') || params.get('offer_id') || '';
+    // {payout} - offer payout in $ (USD), negative for chargebacks
+    const payout = params.get('payout') || params.get('user_amount') || '0';
+    // {offer_name} - name of completed offer
+    const offerNameRaw = params.get('offer_name') || '';
+    // {offer_id} - ID of completed offer
+    const offerId = params.get('offer_id') || '';
+    // {password} - postback password for verification
+    const password = params.get('password') || '';
+    // {ip_address} - device IP address
+    const userIpAddress = params.get('ip_address') || '';
+    const country = params.get('country') || 'Unknown';
+    const status = params.get('status') || 'completed';
 
-    console.log('Parsed params:', { userId, transactionId, payout, offerNameRaw, signature: !!signature });
+    console.log('Parsed params:', { userId, transactionId, payout, offerNameRaw, password: !!password });
 
     // Validate required parameters
     if (!userId) {
-      console.error('[Validation] Missing user_id/subid parameter');
-      return new Response('MISSING_SUBID', {
+      console.error('[Validation] Missing userid parameter');
+      return new Response('MISSING_USERID', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
@@ -106,28 +110,18 @@ serve(async (req) => {
       });
     }
 
-    // Signature verification (if secret key is configured)
-    if (UPWALL_SECRET_KEY && signature) {
-      // Try multiple signature formats
-      const possibleSignatures = [
-        await md5Hash(`${userId}${transactionId}${payout}${UPWALL_SECRET_KEY}`),
-        await md5Hash(`${userId}${payout}${UPWALL_SECRET_KEY}`),
-        await md5Hash(`${transactionId}${UPWALL_SECRET_KEY}`),
-        await sha256Hash(`${userId}${transactionId}${payout}${UPWALL_SECRET_KEY}`),
-        await sha256Hash(`${userId}${payout}${UPWALL_SECRET_KEY}`),
-      ];
-
-      const signatureValid = possibleSignatures.some(
-        sig => sig.toLowerCase() === signature.toLowerCase()
-      );
-
-      if (!signatureValid) {
-        console.error('[Security] Signature verification failed');
-        console.log('Expected one of:', possibleSignatures.map(s => s.substring(0, 8) + '...'));
-        console.log('Received:', signature.substring(0, 8) + '...');
-        // Still process but log warning - some walls don't use signatures
+    // Password verification (if secret key is configured)
+    if (UPWALL_SECRET_KEY && password) {
+      if (password !== UPWALL_SECRET_KEY) {
+        console.error('[Security] Password verification failed');
+        console.log('Expected:', UPWALL_SECRET_KEY.substring(0, 4) + '...');
+        console.log('Received:', password.substring(0, 4) + '...');
+        return new Response('INVALID_PASSWORD', {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        });
       } else {
-        console.log('[Security] Signature verification passed');
+        console.log('[Security] Password verification passed');
       }
     }
 

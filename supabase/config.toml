@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.upwall-postback]
 verify_jwt = false
+
+[functions.adtogame-postback]
+verify_jwt = false

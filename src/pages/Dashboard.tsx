@@ -159,8 +159,10 @@ const Dashboard = () => {
 
   const offerwalls = adminOfferwalls.length > 0 ? adminOfferwalls : defaultOfferwalls;
 
-  // Split into regular and premium partners with badges
-  const regularPartners = offerwalls.slice(0, 6).map((w, i) => ({
+  // Split offerwalls dynamically - first half regular, second half premium
+  const halfLength = Math.ceil(offerwalls.length / 2);
+  
+  const regularPartners = offerwalls.slice(0, halfLength).map((w, i) => ({
     id: w.id,
     name: w.name,
     logoUrl: w.logoUrl,
@@ -178,7 +180,7 @@ const Dashboard = () => {
     popupAnimation: w.popupAnimation,
   }));
 
-  const premiumPartners = offerwalls.slice(6, 12).map((w, i) => ({
+  const premiumPartners = offerwalls.slice(halfLength).map((w, i) => ({
     id: w.id,
     name: w.name,
     logoUrl: w.logoUrl,

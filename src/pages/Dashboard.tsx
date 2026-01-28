@@ -290,8 +290,8 @@ const Dashboard = () => {
                           ?.replace(/{uid}/g, user?.id || '')
                           ?.replace(/{user_id}/g, user?.id || '')
                           ?.replace(/{subid}/g, user?.id || '')
-                          ?.replace(/{api_key}/g, '') // For custom iframe URLs
-                          ?.replace(/{user_id}/g, user?.id || '') || '';
+                          ?.replace(/XXX/g, user?.id || '')
+                          ?.replace(/{api_key}/g, '') || '';
                       }
                       
                       return iframeUrl ? (

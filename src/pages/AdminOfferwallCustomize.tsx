@@ -10,6 +10,16 @@ import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Offer { 
   id: string; 
@@ -174,6 +184,7 @@ const AdminOfferwallCustomize = () => {
   const [showSecretKey, setShowSecretKey] = useState(false);
   const [newOffer, setNewOffer] = useState({ name: '', reward: 0, url: '' });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [deleteConfirmWall, setDeleteConfirmWall] = useState<Offerwall | null>(null);
 
   useEffect(() => {
     loadSettings();
@@ -272,9 +283,17 @@ const AdminOfferwallCustomize = () => {
     setOfferwalls(offerwalls.map(o => o.id === id ? { ...o, enabled: !o.enabled } : o));
   };
 
-  const removeOfferwall = (id: string) => {
-    setOfferwalls(offerwalls.filter(o => o.id !== id));
-    if (selectedWall?.id === id) setSelectedWall(null);
+  const removeOfferwall = (wall: Offerwall) => {
+    setDeleteConfirmWall(wall);
+  };
+
+  const confirmDeleteOfferwall = () => {
+    if (deleteConfirmWall) {
+      setOfferwalls(offerwalls.filter(o => o.id !== deleteConfirmWall.id));
+      if (selectedWall?.id === deleteConfirmWall.id) setSelectedWall(null);
+      toast.success(`${deleteConfirmWall.name} deleted!`);
+      setDeleteConfirmWall(null);
+    }
   };
 
   const addOffer = (wallId: string) => {
@@ -386,6 +405,24 @@ const AdminOfferwallCustomize = () => {
     <>
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmWall} onOpenChange={() => setDeleteConfirmWall(null)}>
+        <AlertDialogContent className="bg-background border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Offerwall?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <span className="font-semibold text-foreground">{deleteConfirmWall?.name}</span>? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteOfferwall} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Yes, Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Settings Popup */}
       <Dialog open={!!selectedWall} onOpenChange={() => setSelectedWall(null)}>
@@ -775,7 +812,7 @@ const AdminOfferwallCustomize = () => {
                     </button>
 
                     {/* Delete */}
-                    <button onClick={() => removeOfferwall(o.id)} className="p-1.5 text-destructive hover:bg-destructive/10 rounded">
+                    <button onClick={() => removeOfferwall(o)} className="p-1.5 text-destructive hover:bg-destructive/10 rounded">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

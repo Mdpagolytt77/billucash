@@ -48,6 +48,8 @@ const AdminCompletedOffers = () => {
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOfferwall, setSelectedOfferwall] = useState('all');
+  const [offerwallList, setOfferwallList] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(15);
@@ -76,6 +78,28 @@ const AdminCompletedOffers = () => {
   // Revenue = amount * 2 (so $0.80)
   const calculateAmount = (coin: number) => (coin / 1000).toFixed(2);
   const calculateRevenue = (coin: number) => ((coin / 1000) * 2).toFixed(2);
+
+  // Load offerwall list from site_settings
+  useEffect(() => {
+    const loadOfferwalls = async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('offerwall_settings')
+        .eq('id', 'default')
+        .single();
+
+      if (!error && data?.offerwall_settings) {
+        const settings = data.offerwall_settings as { offerwalls?: Array<{ name: string; enabled: boolean }> };
+        if (settings.offerwalls) {
+          const names = settings.offerwalls
+            .filter((w: { enabled: boolean }) => w.enabled)
+            .map((w: { name: string }) => w.name);
+          setOfferwallList(names);
+        }
+      }
+    };
+    loadOfferwalls();
+  }, []);
 
   // Load completed offers from database
   useEffect(() => {
@@ -126,6 +150,9 @@ const AdminCompletedOffers = () => {
       row.offerwall.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (row.country || '').toLowerCase().includes(searchTerm.toLowerCase());
     
+    const matchesOfferwall = selectedOfferwall === 'all' || 
+      row.offerwall.toLowerCase() === selectedOfferwall.toLowerCase();
+    
     let matchesDate = true;
     if (row.created_at) {
       const offerDate = new Date(row.created_at).toISOString().split('T')[0];
@@ -138,14 +165,14 @@ const AdminCompletedOffers = () => {
       }
     }
     
-    return matchesSearch && matchesDate;
+    return matchesSearch && matchesOfferwall && matchesDate;
   });
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const pageData = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, dateFrom, dateTo, rowsPerPage]);
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedOfferwall, dateFrom, dateTo, rowsPerPage]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -317,10 +344,20 @@ const AdminCompletedOffers = () => {
                     Delete ({selectedIds.size})
                   </button>
                 )}
-                <div className="relative flex-1">
+                <div className="relative">
                   <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search user..." className="w-full pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" />
+                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search user..." className="w-40 pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" />
                 </div>
+                <select 
+                  value={selectedOfferwall} 
+                  onChange={(e) => setSelectedOfferwall(e.target.value)} 
+                  className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] min-w-[100px]"
+                >
+                  <option value="all">All Walls</option>
+                  {offerwallList.map(wall => (
+                    <option key={wall} value={wall}>{wall}</option>
+                  ))}
+                </select>
                 <div className="flex items-center gap-1">
                   <span className="text-[10px] text-muted-foreground">From:</span>
                   <div className="relative">

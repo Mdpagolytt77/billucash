@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Menu, ChevronDown, X } from 'lucide-react';
+import { Bell, Menu, ChevronDown, X, User } from 'lucide-react';
 import { SiteLogo, CoinIcon } from '@/contexts/SiteSettingsContext';
 import SnowToggle from '@/components/SnowToggle';
 
@@ -122,8 +122,8 @@ const DashboardHeader = ({
             onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-2 hover:bg-primary/10 rounded-xl px-2 py-1.5 transition-all duration-300"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary via-primary to-secondary flex items-center justify-center font-bold text-sm text-primary-foreground shadow-lg shadow-primary/30 transform hover:scale-105 transition-transform">
-              {profile?.username?.charAt(0).toUpperCase() || userEmail?.charAt(0).toUpperCase() || 'U'}
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary via-primary to-secondary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30 transform hover:scale-105 transition-transform">
+              <User className="w-5 h-5" />
             </div>
             <ChevronDown className="w-3.5 h-3.5 hidden sm:block text-muted-foreground" />
           </button>

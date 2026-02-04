@@ -28,7 +28,7 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    terms: false,
+    terms: true,
   });
   
   // Password visibility

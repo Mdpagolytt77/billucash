@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, User, Trophy, Wallet, Shield, LogOut, X, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface AppSidebarProps {
@@ -12,6 +14,20 @@ interface AppSidebarProps {
 const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
   const location = useLocation();
   const { isAdmin, signOut } = useAuth();
+  const [myOffersEnabled, setMyOffersEnabled] = useState(true);
+  
+  useEffect(() => {
+    const loadSettings = async () => {
+      const { data } = await supabase.rpc('get_public_site_settings');
+      if (data && data.length > 0 && data[0].offerwall_settings) {
+        const settings = data[0].offerwall_settings as { trackerSettings?: { myOffersEnabled?: boolean } };
+        if (settings.trackerSettings?.myOffersEnabled !== undefined) {
+          setMyOffersEnabled(settings.trackerSettings.myOffersEnabled);
+        }
+      }
+    };
+    loadSettings();
+  }, []);
   
   const isActive = (path: string) => location.pathname === path;
 
@@ -22,7 +38,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
 
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: CheckCircle, label: 'My Offers', path: '/my-offers' },
+    ...(myOffersEnabled ? [{ icon: CheckCircle, label: 'My Offers', path: '/my-offers' }] : []),
     { icon: User, label: 'Profile', path: '/profile' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
     { icon: Wallet, label: 'Withdraw', path: '/withdraw' },

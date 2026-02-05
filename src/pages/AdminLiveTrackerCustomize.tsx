@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Activity, Play, Pause, Gauge, Hand } from 'lucide-react';
+import { ArrowLeft, Activity, Play, Pause, Gauge, Hand, ClipboardList } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -19,6 +19,7 @@ interface TrackerSettings {
   enabled: boolean;
   speed: number;
   manualScrollEnabled: boolean;
+  myOffersEnabled: boolean;
 }
 
 const AdminLiveTrackerCustomize = () => {
@@ -30,6 +31,7 @@ const AdminLiveTrackerCustomize = () => {
     enabled: true,
     speed: 25,
     manualScrollEnabled: false,
+    myOffersEnabled: true,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -205,6 +207,23 @@ const AdminLiveTrackerCustomize = () => {
                   <Switch
                     checked={settings.manualScrollEnabled}
                     onCheckedChange={(checked) => setSettings(prev => ({ ...prev, manualScrollEnabled: checked }))}
+                  />
+                </div>
+
+                {/* My Offers Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border">
+                  <div className="flex items-center gap-3">
+                    <ClipboardList className="w-5 h-5 text-blue-500" />
+                    <div>
+                      <Label className="text-sm font-medium">My Offers Section</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Show/hide "My Offers" option for users in dashboard
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={settings.myOffersEnabled}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, myOffersEnabled: checked }))}
                   />
                 </div>
 

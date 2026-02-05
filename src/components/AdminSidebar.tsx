@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Users, Wallet, FileCheck, Palette, Layers, 
-  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2, Shield, Building2, Star, CreditCard 
+  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2, Shield, Building2, Star, CreditCard, Activity 
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
@@ -34,6 +34,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Layers, label: 'Offerwall', path: '/admin/offerwall' },
     { icon: Star, label: 'Featured Offers', path: '/admin/featured-offers' },
     { icon: Building2, label: 'Providers', path: '/admin/providers' },
+    { icon: Activity, label: 'Live Tracker', path: '/admin/live-tracker' },
     { icon: Share2, label: 'Social Links', path: '/admin/social' },
     { icon: Volume2, label: 'Sound', path: '/admin/sound' },
     { icon: Image, label: 'Background', path: '/admin/background' },

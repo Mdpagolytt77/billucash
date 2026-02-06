@@ -61,26 +61,35 @@ serve(async (req) => {
       });
     }
 
-    // Parse payout value - prefer payout_usd, fallback to points conversion
-    let payoutValue = parseFloat(payoutUsd) || 0;
+    // Parse coin amount - prefer points directly, fallback to payout_usd conversion
+    // User wants points to be used directly as coins (800 points = 800 coins)
+    let coinAmount = 0;
+    const pointsValue = parseFloat(points) || 0;
     
-    // If payout_usd is 0 but points exist, convert points (1000 points = $1)
-    if (payoutValue <= 0 && points) {
-      const pointsValue = parseFloat(points) || 0;
-      payoutValue = pointsValue / 1000; // Convert points to USD
+    if (pointsValue > 0) {
+      // Use points directly as coins
+      coinAmount = Math.round(pointsValue);
+    } else {
+      // Fallback: convert payout_usd to coins (1 USD = 1000 coins)
+      const payoutValue = parseFloat(payoutUsd) || 0;
+      coinAmount = Math.round(payoutValue * 1000);
     }
 
-    if (payoutValue <= 0) {
-      console.error('[Validation] Invalid payout value:', payoutUsd, points);
+    if (coinAmount <= 0) {
+      console.error('[Validation] Invalid coin amount:', points, payoutUsd);
       return new Response('INVALID_PAYOUT', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
+    
+    // Calculate payout value for logging (coins / 1000)
+    const payoutValue = coinAmount / 1000;
 
-    // Security: Maximum payout validation
-    if (payoutValue > MAX_PAYOUT) {
-      console.error(`[Security] Payout ${payoutValue} exceeds maximum ${MAX_PAYOUT}`);
+    // Security: Maximum payout validation (MAX_PAYOUT is in USD, coinAmount is in coins)
+    const maxCoinAmount = MAX_PAYOUT * 1000;
+    if (coinAmount > maxCoinAmount) {
+      console.error(`[Security] Coin amount ${coinAmount} exceeds maximum ${maxCoinAmount}`);
       return new Response('PAYOUT_TOO_HIGH', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },

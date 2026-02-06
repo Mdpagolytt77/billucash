@@ -1,0 +1,1 @@
+ALTER TABLE public.completed_offers ALTER COLUMN coin TYPE numeric;

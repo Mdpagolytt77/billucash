@@ -172,6 +172,9 @@ serve(async (req) => {
     const newBalance = updatedProfile?.balance || 0;
 
     // Insert completed offer record
+    // Convert USD to coins: 1 USD = 1000 coins
+    const coinAmount = Math.round(payoutValue * 1000);
+    
     const { error: insertError } = await supabase
       .from('completed_offers')
       .insert({
@@ -179,7 +182,7 @@ serve(async (req) => {
         username: profile.username,
         offer_name: offerName,
         offerwall: 'Adtogame',
-        coin: payoutValue,
+        coin: coinAmount,
         transaction_id: uniqueTransactionId,
         ip: clientIp || null,
         country: geo,

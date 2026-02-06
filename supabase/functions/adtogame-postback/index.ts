@@ -149,9 +149,12 @@ serve(async (req) => {
     console.log('User found:', profile.username, 'Current balance:', profile.balance);
 
     // Update user balance using increment_balance function
+    // Convert USD to coins: 1 USD = 1000 coins
+    const coinAmount = Math.round(payoutValue * 1000);
+    
     const { error: balanceError } = await supabase.rpc('increment_balance', {
       user_id_input: userId,
-      amount_input: payoutValue
+      amount_input: coinAmount
     });
 
     if (balanceError) {

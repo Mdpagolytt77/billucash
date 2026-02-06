@@ -174,10 +174,7 @@ serve(async (req) => {
 
     const newBalance = updatedProfile?.balance || 0;
 
-    // Insert completed offer record
-    // Convert USD to coins: 1 USD = 1000 coins
-    const coinAmount = Math.round(payoutValue * 1000);
-    
+    // Insert completed offer record (coinAmount already calculated above)
     const { error: insertError } = await supabase
       .from('completed_offers')
       .insert({

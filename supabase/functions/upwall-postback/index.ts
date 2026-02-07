@@ -66,8 +66,10 @@ serve(async (req) => {
     const userId = params.get('userid') || params.get('user_id') || params.get('subid') || '';
     // {transactionID} - transaction ID of completed offer
     const transactionId = params.get('transactionID') || params.get('transaction_id') || params.get('offer_id') || '';
-    // {payout} - offer payout in $ (USD), negative for chargebacks
-    const payout = params.get('payout') || params.get('user_amount') || '0';
+    // {user_amount} - coin amount after exchange rate (e.g., $1 × 50 = 50 coins)
+    const userAmount = params.get('user_amount') || '';
+    // {payout} - offer payout in $ (USD)
+    const payout = params.get('payout') || '0';
     // {offer_name} - name of completed offer
     const offerNameRaw = params.get('offer_name') || '';
     // {offer_id} - ID of completed offer
@@ -79,7 +81,7 @@ serve(async (req) => {
     const country = params.get('country') || 'Unknown';
     const status = params.get('status') || 'completed';
 
-    console.log('Parsed params:', { userId, transactionId, payout, offerNameRaw, password: !!password });
+    console.log('Parsed params:', { userId, transactionId, userAmount, payout, offerNameRaw, password: !!password });
 
     // Validate required parameters
     if (!userId) {
@@ -90,20 +92,34 @@ serve(async (req) => {
       });
     }
 
-    // Parse payout value
-    let payoutValue = parseFloat(payout) || 0;
+    // Parse coin amount - prefer user_amount (coins after exchange rate), fallback to payout (USD) conversion
+    let coinAmount = 0;
+    const userAmountValue = parseFloat(userAmount) || 0;
+    
+    if (userAmountValue > 0) {
+      // Use user_amount directly as coins (already converted by Upwall's exchange rate)
+      coinAmount = Math.round(userAmountValue);
+    } else {
+      // Fallback: convert payout (USD) to coins using platform rate (1 USD = 1000 coins)
+      const payoutValue = parseFloat(payout) || 0;
+      coinAmount = Math.round(payoutValue * 1000);
+    }
 
-    if (payoutValue <= 0) {
-      console.error('[Validation] Invalid payout value:', payout);
+    if (coinAmount <= 0) {
+      console.error('[Validation] Invalid coin amount:', userAmount, payout);
       return new Response('INVALID_PAYOUT', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Security: Maximum payout validation
-    if (payoutValue > MAX_PAYOUT) {
-      console.error(`[Security] Payout ${payoutValue} exceeds maximum ${MAX_PAYOUT}`);
+    // Calculate payout value for logging (coins / 1000 for approximate USD)
+    const payoutValue = coinAmount / 1000;
+
+    // Security: Maximum payout validation (MAX_PAYOUT is in USD, coinAmount is in coins)
+    const maxCoinAmount = MAX_PAYOUT * 1000;
+    if (coinAmount > maxCoinAmount) {
+      console.error(`[Security] Coin amount ${coinAmount} exceeds maximum ${maxCoinAmount}`);
       return new Response('PAYOUT_TOO_HIGH', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
@@ -147,8 +163,8 @@ serve(async (req) => {
     // Handle status - only process completed offers
     if (status.toLowerCase() !== 'completed' && status.toLowerCase() !== 'approved' && status.toLowerCase() !== 'success') {
       if (status.toLowerCase() === 'rejected' || status.toLowerCase() === 'chargeback' || status.toLowerCase() === 'reversed') {
-        payoutValue = -Math.abs(payoutValue);
-        console.log('Processing chargeback/rejection:', payoutValue);
+        coinAmount = -Math.abs(coinAmount);
+        console.log('Processing chargeback/rejection:', coinAmount, 'coins');
       } else {
         console.log('Unknown status, ignoring:', status);
         return new Response('INVALID_STATUS', {
@@ -197,10 +213,10 @@ serve(async (req) => {
 
     console.log('User found:', profile.username, 'Current balance:', profile.balance);
 
-    // Update user balance using increment_balance function
+    // Update user balance using increment_balance function (coinAmount is in coins)
     const { error: balanceError } = await supabase.rpc('increment_balance', {
       user_id_input: userId,
-      amount_input: payoutValue
+      amount_input: coinAmount
     });
 
     if (balanceError) {
@@ -228,7 +244,7 @@ serve(async (req) => {
         username: profile.username,
         offer_name: offerName,
         offerwall: 'Upwall',
-        coin: payoutValue,
+        coin: coinAmount,
         transaction_id: transactionId || `upwall_${Date.now()}`,
         ip: clientIp || null,
         country: country,
@@ -240,7 +256,7 @@ serve(async (req) => {
 
     console.log('=== Upwall Postback Processed Successfully ===');
     console.log('User:', profile.username);
-    console.log('Payout:', payoutValue);
+    console.log('Coins credited:', coinAmount);
     console.log('New Balance:', newBalance);
 
     return new Response('OK', {

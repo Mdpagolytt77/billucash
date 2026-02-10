@@ -7,6 +7,8 @@ interface ProtectedRouteProps {
   requireAdmin?: boolean;
 }
 
+const MODERATOR_ALLOWED_PATHS = ['/admin/users', '/admin/offers'];
+
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
   const { user, isAdmin, isModerator, isLoading } = useAuth();
   const location = useLocation();
@@ -19,8 +21,14 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
     return <Navigate to="/signup" state={{ from: location }} replace />;
   }
 
-  if (requireAdmin && !isAdmin && !isModerator) {
-    return <Navigate to="/dashboard" replace />;
+  if (requireAdmin) {
+    if (!isAdmin && !isModerator) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    // Moderators can only access specific pages
+    if (isModerator && !isAdmin && !MODERATOR_ALLOWED_PATHS.includes(location.pathname)) {
+      return <Navigate to="/admin/users" replace />;
+    }
   }
 
   return <>{children}</>;

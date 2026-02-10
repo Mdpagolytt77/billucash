@@ -22,7 +22,8 @@ interface WithdrawalRequest {
 }
 
 const AdminWithdraw = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
@@ -41,13 +42,13 @@ const AdminWithdraw = () => {
     finally { setIsLoading(false); }
   };
 
-  useEffect(() => { if (isAdmin) fetchWithdrawals(); }, [isAdmin, filter]);
+  useEffect(() => { if (canAccess) fetchWithdrawals(); }, [canAccess, filter]);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!canAccess) return;
     const channel = supabase.channel('admin-withdrawals').on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests' }, () => fetchWithdrawals()).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [isAdmin]);
+  }, [canAccess]);
 
   const handleApprove = async (id: string, username: string, amount: number) => {
     try {
@@ -77,7 +78,7 @@ const AdminWithdraw = () => {
 
   const pendingCount = withdrawals.filter(w => w.status === 'pending').length;
 
-  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center">Access Denied</div>;
+  if (!canAccess) return <div className="min-h-screen flex items-center justify-center">Access Denied</div>;
 
   return (
     <>

@@ -169,7 +169,8 @@ const applyMacros = (url: string, userId: string, userIp?: string, deviceId?: st
 };
 
 const AdminOfferwallCustomize = () => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, isModerator, user } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [offerwalls, setOfferwalls] = useState<Offerwall[]>([]);
@@ -392,7 +393,7 @@ const AdminOfferwallCustomize = () => {
     finally { setUploadingLogo(null); }
   };
 
-  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
+  if (!canAccess) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
   // Calculate user payout with profit margin
   const calculateUserPayout = (payout: number, rate: number, margin: number) => {

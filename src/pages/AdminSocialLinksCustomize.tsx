@@ -30,7 +30,8 @@ interface SocialLinksData {
 }
 
 const AdminSocialLinksCustomize = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
@@ -123,7 +124,7 @@ const AdminSocialLinksCustomize = () => {
     setSocialLinks(prev => ({ ...prev, [key]: value }));
   };
 
-  if (!isAdmin) {
+  if (!canAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-destructive">Access Denied</p>

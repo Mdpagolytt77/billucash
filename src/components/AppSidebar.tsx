@@ -13,7 +13,7 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
   const location = useLocation();
-  const { isAdmin, signOut } = useAuth();
+  const { isAdmin, isModerator, signOut } = useAuth();
   const [myOffersEnabled, setMyOffersEnabled] = useState(true);
   
   useEffect(() => {
@@ -78,7 +78,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
               </Link>
             ))}
             
-            {isAdmin && (
+            {(isAdmin || isModerator) && (
               <Link
                 to="/admin"
                 onClick={onClose}
@@ -88,7 +88,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                     : 'bg-yellow-500/20 text-yellow-400'
                 }`}
               >
-                <Shield className="w-3.5 h-3.5" /> Admin
+                <Shield className="w-3.5 h-3.5" /> {isModerator && !isAdmin ? 'Moderator Panel' : 'Admin'}
               </Link>
             )}
             

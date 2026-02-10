@@ -34,7 +34,9 @@ const MAX_ADMINS = 1;
 const MAX_MODERATORS = 3;
 
 const AdminRoleManagement = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const isReadOnly = isModerator && !isAdmin;
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [users, setUsers] = useState<UserWithRole[]>([]);
@@ -77,13 +79,12 @@ const AdminRoleManagement = () => {
   };
 
   useEffect(() => {
-    if (isAdmin) fetchUsers();
-  }, [isAdmin]);
+    if (canAccess) fetchUsers();
+  }, [canAccess]);
 
   // Real-time subscription for user_roles changes
   useEffect(() => {
-    if (!isAdmin) return;
-
+    if (!canAccess) return;
     const channel = supabase
       .channel('user-roles-changes')
       .on(
@@ -103,7 +104,7 @@ const AdminRoleManagement = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isAdmin]);
+  }, [canAccess]);
 
   const admins = users.filter(u => u.role === 'admin');
   const moderators = users.filter(u => u.role === 'moderator');
@@ -206,7 +207,7 @@ const AdminRoleManagement = () => {
 
   const regularUsers = filteredUsers.filter(u => u.role === 'user');
 
-  if (!isAdmin) {
+  if (!canAccess) {
     return <div className="min-h-screen flex items-center justify-center">Access Denied</div>;
   }
 
@@ -278,12 +279,14 @@ const AdminRoleManagement = () => {
                         <p className="text-[10px] text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => openRemoveDialog(user, 'remove-admin')}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
-                    >
-                      <UserMinus className="w-3 h-3" /> Remove
-                    </button>
+                    {!isReadOnly && (
+                      <button
+                        onClick={() => openRemoveDialog(user, 'remove-admin')}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
+                      >
+                        <UserMinus className="w-3 h-3" /> Remove
+                      </button>
+                    )}
                   </div>
                 ))
               )}
@@ -312,12 +315,14 @@ const AdminRoleManagement = () => {
                         <p className="text-[10px] text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => openRemoveDialog(user, 'remove-moderator')}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
-                    >
-                      <UserMinus className="w-3 h-3" /> Remove
-                    </button>
+                    {!isReadOnly && (
+                      <button
+                        onClick={() => openRemoveDialog(user, 'remove-moderator')}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/20 text-destructive text-[10px] font-medium hover:bg-destructive/30"
+                      >
+                        <UserMinus className="w-3 h-3" /> Remove
+                      </button>
+                    )}
                   </div>
                 ))
               )}
@@ -341,22 +346,24 @@ const AdminRoleManagement = () => {
                       <p className="text-xs font-medium">{user.username}</p>
                       <p className="text-[10px] text-muted-foreground">{user.email}</p>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleMakeAdmin(user.id, user.username)}
-                        disabled={admins.length >= MAX_ADMINS}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500/20 text-yellow-500 text-[10px] font-medium hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Crown className="w-3 h-3" /> Admin
-                      </button>
-                      <button
-                        onClick={() => handleMakeModerator(user.id, user.username)}
-                        disabled={moderators.length >= MAX_MODERATORS}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/20 text-blue-500 text-[10px] font-medium hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Shield className="w-3 h-3" /> Mod
-                      </button>
-                    </div>
+                    {!isReadOnly && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleMakeAdmin(user.id, user.username)}
+                          disabled={admins.length >= MAX_ADMINS}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500/20 text-yellow-500 text-[10px] font-medium hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Crown className="w-3 h-3" /> Admin
+                        </button>
+                        <button
+                          onClick={() => handleMakeModerator(user.id, user.username)}
+                          disabled={moderators.length >= MAX_MODERATORS}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/20 text-blue-500 text-[10px] font-medium hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Shield className="w-3 h-3" /> Mod
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))
               )}

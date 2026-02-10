@@ -11,7 +11,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const AdminPasswordReset = () => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, isModerator, user } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -34,7 +35,7 @@ const AdminPasswordReset = () => {
     finally { setIsLoading(false); }
   };
 
-  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center">Access Denied</div>;
+  if (!canAccess) return <div className="min-h-screen flex items-center justify-center">Access Denied</div>;
 
   return (
     <>

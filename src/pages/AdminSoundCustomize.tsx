@@ -19,7 +19,8 @@ const SOUND_URLS = {
 };
 
 const AdminSoundCustomize = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<SoundSettings>({ enabled: true, loginSound: true, signupSound: true, balanceSound: true, volume: 70 });
@@ -58,7 +59,7 @@ const AdminSoundCustomize = () => {
     audio.play().catch(err => console.log('Audio prevented:', err));
   };
 
-  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
+  if (!canAccess) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
   return (
     <>

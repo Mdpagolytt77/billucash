@@ -23,7 +23,8 @@ interface TrackerSettings {
 }
 
 const AdminLiveTrackerCustomize = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const navigate = useNavigate();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -92,7 +93,7 @@ const AdminLiveTrackerCustomize = () => {
     }
   };
 
-  if (!isAdmin) {
+  if (!canAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">

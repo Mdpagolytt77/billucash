@@ -40,7 +40,8 @@ interface CompletedOffer {
 }
 
 const AdminAllUsers = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -135,8 +136,8 @@ const AdminAllUsers = () => {
   };
 
   useEffect(() => {
-    if (isAdmin) fetchUsers();
-  }, [isAdmin]);
+    if (canAccess) fetchUsers();
+  }, [canAccess]);
 
   const openEditModal = (user: UserProfile) => {
     setSelectedUser(user);
@@ -212,7 +213,7 @@ const AdminAllUsers = () => {
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
-  if (!isAdmin) {
+  if (!canAccess) {
     return <div className="min-h-screen flex items-center justify-center">Access Denied</div>;
   }
 

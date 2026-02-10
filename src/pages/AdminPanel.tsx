@@ -58,7 +58,8 @@ interface RealtimeTransaction {
 }
 
 const AdminPanel = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const navigate = useNavigate();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -151,12 +152,12 @@ const AdminPanel = () => {
   };
 
   useEffect(() => {
-    if (isAdmin) { fetchWithdrawals(); fetchStats(); fetchRealtimeTransactions(); }
-  }, [isAdmin]);
+    if (canAccess) { fetchWithdrawals(); fetchStats(); fetchRealtimeTransactions(); }
+  }, [canAccess]);
 
   // Real-time listener for withdrawals
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!canAccess) return;
     const channel = supabase.channel('withdrawal-requests-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests' }, (payload) => {
         fetchStats(); // Refresh stats on any withdrawal change
@@ -175,11 +176,11 @@ const AdminPanel = () => {
         }
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [isAdmin]);
+  }, [canAccess]);
 
   // Real-time listener for completed_offers (postbacks)
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!canAccess) return;
     const channel = supabase.channel('realtime-transactions')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'completed_offers' }, (payload) => {
         const newTx = payload.new as RealtimeTransaction;
@@ -188,19 +189,19 @@ const AdminPanel = () => {
         toast.success(`New postback: ${newTx.username} earned ${newTx.coin} coins from ${newTx.offerwall}`);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [isAdmin]);
+  }, [canAccess]);
 
   // Real-time listener for profiles (user count)
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!canAccess) return;
     const channel = supabase.channel('profiles-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
         fetchStats();
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [isAdmin]);
+  }, [canAccess]);
 
-  if (!isAdmin) {
+  if (!canAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">

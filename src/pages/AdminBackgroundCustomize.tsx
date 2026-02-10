@@ -22,7 +22,8 @@ const presetGradients = [
 ];
 
 const AdminBackgroundCustomize = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<BackgroundSettings>({ type: 'default', color: '#0f1220', gradient: presetGradients[0], imageUrl: '', overlay: 85 });
@@ -70,7 +71,7 @@ const AdminBackgroundCustomize = () => {
     finally { setIsSaving(false); }
   };
 
-  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
+  if (!canAccess) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
   return (
     <>

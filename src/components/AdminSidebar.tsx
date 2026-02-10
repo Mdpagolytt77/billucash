@@ -24,7 +24,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     toast.success('Logged out');
   };
 
-  const navItems = [
+  const allNavItems = [
     { icon: Home, label: 'Dashboard', path: '/admin' },
     { icon: Users, label: 'All Users', path: '/admin/users' },
     { icon: Shield, label: 'Admin Roles', path: '/admin/roles' },
@@ -41,6 +41,11 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Image, label: 'Background', path: '/admin/background' },
     { icon: Key, label: 'Password', path: '/admin/password' },
   ];
+
+  // Moderators can only see All Users and Completed Offers
+  const navItems = isReadOnly
+    ? allNavItems.filter(item => ['/admin/users', '/admin/offers'].includes(item.path))
+    : allNavItems;
 
   return (
     <>

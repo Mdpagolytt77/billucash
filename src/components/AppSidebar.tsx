@@ -88,7 +88,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                     : 'bg-yellow-500/20 text-yellow-400'
                 }`}
               >
-                <Shield className="w-3.5 h-3.5" /> {isModerator && !isAdmin ? 'Moderator Panel' : 'Admin'}
+                <Shield className="w-3.5 h-3.5" /> {isModerator && !isAdmin ? 'Mod Panel' : 'Admin'}
               </Link>
             )}
             

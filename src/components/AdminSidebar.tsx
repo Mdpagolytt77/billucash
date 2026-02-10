@@ -14,7 +14,8 @@ interface AdminSidebarProps {
 
 const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, isAdmin, isModerator } = useAuth();
+  const isReadOnly = isModerator && !isAdmin;
   
   const isActive = (path: string) => location.pathname === path;
 
@@ -58,6 +59,13 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
+          
+          {isReadOnly && (
+            <div className="mb-2 px-2 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+              <p className="text-[10px] text-yellow-500 font-medium">👁️ Read-Only Mode</p>
+              <p className="text-[9px] text-muted-foreground">You can view but not edit</p>
+            </div>
+          )}
           
           <nav className="space-y-0.5">
             {navItems.map((item) => (

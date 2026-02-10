@@ -44,7 +44,8 @@ interface CompletedOffer {
 }
 
 const AdminCompletedOffers = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -285,7 +286,7 @@ const AdminCompletedOffers = () => {
     }
   };
 
-  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
+  if (!canAccess) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
   return (
     <>

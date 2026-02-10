@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { user, isAdmin, isLoading } = useAuth();
+  const { user, isAdmin, isModerator, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -19,7 +19,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
     return <Navigate to="/signup" state={{ from: location }} replace />;
   }
 
-  if (requireAdmin && !isAdmin) {
+  if (requireAdmin && !isAdmin && !isModerator) {
     return <Navigate to="/dashboard" replace />;
   }
 

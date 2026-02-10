@@ -16,7 +16,8 @@ interface ProviderLogo {
 }
 
 const AdminProvidersCustomize = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const [providerLogos, setProviderLogos] = useState<ProviderLogo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -126,7 +127,7 @@ const AdminProvidersCustomize = () => {
     }
   };
 
-  if (!isAdmin) {
+  if (!canAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">

@@ -14,6 +14,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isModerator: boolean;
   isLoading: boolean;
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   // Callback for balance increase
@@ -78,32 +80,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const checkAdminRole = async (userId: string) => {
+  const checkUserRole = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
-        .eq('role', 'admin')
         .maybeSingle();
 
       if (error) {
-        console.error('Error checking admin role:', error);
+        console.error('Error checking user role:', error);
         setIsAdmin(false);
+        setIsModerator(false);
         return;
       }
 
-      setIsAdmin(!!data);
+      const role = data?.role;
+      setIsAdmin(role === 'admin');
+      setIsModerator(role === 'moderator');
     } catch (err) {
-      console.error('Error in checkAdminRole:', err);
+      console.error('Error in checkUserRole:', err);
       setIsAdmin(false);
+      setIsModerator(false);
     }
   };
 
   const refreshProfile = async () => {
     if (user) {
       await fetchProfile(user.id);
-      await checkAdminRole(user.id);
+      await checkUserRole(user.id);
     }
   };
 
@@ -118,11 +123,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           setTimeout(() => {
             fetchProfile(session.user.id);
-            checkAdminRole(session.user.id);
+            checkUserRole(session.user.id);
           }, 0);
         } else {
           setProfile(null);
           setIsAdmin(false);
+          setIsModerator(false);
           previousBalanceRef.current = null;
         }
       }
@@ -135,7 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (session?.user) {
         fetchProfile(session.user.id);
-        checkAdminRole(session.user.id);
+        checkUserRole(session.user.id);
       }
       
       setIsLoading(false);
@@ -211,6 +217,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSession(null);
     setProfile(null);
     setIsAdmin(false);
+    setIsModerator(false);
     previousBalanceRef.current = null;
   };
 
@@ -221,6 +228,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         session,
         profile,
         isAdmin,
+        isModerator,
         isLoading,
         signUp,
         signIn,

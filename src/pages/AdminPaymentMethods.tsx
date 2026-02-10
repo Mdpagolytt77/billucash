@@ -51,8 +51,9 @@ const gradientOptions = [
 
 const AdminPaymentMethods = () => {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, isAdmin: authIsAdmin, isModerator } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const canAccess = authIsAdmin || isModerator;
   const [loading, setLoading] = useState(true);
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -219,7 +220,7 @@ const AdminPaymentMethods = () => {
     return <LoadingScreen isLoading={true} />;
   }
 
-  if (!isAdmin) {
+  if (!canAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-destructive">Access Denied</p>

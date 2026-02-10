@@ -11,7 +11,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const AdminLogoCustomize = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isModerator } = useAuth();
+  const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [logoText, setLogoText] = useState('WALLSCASH');
@@ -255,7 +256,7 @@ const AdminLogoCustomize = () => {
     toast.success('Icon reset to default!');
   };
 
-  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
+  if (!canAccess) return <div className="min-h-screen flex items-center justify-center text-xs">Access Denied</div>;
 
   return (
     <>

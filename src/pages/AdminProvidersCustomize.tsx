@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
+import heroBg from '@/assets/hero-bg.jpg';
+import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
@@ -18,6 +20,7 @@ interface ProviderLogo {
 const AdminProvidersCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
+  const { background: siteBackground } = useSiteSettings();
   const [providerLogos, setProviderLogos] = useState<ProviderLogo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -139,7 +142,7 @@ const AdminProvidersCustomize = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
       {/* Header */}
       <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">

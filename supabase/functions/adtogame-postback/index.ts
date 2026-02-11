@@ -11,7 +11,6 @@ const MAX_PAYOUT = 1000; // Maximum $1000 per transaction
 const MAX_OFFER_NAME_LENGTH = 200;
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -20,7 +19,6 @@ serve(async (req) => {
     const url = new URL(req.url);
     const params = url.searchParams;
 
-    // Get client IP
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                      req.headers.get('cf-connecting-ip') || 
                      req.headers.get('x-real-ip') || '';
@@ -30,29 +28,38 @@ serve(async (req) => {
     console.log('Client IP:', clientIp);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract Adtogame parameters based on their macro system
-    // {user_id} - id of your user
+    // --- Signature / API Key Verification ---
+    const ADTOGAME_API_KEY = Deno.env.get('ADTOGAME_API_KEY');
+    const signature = params.get('api_key') || params.get('signature') || params.get('sig') || '';
+
+    if (!ADTOGAME_API_KEY) {
+      console.error('[Security] ADTOGAME_API_KEY not configured');
+      return new Response('SERVER_ERROR', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
+    if (!signature || signature !== ADTOGAME_API_KEY) {
+      console.error('[Security] Invalid API key/signature:', signature);
+      return new Response('UNAUTHORIZED', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
+    // Extract Adtogame parameters
     const userId = params.get('user_id') || '';
-    // {payout_usd} - amount of conversion in $, ex. 1.23
     const payoutUsd = params.get('payout_usd') || '0';
-    // {points} - amount of points according to conversion rate
     const points = params.get('points') || '0';
-    // {offer_id} - id of offer from everflow
     const offerId = params.get('offer_id') || '';
-    // {offer_name} - name of offer
     const offerNameRaw = params.get('offer_name') || '';
-    // {transaction_id} - transaction id from everflow
     const transactionId = params.get('transaction_id') || '';
-    // {conversion_id} - conversion id from everflow
     const conversionId = params.get('conversion_id') || '';
-    // {geo} - country code of click
     const geo = params.get('geo') || 'Unknown';
-    // {timestamp} - current timestamp
-    const timestamp = params.get('timestamp') || '';
 
     console.log('Parsed params:', { userId, payoutUsd, points, offerId, transactionId, conversionId, geo });
 
-    // Validate required parameters
     if (!userId) {
       console.error('[Validation] Missing user_id parameter');
       return new Response('MISSING_USER_ID', {
@@ -62,15 +69,12 @@ serve(async (req) => {
     }
 
     // Parse coin amount - prefer points directly, fallback to payout_usd conversion
-    // User wants points to be used directly as coins (800 points = 800 coins)
     let coinAmount = 0;
     const pointsValue = parseFloat(points) || 0;
     
     if (pointsValue > 0) {
-      // Use points directly as coins
       coinAmount = Math.round(pointsValue);
     } else {
-      // Fallback: convert payout_usd to coins (1 USD = 1000 coins)
       const payoutValue = parseFloat(payoutUsd) || 0;
       coinAmount = Math.round(payoutValue * 1000);
     }
@@ -82,11 +86,8 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
-    
-    // Calculate payout value for logging (coins / 1000)
-    const payoutValue = coinAmount / 1000;
 
-    // Security: Maximum payout validation (MAX_PAYOUT is in USD, coinAmount is in coins)
+    // Security: Maximum payout validation
     const maxCoinAmount = MAX_PAYOUT * 1000;
     if (coinAmount > maxCoinAmount) {
       console.error(`[Security] Coin amount ${coinAmount} exceeds maximum ${maxCoinAmount}`);
@@ -98,24 +99,17 @@ serve(async (req) => {
 
     // Handle offer name
     let offerName = offerNameRaw ? decodeURIComponent(offerNameRaw) : '';
-    
-    // Check for placeholder patterns
     const placeholderPatterns = [
       /^\{.*\}$/, /^\[.*\]$/, /^%.*%$/, /^\$\{.*\}$/, /^{{.*}}$/,
     ];
-    
     const isPlaceholder = placeholderPatterns.some(pattern => pattern.test(offerName));
-    
     if (!offerName || isPlaceholder) {
       offerName = offerId ? `Adtogame Offer #${offerId.slice(-6)}` : 'Adtogame Offer';
     }
-
-    // Truncate offer name if too long
     if (offerName.length > MAX_OFFER_NAME_LENGTH) {
       offerName = offerName.substring(0, MAX_OFFER_NAME_LENGTH);
     }
 
-    // Create unique transaction ID using transaction_id or conversion_id
     const uniqueTransactionId = transactionId || conversionId || `adtogame_${Date.now()}`;
 
     // Create Supabase client
@@ -157,10 +151,7 @@ serve(async (req) => {
 
     console.log('User found:', profile.username, 'Current balance:', profile.balance);
 
-    // Update user balance using increment_balance function
-    // Convert USD to coins: 1 USD = 1000 coins
-    const coinAmount = Math.round(payoutValue * 1000);
-    
+    // Update user balance
     const { error: balanceError } = await supabase.rpc('increment_balance', {
       user_id_input: userId,
       amount_input: coinAmount
@@ -174,21 +165,12 @@ serve(async (req) => {
       });
     }
 
-    // Get updated balance
-    const { data: updatedProfile } = await supabase
-      .from('profiles')
-      .select('balance')
-      .eq('id', userId)
-      .maybeSingle();
-
-    const newBalance = updatedProfile?.balance || 0;
-
-    // Insert completed offer record (coinAmount already calculated above)
+    // Insert completed offer record
     const { error: insertError } = await supabase
       .from('completed_offers')
       .insert({
         user_id: userId,
-        username: profile.username,
+        username: profile.username || userId,
         offer_name: offerName,
         offerwall: 'Adtogame',
         coin: coinAmount,
@@ -202,9 +184,7 @@ serve(async (req) => {
     }
 
     console.log('=== Adtogame Postback Processed Successfully ===');
-    console.log('User:', profile.username);
-    console.log('Payout:', payoutValue);
-    console.log('New Balance:', newBalance);
+    console.log('User:', profile.username, 'Coins:', coinAmount);
 
     return new Response('OK', {
       status: 200,

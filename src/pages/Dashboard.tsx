@@ -272,27 +272,22 @@ const Dashboard = () => {
                       <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     </div>
                   ) : (() => {
-                      const offerwallName = selectedOfferwall.name.toLowerCase();
-                      let iframeUrl = '';
+                      // Extract clean URL from iframe/anchor HTML if admin pasted full tag
+                      let rawUrl = selectedOfferwall.iframeUrl || '';
+                      const srcMatch = rawUrl.match(/src=["']([^"']+)["']/);
+                      if (srcMatch) rawUrl = srcMatch[1];
+                      const hrefMatch = rawUrl.match(/href=["']([^"']+)["']/);
+                      if (hrefMatch) rawUrl = hrefMatch[1];
                       
-                      if (offerwallName.includes('vortex')) {
-                        iframeUrl = `https://vortexwall.com/ow/694d43d853920bb7ed5519a6/${user?.id || ''}`;
-                      } else if (offerwallName.includes('primewall') || offerwallName.includes('prime')) {
-                        iframeUrl = `https://primewall.io/offer/Pz6Cs5/${user?.id || ''}`;
-                      } else if (offerwallName.includes('offery')) {
-                        iframeUrl = `https://offery.io/offerwall/cnpvos7wmzy531uuu52drbmcjmqsv/${user?.id || ''}`;
-                      } else if (offerwallName.includes('upwall')) {
-                        // Upwall iframe: app_id needs to be set in admin panel, userid is user's ID
-                        const upwallApiKey = 'YOUR_UPWALL_APP_ID'; // Replace with actual app_id from admin
-                        iframeUrl = `https://offerwall.upwall.io/?app_id=${upwallApiKey}&userid=${user?.id || ''}`;
-                      } else {
-                        iframeUrl = selectedOfferwall.iframeUrl
-                          ?.replace(/{uid}/g, user?.id || '')
-                          ?.replace(/{user_id}/g, user?.id || '')
-                          ?.replace(/{subid}/g, user?.id || '')
-                          ?.replace(/XXX/g, user?.id || '')
-                          ?.replace(/{api_key}/g, '') || '';
-                      }
+                      const iframeUrl = rawUrl
+                        .replace(/{uid}/g, user?.id || '')
+                        .replace(/{user_id}/g, user?.id || '')
+                        .replace(/{subid}/g, user?.id || '')
+                        .replace(/\{uniqueUserID\}/g, user?.id || '')
+                        .replace(/\[USER_ID\]/g, user?.id || '')
+                        .replace(/XXX/g, user?.id || '')
+                        .replace(/{api_key}/g, '')
+                        .replace(/{app_id}/g, '');
                       
                       return iframeUrl ? (
                         <iframe 

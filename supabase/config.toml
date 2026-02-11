@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.adtogame-postback]
 verify_jwt = false
+
+[functions.tplayad-postback]
+verify_jwt = false

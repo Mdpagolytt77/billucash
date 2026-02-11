@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Menu, Save } from 'lucide-react';
+import heroBg from '@/assets/hero-bg.jpg';
+import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import AdminSidebar from '@/components/AdminSidebar';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -33,6 +35,7 @@ const AdminSocialLinksCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
+  const { background: siteBackground } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -133,7 +136,7 @@ const AdminSocialLinksCustomize = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

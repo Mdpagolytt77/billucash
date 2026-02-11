@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Upload, Save, CreditCard, Image, Menu } from 'lucide-react';
+import heroBg from '@/assets/hero-bg.jpg';
+import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import AdminSidebar from '@/components/AdminSidebar';
@@ -51,6 +53,7 @@ const gradientOptions = [
 
 const AdminPaymentMethods = () => {
   const navigate = useNavigate();
+  const { background: siteBackground } = useSiteSettings();
   const { user, isLoading: authLoading, isAdmin: authIsAdmin, isModerator } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const canAccess = authIsAdmin || isModerator;
@@ -233,7 +236,7 @@ const AdminPaymentMethods = () => {
   const cashMethods = methods.filter(m => m.category === 'cash');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       {/* Header */}

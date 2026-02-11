@@ -6,7 +6,7 @@ import SnowToggle from '@/components/SnowToggle';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import { SiteLogo, useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -172,6 +172,7 @@ const AdminOfferwallCustomize = () => {
   const { isAdmin, isModerator, user } = useAuth();
   const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
+  const { background: siteBackground } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [offerwalls, setOfferwalls] = useState<Offerwall[]>([]);
   const [newOfferwall, setNewOfferwall] = useState('');
@@ -741,7 +742,7 @@ const AdminOfferwallCustomize = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="min-h-screen" style={{ background: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${heroBg}) no-repeat center center fixed`, backgroundSize: 'cover' }}>
+      <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
         <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg"><Menu className="w-4 h-4" /></button>

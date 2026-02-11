@@ -9,7 +9,7 @@ import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import { SiteLogo, useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import heroBg from '@/assets/hero-bg.jpg';
@@ -27,6 +27,7 @@ const AdminLiveTrackerCustomize = () => {
   const canAccess = isAdmin || isModerator;
   const navigate = useNavigate();
   const { snowEnabled, toggleSnow } = useSnowEffect();
+  const { background: siteBackground } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<TrackerSettings>({
     enabled: true,
@@ -111,10 +112,7 @@ const AdminLiveTrackerCustomize = () => {
 
       <div 
         className="min-h-screen"
-        style={{
-          background: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${heroBg}) no-repeat center center fixed`,
-          backgroundSize: 'cover',
-        }}
+        style={getBackgroundStyle(siteBackground, heroBg)}
       >
         {/* Header */}
         <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">

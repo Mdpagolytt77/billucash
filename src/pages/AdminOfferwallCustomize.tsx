@@ -148,9 +148,9 @@ const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: st
   tplayad: (baseUrl, wallName) => 
     `${baseUrl}?userid={user_id}&amount={points}&offer_name={offer_name}&transaction_id={transaction_id}&country={country}&offerwall=${wallName}`,
   
-  // Timewall uses userid, revenue, hash for SHA256 verification
+  // Timewall uses userid, revenue, hash for SHA256 verification, site_id for identification
   timewall: (baseUrl, wallName) => 
-    `${baseUrl}?userid={userid}&revenue={revenue}&offer_name={offer_name}&transaction_id={transaction_id}&country={country_code}&hash={hash}&offerwall=${wallName}`,
+    `${baseUrl}?userid={userid}&revenue={revenue}&offer_name={offer_name}&transaction_id={transaction_id}&country={country_code}&hash={hash}&site_id=2869b7172a8a1b32&offerwall=${wallName}`,
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {

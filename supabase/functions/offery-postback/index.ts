@@ -25,7 +25,7 @@ serve(async (req) => {
 
     console.log("[offery-postback] Params:", Object.fromEntries(params.entries()));
 
-    if (req.method !== "GET") return respond("METHOD_NOT_ALLOWED");
+    if (req.method !== "GET" && req.method !== "POST") return respond("METHOD_NOT_ALLOWED");
 
     // Extract parameters
     const userId = params.get('subid') || params.get('user_id') || params.get('aff_sub') || params.get('uid') || '';

@@ -71,6 +71,8 @@ const PROVIDER_OPTIONS = [
   { value: 'revtoo', label: 'Revtoo' },
   { value: 'upwall', label: 'Upwall' },
   { value: 'radientwall', label: 'RadientWall' },
+  { value: 'tplayad', label: 'Tplayad' },
+  { value: 'timewall', label: 'Timewall' },
   { value: 'custom', label: 'Custom' },
 ];
 
@@ -84,6 +86,8 @@ const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
   notik: 'notik-postback',
   offery: 'offery-postback',
   radientwall: 'radientwall-postback',
+  tplayad: 'tplayad-postback',
+  timewall: 'timewall-postback',
 };
 
 // Provider-specific postback URL templates with their unique parameter formats
@@ -139,6 +143,14 @@ const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: st
   // RadientWall uses user_id, payout, offer_name, transaction_id
   radientwall: (baseUrl, wallName) => 
     `${baseUrl}?user_id={user_id}&payout={payout}&offer_name={offer_name}&transaction_id={transaction_id}&ip={ip}&country={country}&offerwall=${wallName}`,
+  
+  // Tplayad uses userid, amount
+  tplayad: (baseUrl, wallName) => 
+    `${baseUrl}?userid={user_id}&amount={points}&offer_name={offer_name}&transaction_id={transaction_id}&country={country}&offerwall=${wallName}`,
+  
+  // Timewall uses userid, revenue, hash for SHA256 verification
+  timewall: (baseUrl, wallName) => 
+    `${baseUrl}?userid={userid}&revenue={revenue}&offer_name={offer_name}&transaction_id={transaction_id}&country={country_code}&hash={hash}&offerwall=${wallName}`,
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {
@@ -235,8 +247,30 @@ const AdminOfferwallCustomize = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Auto-sync enabled offerwall names to provider_logos
+      const enabledWalls = offerwalls.filter(w => w.enabled);
+      
+      // Get existing provider logos
+      const { data: settingsData } = await supabase.rpc('get_public_site_settings');
+      const existingLogos = (settingsData?.[0]?.provider_logos as unknown as { id: string; name: string; url: string }[]) || [];
+      
+      // Merge: keep existing logos, add new offerwalls that aren't already there
+      const existingNames = new Set(existingLogos.map(l => l.name.toLowerCase()));
+      const newProviderLogos = [...existingLogos];
+      
+      for (const wall of enabledWalls) {
+        if (!existingNames.has(wall.name.toLowerCase())) {
+          newProviderLogos.push({
+            id: `auto_${wall.id}`,
+            name: wall.name,
+            url: wall.logoUrl || '',
+          });
+        }
+      }
+
       const { error } = await supabase.from('site_settings').update({
         offerwall_settings: JSON.parse(JSON.stringify({ offerwalls })),
+        provider_logos: JSON.parse(JSON.stringify(newProviderLogos)),
         updated_at: new Date().toISOString()
       }).eq('id', 'default');
       if (error) throw error;

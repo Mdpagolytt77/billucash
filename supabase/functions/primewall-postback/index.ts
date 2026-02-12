@@ -33,11 +33,11 @@ async function hmacSha256(secret: string, message: string): Promise<string> {
   return bytesToHex(new Uint8Array(signatureBuffer));
 }
 
-// MD5 hash for legacy signature verification
-async function md5Hash(input: string): Promise<string> {
+// SHA-256 hash for signature verification (MD5 not supported in Deno)
+async function sha256Hash(input: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('MD5', data);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return bytesToHex(new Uint8Array(hashBuffer));
 }
 
@@ -74,9 +74,9 @@ async function verifySignature(
       if (hmacSig.toLowerCase() === signature.toLowerCase()) {
         return true;
       }
-      // Check MD5
-      const md5Sig = await md5Hash(payload);
-      if (md5Sig.toLowerCase() === signature.toLowerCase()) {
+      // Check SHA-256 hash
+      const sha256Sig = await sha256Hash(payload);
+      if (sha256Sig.toLowerCase() === signature.toLowerCase()) {
         return true;
       }
     }

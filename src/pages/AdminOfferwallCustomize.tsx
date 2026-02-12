@@ -73,6 +73,7 @@ const PROVIDER_OPTIONS = [
   { value: 'radientwall', label: 'RadientWall' },
   { value: 'tplayad', label: 'Tplayad' },
   { value: 'timewall', label: 'Timewall' },
+  { value: 'bitlab', label: 'BitLab' },
   { value: 'custom', label: 'Custom' },
 ];
 
@@ -88,6 +89,7 @@ const PROVIDER_POSTBACK_ENDPOINTS: Record<string, string> = {
   radientwall: 'radientwall-postback',
   tplayad: 'tplayad-postback',
   timewall: 'timewall-postback',
+  bitlab: 'bitlab-postback',
 };
 
 // Provider-specific postback URL templates with their unique parameter formats
@@ -151,6 +153,10 @@ const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: st
   // Timewall uses userid, revenue, hash for SHA256 verification, site_id for identification
   timewall: (baseUrl, wallName) => 
     `${baseUrl}?userid={userid}&revenue={revenue}&offer_name={offer_name}&transaction_id={transaction_id}&country={country_code}&hash={hash}&site_id=2869b7172a8a1b32&offerwall=${wallName}`,
+  
+  // BitLab uses uid (USER:ID), tx (TX), val (VALUE:CURRENCY), hash for verification
+  bitlab: (baseUrl, wallName) => 
+    `${baseUrl}?uid={USER:ID}&tx={TX}&val={VALUE:CURRENCY}&offer_name={OFFER:TASK:ID}&country={USER:COUNTRY}&hash={HASH}&offerwall=${wallName}`,
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {

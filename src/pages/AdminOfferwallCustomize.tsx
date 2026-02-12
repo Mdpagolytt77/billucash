@@ -96,9 +96,9 @@ const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: st
   notik: (baseUrl, wallName) => 
     `${baseUrl}?user_id={user_id}&txn_id={txn_id}&offer_name={offer_name}&amount={amount}&payout={payout}&ip={ip}&country={country_code}&offerwall=${wallName}`,
   
-  // Offery uses aff_sub for user_id, offer_id for transaction
+  // Offery S2S Postback - all parameters from their API docs
   offery: (baseUrl, wallName) => 
-    `${baseUrl}?user_id={aff_sub}&payout={payout}&offer_name={offer_name}&transaction_id={offer_id}&ip={ip}&country={country_code}&offerwall=${wallName}`,
+    `${baseUrl}?subid={subId}&transid={transId}&offer_id={offer_id}&offer_name={offer_name}&offer_type={offer_type}&reward={reward}&reward_name={reward_name}&reward_value={reward_value}&payout={payout}&ip={userIp}&country={country}&status={status}&debug={debug}&signature={signature}&offerwall=${wallName}`,
   
   // AdGem uses player_id for user_id, amount for payout
   adgem: (baseUrl, wallName) => 

@@ -10,7 +10,7 @@ const corsHeaders = {
 const NOTIK_SECRET_KEY = Deno.env.get('NOTIK_SECRET_KEY');
 
 // Security limits
-const MAX_PAYOUT = 1000; // Maximum $1000 per transaction
+const MAX_PAYOUT = 100000; // Maximum 100,000 coins per transaction (coins, not USD)
 const MAX_OFFER_NAME_LENGTH = 200;
 
 // Helper to convert bytes to hex string
@@ -18,11 +18,11 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// MD5 hash function
-async function md5Hash(input: string): Promise<string> {
+// SHA-256 hash function (MD5 not supported in Deno)
+async function sha256Hash2(input: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('MD5', data);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return bytesToHex(new Uint8Array(hashBuffer));
 }
 
@@ -77,7 +77,7 @@ serve(async (req) => {
     const userId = params.get('user_id') || '';
     const txid = params.get('txn_id') || params.get('transaction_id') || '';
     let offerName = params.get('offer_name') || 'Notik Offer';
-    const payout = params.get('amount') || params.get('payout') || params.get('points') || '0';
+    const payout = params.get('payout') || params.get('points') || '0';
     
     // Additional optional parameters
     const incomingHash = params.get('sig') || params.get('hash') || params.get('signature') || '';
@@ -118,23 +118,19 @@ serve(async (req) => {
       let signatureValid = false;
 
       for (const format of signatureFormats) {
-        // Try MD5
-        try {
-          const md5Expected = await md5Hash(format);
-          if (md5Expected.toLowerCase() === incomingHash.toLowerCase()) {
-            signatureValid = true;
-            console.log('[Security] MD5 signature verification passed');
-            break;
-          }
-        } catch (e) {
-          console.log('[Security] MD5 not supported, trying SHA256');
-        }
-
-        // Try SHA256
+        // Try SHA256 (primary)
         const sha256Expected = await sha256Hash(format);
         if (sha256Expected.toLowerCase() === incomingHash.toLowerCase()) {
           signatureValid = true;
           console.log('[Security] SHA256 signature verification passed');
+          break;
+        }
+
+        // Try SHA256 variant 2
+        const sha256Expected2 = await sha256Hash2(format);
+        if (sha256Expected2.toLowerCase() === incomingHash.toLowerCase()) {
+          signatureValid = true;
+          console.log('[Security] SHA256-2 signature verification passed');
           break;
         }
       }

@@ -1,7 +1,10 @@
 import { Clock, DollarSign, TrendingUp } from 'lucide-react';
-import statsIllustration from '@/assets/stats-illustration.png';
+import statsIllustrationDefault from '@/assets/stats-illustration.png';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const StatsSection = () => {
+  const { homepageImages } = useSiteSettings();
+  const statsIllustration = homepageImages.statsIllustration || statsIllustrationDefault;
   return (
     <section className="py-8 px-4">
       <div className="bg-muted rounded-2xl p-6 relative overflow-hidden">

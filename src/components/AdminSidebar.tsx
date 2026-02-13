@@ -39,6 +39,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Share2, label: 'Social Links', path: '/admin/social' },
     { icon: Volume2, label: 'Sound', path: '/admin/sound' },
     { icon: Image, label: 'Background', path: '/admin/background' },
+    { icon: Image, label: 'Homepage Images', path: '/admin/homepage-images' },
     { icon: Key, label: 'Password', path: '/admin/password' },
   ];
 

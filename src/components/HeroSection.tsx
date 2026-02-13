@@ -1,9 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { DollarSign } from 'lucide-react';
-import heroIllustration from '@/assets/hero-illustration.png';
+import heroIllustrationDefault from '@/assets/hero-illustration.png';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { homepageImages } = useSiteSettings();
+  const heroIllustration = homepageImages.heroIllustration || heroIllustrationDefault;
 
   // Floating coin positions
   const floatingCoins = [

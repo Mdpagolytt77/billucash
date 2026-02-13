@@ -1,5 +1,6 @@
 import { UserPlus, ListTodo, Wallet } from 'lucide-react';
-import howItWorksIllustration from '@/assets/how-it-works-illustration.png';
+import howItWorksIllustrationDefault from '@/assets/how-it-works-illustration.png';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const steps = [
   {
@@ -23,6 +24,8 @@ const steps = [
 ];
 
 const HowItWorksSection = () => {
+  const { homepageImages } = useSiteSettings();
+  const howItWorksIllustration = homepageImages.howItWorksIllustration || howItWorksIllustrationDefault;
   return (
     <section className="py-10 px-4">
       <div className="text-center mb-8">

@@ -11,12 +11,13 @@ import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSe
 import { useSoundContext } from '@/contexts/SoundContext';
 import { toast } from 'sonner';
 import heroBg from '@/assets/hero-bg.jpg';
-import signupIllustration from '@/assets/signup-illustration.png';
+import signupIllustrationDefault from '@/assets/signup-illustration.png';
 
 const Signup = () => {
   const navigate = useNavigate();
   const { user, signUp, isLoading: authLoading } = useAuth();
-  const { background } = useSiteSettings();
+  const { background, homepageImages } = useSiteSettings();
+  const signupIllustration = homepageImages.signupIllustration || signupIllustrationDefault;
   const { playSignupSound } = useSoundContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);

@@ -133,6 +133,18 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   }
 
+  .glass-card-mini {
+    background: hsl(var(--glass-bg));
+    border-color: hsl(var(--glass-border));
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+
+  .glass-card-mini:hover {
+    box-shadow: 
+      0 12px 32px rgba(0,0,0,0.3),
+      0 0 0 1px hsl(var(--glass-border));
+  }
+
   .form-input-custom {
     @apply w-full px-5 py-4 rounded-xl text-sm transition-all duration-300;
     background: hsl(0 0% 100% / 0.1);

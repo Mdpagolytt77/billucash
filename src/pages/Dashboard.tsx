@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Gift, X, ArrowLeft, Loader2, CheckCircle
 } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
+import pageBg from '@/assets/page-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
@@ -195,7 +195,7 @@ const Dashboard = () => {
     popupAnimation: w.popupAnimation,
   }));
 
-  const bgStyle = getBackgroundStyle(background, heroBg);
+  const bgStyle = getBackgroundStyle(background, pageBg);
 
   if (isLoading || showLoadingScreen) {
     return <LoadingScreen isLoading={true} />;

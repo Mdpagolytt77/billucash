@@ -37,14 +37,14 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
   const getGradientStyle = (color: string, isPremium: boolean) => {
     if (isPremium) {
       return {
-        background: `linear-gradient(145deg, ${color}ee, ${color}aa, ${color}77)`,
-        boxShadow: `0 10px 25px -10px ${color}66, 0 5px 15px -5px rgba(0,0,0,0.3)`,
+        background: `linear-gradient(160deg, ${color}ff, ${color}cc 40%, ${color}88 80%, ${color}55)`,
+        boxShadow: `0 15px 35px -10px ${color}88, 0 8px 20px -5px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3)`,
       };
     }
     return {
-      background: `linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted)))`,
-      borderColor: `${color}55`,
-      boxShadow: `0 8px 20px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)`,
+      background: `linear-gradient(160deg, ${color}dd, ${color}99 40%, ${color}55 80%, hsl(var(--card)))`,
+      borderColor: `${color}66`,
+      boxShadow: `0 15px 35px -10px ${color}44, 0 8px 20px -5px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.3)`,
     };
   };
 
@@ -54,7 +54,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-2.5 h-2.5 ${
+            className={`w-3 h-3 ${
               star <= rating 
                 ? 'fill-yellow-400 text-yellow-400 drop-shadow-sm' 
                 : star - 0.5 <= rating 
@@ -88,7 +88,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
         </button>
       </div>
       
-      <div className="flex gap-2.5 overflow-x-auto pb-3 scrollbar-hide">
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
         {partners.map((partner) => (
           <div
             key={partner.id}
@@ -100,37 +100,43 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               popupHeight: partner.popupHeight,
               popupAnimation: partner.popupAnimation,
             })}
-            className="flex-shrink-0 w-[85px] cursor-pointer group"
+            className="flex-shrink-0 w-[130px] cursor-pointer group perspective-[800px]"
           >
-            {/* Card - Tall portrait design like reference */}
+            {/* Card - Larger 3D portrait design */}
             <div 
-              className={`relative w-full h-[110px] rounded-xl overflow-hidden border transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-1 flex flex-col items-center justify-center p-2 ${
-                isPremium ? 'border-transparent' : 'border-border/30'
+              className={`relative w-full h-[175px] rounded-2xl overflow-hidden border transition-all duration-500 transform group-hover:scale-[1.08] group-hover:-translate-y-2 group-hover:rotate-y-3 flex flex-col items-center justify-center p-3 ${
+                isPremium ? 'border-transparent' : 'border-white/10'
               }`}
               style={getGradientStyle(partner.color, isPremium)}
             >
+              {/* Top glow light effect */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-white/15 blur-2xl rounded-full" />
+              
               {/* Badge */}
               {partner.badge && (
-                <div className={`absolute top-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
-                  {partner.badge.type === 'hot' && <Flame className="w-2 h-2" />}
+                <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-md text-[9px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
+                  {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
                   {partner.badge.text}
                 </div>
               )}
               
-              {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Shine sweep effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
-              {/* Logo - centered */}
-              <div className="flex items-center justify-center mb-2">
+              {/* Bottom shadow for 3D depth */}
+              <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
+              
+              {/* Logo - larger and centered */}
+              <div className="flex items-center justify-center mb-3 relative z-10">
                 {partner.logoUrl ? (
                   <img 
                     src={partner.logoUrl} 
                     alt={partner.name}
-                    className="w-10 h-10 object-contain drop-shadow-lg"
+                    className="w-16 h-16 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                    <span className="text-sm font-bold text-white drop-shadow-lg">
+                  <div className="w-16 h-16 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/25 shadow-lg">
+                    <span className="text-xl font-bold text-white drop-shadow-lg">
                       {partner.name.substring(0, 2).toUpperCase()}
                     </span>
                   </div>
@@ -138,10 +144,10 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               </div>
               
               {/* Name */}
-              <h4 className="text-[10px] font-bold text-center text-white truncate w-full px-1 group-hover:text-primary transition-colors">{partner.name}</h4>
+              <h4 className="text-xs font-bold text-center text-white truncate w-full px-1 relative z-10 drop-shadow-md">{partner.name}</h4>
               
               {/* Rating */}
-              <div className="flex justify-center mt-1">
+              <div className="flex justify-center mt-1.5 relative z-10">
                 {renderStars(partner.rating)}
               </div>
             </div>

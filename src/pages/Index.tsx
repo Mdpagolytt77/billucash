@@ -63,23 +63,28 @@ const Index = () => {
           {/* Live Earnings Tracker */}
           <LiveEarningsTracker />
 
-          {/* Featured Offers - clicking opens login popup */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <FeaturedOffersSection onOfferClick={handleOfferClick} />
-          </div>
-
-          {/* Login Box Section */}
-          <div className="animate-fade-in px-4 pb-6" style={{ animationDelay: '0.2s' }}>
-            <LoginBox />
-          </div>
-
-          {/* Hero Section */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          {/* Hero Section - Centered text */}
+          <div className="animate-fade-in">
             <HeroSection />
           </div>
 
+          {/* Featured Offers + Login Box side by side */}
+          <div className="animate-fade-in px-4 pb-8" style={{ animationDelay: '0.15s' }}>
+            <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
+              {/* Featured Offers - Left */}
+              <div className="flex-1 w-full">
+                <FeaturedOffersSection onOfferClick={handleOfferClick} />
+              </div>
+
+              {/* Login Box - Right */}
+              <div className="w-full lg:w-[400px] flex-shrink-0">
+                <LoginBox />
+              </div>
+            </div>
+          </div>
+
           {/* Stats Section */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <StatsSection />
           </div>
 

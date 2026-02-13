@@ -35,19 +35,21 @@ const ICON_MAP: Record<string, React.ElementType> = {
   trustpilot: Star,
 };
 
-// Social platforms for "Join us" section
 const JOIN_US_PLATFORMS = ['facebook', 'telegram', 'whatsapp', 'youtube', 'instagram', 'twitter', 'discord', 'linkedin', 'tiktok', 'reddit'];
 
-// Support platforms
-const SUPPORT_PLATFORMS = ['telegram', 'email'];
+interface PaymentMethod {
+  name: string;
+  icon_url: string | null;
+}
 
 const Footer = forwardRef<HTMLElement>((_, ref) => {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
   useEffect(() => {
     loadSocialLinks();
+    loadPaymentMethods();
     
-    // Subscribe to real-time changes
     const channel = supabase
       .channel('footer-social-links')
       .on(
@@ -75,9 +77,7 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
   const loadSocialLinks = async () => {
     try {
       const { data, error } = await supabase.rpc('get_public_site_settings');
-
       if (error) throw error;
-
       if (data && data.length > 0 && data[0].social_links_settings && Array.isArray(data[0].social_links_settings)) {
         const links = data[0].social_links_settings as unknown as SocialLink[];
         setSocialLinks(links.filter(l => l.enabled));
@@ -87,22 +87,47 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
     }
   };
 
-  // Filter links for "Join us" section
-  const joinUsLinks = socialLinks.filter(link => JOIN_US_PLATFORMS.includes(link.icon));
-  
-  // Filter links for "Support" section (telegram and email)
-  const supportLinks = socialLinks.filter(link => SUPPORT_PLATFORMS.includes(link.icon));
+  const loadPaymentMethods = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('payment_methods')
+        .select('name, icon_url')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      if (!error && data) {
+        setPaymentMethods(data);
+      }
+    } catch (error) {
+      console.error('Error loading payment methods:', error);
+    }
+  };
 
+  const joinUsLinks = socialLinks.filter(link => JOIN_US_PLATFORMS.includes(link.icon));
   const currentYear = new Date().getFullYear();
 
   return (
     <footer ref={ref} className="bg-background border-t border-border mt-8">
       <div className="py-10 px-4 md:px-[5%]">
         <div className="max-w-6xl mx-auto">
-          {/* Main Footer Content - 3 Column Layout */}
+          {/* Payment Methods */}
+          {paymentMethods.length > 0 && (
+            <div className="mb-8 pb-8 border-b border-border">
+              <h3 className="text-sm font-semibold text-center mb-4 text-muted-foreground">Payment Methods</h3>
+              <div className="flex flex-wrap justify-center gap-4">
+                {paymentMethods.map((method) => (
+                  <div key={method.name} className="flex items-center gap-2 px-4 py-2 bg-muted rounded-xl">
+                    {method.icon_url && (
+                      <img src={method.icon_url} alt={method.name} className="w-6 h-6 object-contain" />
+                    )}
+                    <span className="text-xs font-medium text-foreground">{method.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            
-            {/* Left Column - Logo & Copyright */}
             <div>
               <div className="text-xl font-display font-black text-primary mb-3">
                 <SiteLogo size="lg" />
@@ -112,7 +137,6 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
               </p>
             </div>
 
-            {/* About Column */}
             <div>
               <h3 className="text-sm font-semibold mb-3">About</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -121,7 +145,6 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
               </ul>
             </div>
 
-            {/* Support Column */}
             <div>
               <h3 className="text-sm font-semibold mb-3">Support</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -130,7 +153,6 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
               </ul>
             </div>
 
-            {/* Social Media Column */}
             <div>
               <h3 className="text-sm font-semibold mb-3">Social media</h3>
               <div className="flex gap-2">

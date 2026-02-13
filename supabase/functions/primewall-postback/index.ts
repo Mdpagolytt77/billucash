@@ -138,15 +138,14 @@ serve(async (req) => {
       params.get('uid') || params.get('subid') || params.get('sub_id') || params.get('subId')
     );
 
-    // Priority: reward/points (coin amount) > payout (USD amount)
+    // Priority: amount/reward/points (coin amount) > payout (USD amount)
     const rewardRaw = unwrapToken(
-      params.get('reward') || params.get('points') || params.get('earnings') ||
+      params.get('amount') || params.get('reward') || params.get('points') || params.get('earnings') ||
       params.get('virtual_currency') || params.get('vc_amount') || params.get('user_amount')
     );
     
     const payoutUsdRaw = unwrapToken(
-      params.get('payout') || params.get('PAYOUT') || params.get('amount') ||
-      params.get('currency')
+      params.get('payout') || params.get('PAYOUT') || params.get('currency')
     );
     
     // Use reward (coins) if available, otherwise use payout directly as coins (no conversion)
@@ -154,7 +153,7 @@ serve(async (req) => {
 
     const transactionId = unwrapToken(
       params.get('transaction_id') || params.get('TRANSACTION_ID') || params.get('transId') ||
-      params.get('txid') || params.get('tx_id') || params.get('offer_id') || params.get('id')
+      params.get('trx') || params.get('txid') || params.get('tx_id') || params.get('offer_id') || params.get('id')
     );
 
     let offerName = unwrapToken(
@@ -163,10 +162,14 @@ serve(async (req) => {
     ) || 'PrimeWall Offer';
 
     const country = unwrapToken(params.get('country') || params.get('COUNTRY') || params.get('geo')) || 'Unknown';
+    const status = params.get('status') || '';
+    const eventName = params.get('event_name') || '';
+    const eventId = params.get('event_id') || '';
+    const userIp = params.get('ip') || params.get('userip') || clientIp;
     const signature = unwrapToken(params.get('signature') || params.get('sig') || params.get('hash'));
     const apiKey = params.get('api_key') || params.get('apikey') || req.headers.get('x-api-key');
 
-    console.log('Parameters extracted:', { userId: !!userId, payout: !!payoutRaw, transactionId: !!transactionId });
+    console.log('Parameters extracted:', { userId: !!userId, payout: !!payoutRaw, transactionId: !!transactionId, status, eventName, eventId });
 
     // Validate required parameters
     if (!userId || !payoutRaw) {
@@ -301,7 +304,7 @@ serve(async (req) => {
         offer_name: offerName,
         coin: Math.round(payoutAmount),
         transaction_id: transactionId || `primewall_${Date.now()}`,
-        ip: clientIp,
+        ip: userIp,
         country: country,
       });
 

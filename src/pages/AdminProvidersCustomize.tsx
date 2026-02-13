@@ -20,7 +20,7 @@ interface ProviderLogo {
 const AdminProvidersCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
-  const { background: siteBackground } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const [providerLogos, setProviderLogos] = useState<ProviderLogo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -142,7 +142,7 @@ const AdminProvidersCustomize = () => {
   }
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
+    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
       {/* Header */}
       <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">

@@ -1,12 +1,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode, forwardRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface BackgroundSettings {
+export interface BackgroundSettings {
   type: 'default' | 'color' | 'gradient' | 'image';
   color: string;
   gradient: string;
   imageUrl: string;
   overlay: number;
+}
+
+export interface PageBackgrounds {
+  homepage: BackgroundSettings;
+  dashboard: BackgroundSettings;
+  admin: BackgroundSettings;
 }
 
 interface HomepageImages {
@@ -21,7 +27,7 @@ interface SiteSettings {
   logoText: string;
   logoImageUrl: string | null;
   coinIconUrl: string | null;
-  background: BackgroundSettings;
+  backgrounds: PageBackgrounds;
   homepageImages: HomepageImages;
   isLoading: boolean;
   refreshSettings: () => Promise<void>;
@@ -29,10 +35,16 @@ interface SiteSettings {
 
 const defaultBackground: BackgroundSettings = {
   type: 'default',
-  color: '#0f1220',
+  color: '#0a0a0a',
   gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
   imageUrl: '',
-  overlay: 85,
+  overlay: 75,
+};
+
+const defaultBackgrounds: PageBackgrounds = {
+  homepage: { ...defaultBackground },
+  dashboard: { ...defaultBackground },
+  admin: { ...defaultBackground },
 };
 
 const defaultHomepageImages: HomepageImages = {
@@ -57,9 +69,26 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [logoText, setLogoText] = useState('WALLSCASH');
   const [logoImageUrl, setLogoImageUrl] = useState<string | null>(null);
   const [coinIconUrl, setCoinIconUrl] = useState<string | null>(null);
-  const [background, setBackground] = useState<BackgroundSettings>(defaultBackground);
+  const [backgrounds, setBackgrounds] = useState<PageBackgrounds>(defaultBackgrounds);
   const [homepageImages, setHomepageImages] = useState<HomepageImages>(defaultHomepageImages);
   const [isLoading, setIsLoading] = useState(true);
+
+  const parseBackgrounds = (bgSettings: any): PageBackgrounds => {
+    // Support new per-page format: { homepage: {...}, dashboard: {...}, admin: {...} }
+    if (bgSettings && bgSettings.homepage) {
+      return {
+        homepage: { ...defaultBackground, ...bgSettings.homepage },
+        dashboard: { ...defaultBackground, ...bgSettings.dashboard },
+        admin: { ...defaultBackground, ...bgSettings.admin },
+      };
+    }
+    // Legacy single background format: { type, color, gradient, imageUrl, overlay }
+    if (bgSettings && bgSettings.type) {
+      const legacy = { ...defaultBackground, ...bgSettings };
+      return { homepage: legacy, dashboard: legacy, admin: legacy };
+    }
+    return defaultBackgrounds;
+  };
 
   const loadSettings = async () => {
     try {
@@ -77,7 +106,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         if (settings.logo_image_url) setLogoImageUrl(settings.logo_image_url);
         setCoinIconUrl(settings.coin_icon_url || null);
         if (settings.background_settings && typeof settings.background_settings === 'object') {
-          setBackground(prev => ({ ...prev, ...(settings.background_settings as unknown as BackgroundSettings) }));
+          setBackgrounds(parseBackgrounds(settings.background_settings));
         }
         if (settings.homepage_images && typeof settings.homepage_images === 'object') {
           setHomepageImages(prev => ({ ...prev, ...(settings.homepage_images as unknown as HomepageImages) }));
@@ -93,7 +122,6 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     loadSettings();
 
-    // Subscribe to real-time changes
     const channel = supabase
       .channel('site-settings-changes')
       .on(
@@ -111,7 +139,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
           setLogoImageUrl(newData.logo_image_url || null);
           setCoinIconUrl(newData.coin_icon_url || null);
           if (newData.background_settings && typeof newData.background_settings === 'object') {
-            setBackground(prev => ({ ...prev, ...newData.background_settings }));
+            setBackgrounds(parseBackgrounds(newData.background_settings));
           }
           if (newData.homepage_images && typeof newData.homepage_images === 'object') {
             setHomepageImages(prev => ({ ...prev, ...newData.homepage_images }));
@@ -131,7 +159,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
       logoText,
       logoImageUrl,
       coinIconUrl,
-      background,
+      backgrounds,
       homepageImages,
       isLoading,
       refreshSettings: loadSettings,
@@ -178,12 +206,12 @@ export const SiteLogo = forwardRef<HTMLSpanElement, { className?: string; size?:
 SiteLogo.displayName = 'SiteLogo';
 
 // Helper function for background style (returns CSS properties)
-export const getBackgroundStyle = (background: BackgroundSettings, heroBgUrl?: string) => {
+export const getBackgroundStyle = (background: BackgroundSettings, fallbackImageUrl?: string) => {
   const overlayOpacity = background.overlay / 100;
   
-  if (background.type === 'default' && heroBgUrl) {
+  if (background.type === 'default' && fallbackImageUrl) {
     return {
-      background: `linear-gradient(rgba(0,0,0,${overlayOpacity}), rgba(0,0,0,${overlayOpacity})), url(${heroBgUrl}) no-repeat center center fixed`,
+      background: `linear-gradient(rgba(0,0,0,${overlayOpacity}), rgba(0,0,0,${overlayOpacity})), url(${fallbackImageUrl}) no-repeat center center fixed`,
       backgroundSize: 'cover' as const,
     };
   }
@@ -203,5 +231,5 @@ export const getBackgroundStyle = (background: BackgroundSettings, heroBgUrl?: s
     };
   }
   
-  return { backgroundColor: '#0f1220' };
+  return { backgroundColor: '#0a0a0a' };
 };

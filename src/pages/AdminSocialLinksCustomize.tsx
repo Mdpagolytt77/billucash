@@ -35,7 +35,7 @@ const AdminSocialLinksCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
-  const { background: siteBackground } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -136,7 +136,7 @@ const AdminSocialLinksCustomize = () => {
   }
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
+    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

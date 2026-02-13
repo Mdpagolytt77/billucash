@@ -16,7 +16,7 @@ import signupIllustrationDefault from '@/assets/signup-illustration.png';
 const Signup = () => {
   const navigate = useNavigate();
   const { user, signUp, isLoading: authLoading } = useAuth();
-  const { background, homepageImages } = useSiteSettings();
+  const { backgrounds, homepageImages } = useSiteSettings();
   const signupIllustration = homepageImages.signupIllustration || signupIllustrationDefault;
   const { playSignupSound } = useSoundContext();
   const [isLoading, setIsLoading] = useState(true);
@@ -153,7 +153,7 @@ const Signup = () => {
     return <LoadingScreen isLoading={true} />;
   }
 
-  const backgroundStyle = getBackgroundStyle(background, heroBg);
+  const backgroundStyle = getBackgroundStyle(backgrounds.homepage, heroBg);
 
   return (
     <>

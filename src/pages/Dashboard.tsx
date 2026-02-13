@@ -9,7 +9,6 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardStatsSection from '@/components/dashboard/DashboardStatsSection';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
@@ -352,9 +351,6 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <main className="px-3 md:px-[5%] py-4">
-          {/* Stats Section */}
-          <DashboardStatsSection />
-
           {/* Featured Offers */}
           <FeaturedOffersSection onOfferClick={handleOfferClick} />
 

@@ -9,12 +9,20 @@ interface BackgroundSettings {
   overlay: number;
 }
 
+interface HomepageImages {
+  heroIllustration: string;
+  statsIllustration: string;
+  howItWorksIllustration: string;
+  signupIllustration: string;
+}
+
 interface SiteSettings {
   logoType: 'text' | 'image';
   logoText: string;
   logoImageUrl: string | null;
   coinIconUrl: string | null;
   background: BackgroundSettings;
+  homepageImages: HomepageImages;
   isLoading: boolean;
   refreshSettings: () => Promise<void>;
 }
@@ -25,6 +33,13 @@ const defaultBackground: BackgroundSettings = {
   gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
   imageUrl: '',
   overlay: 85,
+};
+
+const defaultHomepageImages: HomepageImages = {
+  heroIllustration: '',
+  statsIllustration: '',
+  howItWorksIllustration: '',
+  signupIllustration: '',
 };
 
 const SiteSettingsContext = createContext<SiteSettings | undefined>(undefined);
@@ -43,6 +58,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [logoImageUrl, setLogoImageUrl] = useState<string | null>(null);
   const [coinIconUrl, setCoinIconUrl] = useState<string | null>(null);
   const [background, setBackground] = useState<BackgroundSettings>(defaultBackground);
+  const [homepageImages, setHomepageImages] = useState<HomepageImages>(defaultHomepageImages);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadSettings = async () => {
@@ -62,6 +78,9 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         setCoinIconUrl(settings.coin_icon_url || null);
         if (settings.background_settings && typeof settings.background_settings === 'object') {
           setBackground(prev => ({ ...prev, ...(settings.background_settings as unknown as BackgroundSettings) }));
+        }
+        if (settings.homepage_images && typeof settings.homepage_images === 'object') {
+          setHomepageImages(prev => ({ ...prev, ...(settings.homepage_images as unknown as HomepageImages) }));
         }
       }
     } catch (err) {
@@ -94,6 +113,9 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
           if (newData.background_settings && typeof newData.background_settings === 'object') {
             setBackground(prev => ({ ...prev, ...newData.background_settings }));
           }
+          if (newData.homepage_images && typeof newData.homepage_images === 'object') {
+            setHomepageImages(prev => ({ ...prev, ...newData.homepage_images }));
+          }
         }
       )
       .subscribe();
@@ -110,6 +132,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
       logoImageUrl,
       coinIconUrl,
       background,
+      homepageImages,
       isLoading,
       refreshSettings: loadSettings,
     }}>

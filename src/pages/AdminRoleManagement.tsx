@@ -38,7 +38,7 @@ const AdminRoleManagement = () => {
   const isReadOnly = isModerator && !isAdmin;
   const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
-  const { background: siteBackground } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -217,7 +217,7 @@ const AdminRoleManagement = () => {
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
+      <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
         <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg">

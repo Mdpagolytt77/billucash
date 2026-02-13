@@ -62,7 +62,7 @@ const AdminPanel = () => {
   const canAccess = isAdmin || isModerator;
   const navigate = useNavigate();
   const { snowEnabled, toggleSnow } = useSnowEffect();
-  const { background: siteBackground } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
@@ -287,7 +287,7 @@ const AdminPanel = () => {
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="min-h-screen" style={getBackgroundStyle(siteBackground, pageBg)}>
+      <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, pageBg)}>
         <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg"><Menu className="w-4 h-4" /></button>

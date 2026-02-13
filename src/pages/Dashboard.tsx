@@ -47,7 +47,7 @@ interface Notification {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile, isAdmin, signOut, isLoading, onBalanceIncrease } = useAuth();
-  const { background } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const { playBalanceSound } = useSoundContext();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
@@ -195,7 +195,7 @@ const Dashboard = () => {
     popupAnimation: w.popupAnimation,
   }));
 
-  const bgStyle = getBackgroundStyle(background, pageBg);
+  const bgStyle = getBackgroundStyle(backgrounds.dashboard, pageBg);
 
   if (isLoading || showLoadingScreen) {
     return <LoadingScreen isLoading={true} />;

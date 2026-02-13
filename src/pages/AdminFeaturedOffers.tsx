@@ -25,7 +25,7 @@ interface FeaturedOffer {
 
 const AdminFeaturedOffers = () => {
   const navigate = useNavigate();
-  const { background: siteBackground } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const [offers, setOffers] = useState<FeaturedOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -164,7 +164,7 @@ const AdminFeaturedOffers = () => {
   };
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
+    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="p-4 md:p-6">

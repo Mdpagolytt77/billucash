@@ -27,7 +27,7 @@ const AdminLiveTrackerCustomize = () => {
   const canAccess = isAdmin || isModerator;
   const navigate = useNavigate();
   const { snowEnabled, toggleSnow } = useSnowEffect();
-  const { background: siteBackground } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<TrackerSettings>({
     enabled: true,
@@ -112,7 +112,7 @@ const AdminLiveTrackerCustomize = () => {
 
       <div 
         className="min-h-screen"
-        style={getBackgroundStyle(siteBackground, heroBg)}
+        style={getBackgroundStyle(backgrounds.admin, heroBg)}
       >
         {/* Header */}
         <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">

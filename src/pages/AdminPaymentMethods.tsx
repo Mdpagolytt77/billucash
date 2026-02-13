@@ -53,7 +53,7 @@ const gradientOptions = [
 
 const AdminPaymentMethods = () => {
   const navigate = useNavigate();
-  const { background: siteBackground } = useSiteSettings();
+  const { backgrounds } = useSiteSettings();
   const { user, isLoading: authLoading, isAdmin: authIsAdmin, isModerator } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const canAccess = authIsAdmin || isModerator;
@@ -236,7 +236,7 @@ const AdminPaymentMethods = () => {
   const cashMethods = methods.filter(m => m.category === 'cash');
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(siteBackground, heroBg)}>
+    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       {/* Header */}

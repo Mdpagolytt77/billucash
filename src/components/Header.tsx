@@ -34,9 +34,9 @@ const Header = ({ onLoginClick }: HeaderProps) => {
           </SheetContent>
         </Sheet>
         
-        {/* Logo in header */}
-        <Link to="/">
-          <SiteLogo size="sm" />
+        {/* Logo in header - Larger */}
+        <Link to="/" className="flex items-center">
+          <SiteLogo size="lg" />
         </Link>
       </div>
       

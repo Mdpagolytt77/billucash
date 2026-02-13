@@ -164,7 +164,7 @@ export const SiteLogo = forwardRef<HTMLSpanElement, { className?: string; size?:
     const sizeClasses = {
       sm: 'text-sm max-h-6',
       md: 'text-lg max-h-8',
-      lg: 'text-2xl max-h-12',
+      lg: 'text-4xl max-h-16',
     };
 
     if (logoType === 'image' && logoImageUrl) {

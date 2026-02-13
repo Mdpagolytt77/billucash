@@ -10,7 +10,7 @@ const StatsSection = () => {
       <div className="bg-muted rounded-2xl p-6 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-orange-400 via-blue-400 to-blue-600" />
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-primary/30 via-accent/20 to-secondary/30" />
         </div>
         
         <div className="relative flex flex-col md:flex-row items-center gap-6">

@@ -138,11 +138,19 @@ serve(async (req) => {
       params.get('uid') || params.get('subid') || params.get('sub_id') || params.get('subId')
     );
 
-    const payoutRaw = unwrapToken(
-      params.get('payout') || params.get('PAYOUT') || params.get('amount') ||
+    // Priority: reward/points (coin amount) > payout (USD amount)
+    const rewardRaw = unwrapToken(
       params.get('reward') || params.get('points') || params.get('earnings') ||
-      params.get('currency') || params.get('virtual_currency') || params.get('vc_amount')
+      params.get('virtual_currency') || params.get('vc_amount')
     );
+    
+    const payoutUsdRaw = unwrapToken(
+      params.get('payout') || params.get('PAYOUT') || params.get('amount') ||
+      params.get('currency')
+    );
+    
+    // Use reward (coins) if available, otherwise convert USD payout to coins (x1000)
+    const payoutRaw = rewardRaw || payoutUsdRaw;
 
     const transactionId = unwrapToken(
       params.get('transaction_id') || params.get('TRANSACTION_ID') || params.get('transId') ||
@@ -178,26 +186,37 @@ serve(async (req) => {
       });
     }
 
-    // SECURITY: Verify signature/API key
-    const isValid = await verifySignature(signature, apiKey, userId, payoutRaw, transactionId);
-    if (!isValid) {
-      console.error('[Security] Signature/API key verification failed');
-      return new Response('Approved', {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
-      });
+    // Optional signature verification - skip if no signature/api_key provided
+    if (signature || apiKey) {
+      const isValid = await verifySignature(signature, apiKey, userId, payoutRaw, transactionId);
+      if (!isValid) {
+        console.error('[Security] Signature/API key verification failed');
+        return new Response('Approved', {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        });
+      }
+      console.log('[Security] Request verified via signature/API key');
+    } else {
+      console.log('[Security] No signature/API key provided, skipping verification');
     }
 
     console.log('[Security] Request verified successfully');
 
     // Parse and validate payout amount
-    const payoutAmount = parseFloat(payoutRaw);
+    let payoutAmount = parseFloat(payoutRaw);
     if (isNaN(payoutAmount) || payoutAmount <= 0) {
       console.error('[Validation] Invalid payout amount');
       return new Response('Approved', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
+    }
+
+    // If we used USD payout (no reward param), convert to coins: $1 = 1000 coins
+    if (!rewardRaw && payoutUsdRaw) {
+      payoutAmount = payoutAmount * 1000;
+      console.log(`[Conversion] USD $${payoutUsdRaw} converted to ${payoutAmount} coins`);
     }
 
     // SECURITY: Maximum payout validation

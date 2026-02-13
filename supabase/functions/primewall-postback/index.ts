@@ -216,6 +216,12 @@ serve(async (req) => {
       });
     }
 
+    // Handle chargeback: status=2 means subtract (reversal)
+    const isChargeback = status === '2';
+    if (isChargeback) {
+      console.log(`[Chargeback] Status=2 detected, will subtract ${payoutAmount} coins from user ${userId}`);
+    }
+
     // Log which parameter was used
     if (rewardRaw) {
       console.log(`[Info] Using reward/points param: ${rewardRaw} coins`);
@@ -278,10 +284,11 @@ serve(async (req) => {
 
     const username = profile.username || 'Unknown';
 
-    // Update user balance
+    // Update user balance (subtract for chargeback)
+    const balanceChange = isChargeback ? -payoutAmount : payoutAmount;
     const { error: balanceError } = await supabase.rpc('increment_balance', {
       user_id_input: userId,
-      amount_input: payoutAmount,
+      amount_input: balanceChange,
     });
 
     if (balanceError) {
@@ -292,17 +299,17 @@ serve(async (req) => {
       });
     }
 
-    console.log('Balance updated successfully');
+    console.log(`Balance ${isChargeback ? 'subtracted' : 'added'} successfully: ${Math.abs(balanceChange)} coins`);
 
-    // Record the completed offer
+    // Record the completed offer (negative coins for chargeback)
     const { error: offerError } = await supabase
       .from('completed_offers')
       .insert({
         user_id: userId,
         username: username,
         offerwall: 'PrimeWall',
-        offer_name: offerName,
-        coin: Math.round(payoutAmount),
+        offer_name: isChargeback ? `[Chargeback] ${offerName}` : offerName,
+        coin: isChargeback ? -Math.round(payoutAmount) : Math.round(payoutAmount),
         transaction_id: transactionId || `primewall_${Date.now()}`,
         ip: userIp,
         country: country,

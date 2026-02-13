@@ -12,7 +12,7 @@ const PRIMEWALL_SECRET_KEY = Deno.env.get('PRIMEWALL_SECRET_KEY');
 const PRIMEWALL_PUBLIC_KEY = Deno.env.get('PRIMEWALL_PUBLIC_KEY');
 
 // Security limits
-const MAX_PAYOUT = 1000; // Maximum $1000 per transaction
+const MAX_PAYOUT = 10000000; // Maximum 10M coins per transaction
 const MAX_OFFER_NAME_LENGTH = 200;
 
 // Helper to convert bytes to hex string
@@ -141,7 +141,7 @@ serve(async (req) => {
     // Priority: reward/points (coin amount) > payout (USD amount)
     const rewardRaw = unwrapToken(
       params.get('reward') || params.get('points') || params.get('earnings') ||
-      params.get('virtual_currency') || params.get('vc_amount')
+      params.get('virtual_currency') || params.get('vc_amount') || params.get('user_amount')
     );
     
     const payoutUsdRaw = unwrapToken(
@@ -149,7 +149,7 @@ serve(async (req) => {
       params.get('currency')
     );
     
-    // Use reward (coins) if available, otherwise convert USD payout to coins (x1000)
+    // Use reward (coins) if available, otherwise use payout directly as coins (no conversion)
     const payoutRaw = rewardRaw || payoutUsdRaw;
 
     const transactionId = unwrapToken(
@@ -213,10 +213,11 @@ serve(async (req) => {
       });
     }
 
-    // If we used USD payout (no reward param), convert to coins: $1 = 1000 coins
-    if (!rewardRaw && payoutUsdRaw) {
-      payoutAmount = payoutAmount * 1000;
-      console.log(`[Conversion] USD $${payoutUsdRaw} converted to ${payoutAmount} coins`);
+    // Log which parameter was used
+    if (rewardRaw) {
+      console.log(`[Info] Using reward/points param: ${rewardRaw} coins`);
+    } else if (payoutUsdRaw) {
+      console.log(`[Info] Using payout param directly as coins: ${payoutUsdRaw}`);
     }
 
     // SECURITY: Maximum payout validation

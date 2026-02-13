@@ -126,10 +126,11 @@ serve(async (req) => {
 
     const looksLikePlaceholder = (value: string | null) => {
       if (!value) return false;
-      const v = value.toLowerCase();
+      const v = value.toLowerCase().trim();
       return v.includes('user_id') || v.includes('userid') || v.includes('subid') ||
              v.includes('payout') || v.includes('reward') || v.includes('amount') ||
-             v.includes('{') || v.includes('}');
+             v.includes('signature') || v.includes('transid') || v.includes('offerName') ||
+             v.includes('{') || v.includes('}') || v.includes('[') || v.includes(']');
     };
 
     // Extract parameters
@@ -166,8 +167,14 @@ serve(async (req) => {
     const eventName = params.get('event_name') || '';
     const eventId = params.get('event_id') || '';
     const userIp = params.get('ip') || params.get('userip') || clientIp;
-    const signature = unwrapToken(params.get('signature') || params.get('sig') || params.get('hash'));
+    let signature = unwrapToken(params.get('signature') || params.get('sig') || params.get('hash'));
     const apiKey = params.get('api_key') || params.get('apikey') || req.headers.get('x-api-key');
+
+    // Skip placeholder signatures (e.g., "{signature}", "signature", etc.)
+    if (signature && looksLikePlaceholder(signature)) {
+      console.log('[Security] Signature looks like a placeholder, ignoring');
+      signature = null;
+    }
 
     console.log('Parameters extracted:', { userId: !!userId, payout: !!payoutRaw, transactionId: !!transactionId, status, eventName, eventId });
 

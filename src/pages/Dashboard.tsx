@@ -295,7 +295,8 @@ const Dashboard = () => {
                           className="w-full rounded-xl border-0"
                           style={{ height: iframeHeight }}
                           title={selectedOfferwall.name}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-top-navigation allow-top-navigation-by-user-activation"
                           allowFullScreen
                         />
                       ) : (

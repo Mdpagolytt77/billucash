@@ -100,54 +100,42 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               popupHeight: partner.popupHeight,
               popupAnimation: partner.popupAnimation,
             })}
-            className="flex-shrink-0 w-[130px] cursor-pointer group perspective-[800px]"
+            className="flex-shrink-0 w-[155px] cursor-pointer group"
           >
-            {/* Card - Larger 3D portrait design */}
+            {/* Card - Clean gradient portrait */}
             <div 
-              className={`relative w-full h-[175px] rounded-2xl overflow-hidden border transition-all duration-500 transform group-hover:scale-[1.08] group-hover:-translate-y-2 group-hover:rotate-y-3 flex flex-col items-center justify-center p-3 ${
-                isPremium ? 'border-transparent' : 'border-white/10'
-              }`}
-              style={getGradientStyle(partner.color, isPremium)}
+              className="relative w-full h-[190px] rounded-3xl overflow-hidden transition-all duration-400 transform group-hover:scale-[1.05] group-hover:-translate-y-1 flex items-center justify-center"
+              style={{
+                background: `linear-gradient(165deg, ${partner.color}ee, ${partner.color}88 50%, ${partner.color}44)`,
+                boxShadow: `0 8px 24px -6px ${partner.color}55, 0 4px 12px rgba(0,0,0,0.4)`,
+              }}
             >
-              {/* Top glow light effect */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-white/15 blur-2xl rounded-full" />
-              
               {/* Badge */}
               {partner.badge && (
-                <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-md text-[9px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
+                <div className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
                   {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
                   {partner.badge.text}
                 </div>
               )}
-              
-              {/* Shine sweep effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              {/* Bottom shadow for 3D depth */}
-              <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
-              
-              {/* Logo - larger and centered */}
-              <div className="flex items-center justify-center mb-3 relative z-10">
-                {partner.logoUrl ? (
-                  <img 
-                    src={partner.logoUrl} 
-                    alt={partner.name}
-                    className="w-16 h-16 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/25 shadow-lg">
-                    <span className="text-xl font-bold text-white drop-shadow-lg">
-                      {partner.name.substring(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Name */}
-              <h4 className="text-xs font-bold text-center text-white truncate w-full px-1 relative z-10 drop-shadow-md">{partner.name}</h4>
-              
-              {/* Rating */}
-              <div className="flex justify-center mt-1.5 relative z-10">
+
+              {/* Logo centered */}
+              {partner.logoUrl ? (
+                <img 
+                  src={partner.logoUrl} 
+                  alt={partner.name}
+                  className="w-20 h-20 object-contain drop-shadow-[0_4px_15px_rgba(0,0,0,0.4)]"
+                />
+              ) : (
+                <span className="text-2xl font-black text-white drop-shadow-lg tracking-wide">
+                  {partner.name}
+                </span>
+              )}
+            </div>
+
+            {/* Name & Rating below card */}
+            <div className="mt-2 text-center px-1">
+              <h4 className="text-xs font-bold text-foreground truncate">{partner.name}</h4>
+              <div className="flex justify-center mt-1">
                 {renderStars(partner.rating)}
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Flame, ChevronRight } from 'lucide-react';
+import { Sparkles, Play } from 'lucide-react';
 import { CoinIcon } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -83,15 +83,13 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     return (
       <section className="mb-6">
         <div className="flex items-center gap-2 mb-3 px-1">
-          <Flame className="w-5 h-5 text-orange-500" />
-          <h3 className="font-display font-bold text-lg">Featured Offers</h3>
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h3 className="font-display font-bold text-lg">Featured Partners</h3>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex-shrink-0 w-32 animate-pulse">
-              <div className="w-full aspect-[3/4] rounded-2xl bg-muted mb-2" />
-              <div className="h-3 bg-muted rounded w-3/4 mb-1" />
-              <div className="h-2 bg-muted rounded w-1/2" />
+        <div className="grid grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="animate-pulse">
+              <div className="w-full h-28 rounded-2xl bg-muted" />
             </div>
           ))}
         </div>
@@ -101,70 +99,58 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   return (
     <section className="mb-8">
-      <div className="flex items-center justify-between mb-4 px-1">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
-            <Flame className="w-4 h-4 text-white" />
-          </div>
-          <h3 className="font-display font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Featured Offers</h3>
+      <div className="flex items-center gap-2 mb-4 px-1">
+        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
+          <Sparkles className="w-4 h-4 text-white" />
         </div>
-        <button className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors">
-          View All <ChevronRight className="w-4 h-4" />
-        </button>
+        <h3 className="font-display font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Featured Partners</h3>
       </div>
       
-      <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+      <div className="grid grid-cols-2 gap-3">
         {displayOffers.map((offer) => (
           <div
             key={offer.id}
             onClick={() => handleOfferClick(offer)}
-            className="flex-shrink-0 w-32 cursor-pointer group"
+            className="relative cursor-pointer group rounded-2xl overflow-hidden h-28 sm:h-32 border border-primary/10 group-hover:border-primary/30 transition-all duration-300"
+            style={{ 
+              background: offer.image_url 
+                ? undefined 
+                : `linear-gradient(135deg, ${offer.color || '#1a1a2e'}, ${offer.color || '#1a1a2e'}88)`,
+            }}
           >
-            {/* Card Image - 3D Effect */}
-            <div 
-              className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden mb-2 transform group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 shadow-xl group-hover:shadow-2xl group-hover:shadow-primary/20"
-              style={{ 
-                background: `linear-gradient(145deg, ${offer.color || '#1a1a2e'}ee, ${offer.color || '#1a1a2e'}99, ${offer.color || '#1a1a2e'}66)`,
-                boxShadow: `0 10px 30px -10px ${offer.color || '#1a1a2e'}66, 0 5px 15px -5px rgba(0,0,0,0.4)`
-              }}
-            >
-              {offer.image_url ? (
-                <img 
-                  src={offer.image_url} 
-                  alt={offer.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              ) : (
-                <>
-                  {/* Decorative elements */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-lg">
-                      <span className="text-3xl">🎮</span>
-                    </div>
-                  </div>
-                </>
-              )}
-              
-              {/* Top badge */}
-              <div className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/10">
-                <span className="text-xs">📱</span>
+            {/* Background image */}
+            {offer.image_url && (
+              <img 
+                src={offer.image_url} 
+                alt={offer.name}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+            
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+            
+            {/* Content */}
+            <div className="relative z-10 h-full flex flex-col justify-end p-3">
+              {/* Logo/Name at top */}
+              <div className="absolute top-2.5 left-3">
+                <span className="text-xs font-bold text-white/90 drop-shadow-md">{offer.name}</span>
               </div>
               
-              {/* Bottom gradient overlay */}
-              <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
+              <div>
+                <p className="text-sm sm:text-base font-extrabold text-white drop-shadow-lg leading-tight">
+                  EARN UP TO {offer.coins.toLocaleString()}
+                  <span className="ml-1 inline-flex"><CoinIcon className="w-3.5 h-3.5 inline" /></span>
+                </p>
+                <p className="text-[10px] text-white/70 font-medium tracking-wide mt-0.5">
+                  {offer.description || 'SIMPLE, FAST, REAL'}
+                </p>
+              </div>
             </div>
-            
-            {/* Info */}
-            <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">{offer.name}</h4>
-            <p className="text-[10px] text-muted-foreground truncate mb-1.5">{offer.description}</p>
-            
-            {/* Coins - 3D Badge */}
-            <div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 shadow-md">
-              <CoinIcon className="w-3.5 h-3.5" />
-              <span className="text-xs font-bold text-primary">
-                {offer.coins.toLocaleString()}
-              </span>
+
+            {/* Play button */}
+            <div className="absolute right-3 bottom-3 z-10 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/40 group-hover:scale-110 transition-transform">
+              <Play className="w-4 h-4 text-white fill-white ml-0.5" />
             </div>
           </div>
         ))}

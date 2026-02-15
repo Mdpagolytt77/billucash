@@ -105,10 +105,17 @@ serve(async (req) => {
       });
     }
 
-    // SECURITY: Signature Verification (if secret key is configured)
-    if (NOTIK_SECRET_KEY && incomingHash) {
+    // SECURITY: Signature Verification (mandatory when secret key is configured)
+    if (NOTIK_SECRET_KEY) {
+      if (!incomingHash) {
+        console.error('[Security] Missing signature - rejecting request');
+        return new Response('SIGNATURE_MISMATCH', {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        });
+      }
+
       // Notik typically uses: MD5 or SHA256 of user_id + payout + secret_key
-      // Try multiple signature formats
       const signatureFormats = [
         `${userId}${payout}${NOTIK_SECRET_KEY}`,
         `${userId}${txid}${payout}${NOTIK_SECRET_KEY}`,
@@ -118,29 +125,27 @@ serve(async (req) => {
       let signatureValid = false;
 
       for (const format of signatureFormats) {
-        // Try SHA256 (primary)
         const sha256Expected = await sha256Hash(format);
         if (sha256Expected.toLowerCase() === incomingHash.toLowerCase()) {
           signatureValid = true;
           console.log('[Security] SHA256 signature verification passed');
           break;
         }
-
-        // Try SHA256 variant 2
-        const sha256Expected2 = await sha256Hash2(format);
-        if (sha256Expected2.toLowerCase() === incomingHash.toLowerCase()) {
-          signatureValid = true;
-          console.log('[Security] SHA256-2 signature verification passed');
-          break;
-        }
       }
 
       if (!signatureValid) {
-        console.warn('[Security] Signature verification failed, but proceeding (check signature format with Notik)');
-        // Don't reject - just log warning. Some networks have different signature formats
+        console.error('[Security] Signature verification failed - rejecting request');
+        return new Response('SIGNATURE_MISMATCH', {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        });
       }
-    } else if (!incomingHash) {
-      console.log('[Security] No signature provided, skipping verification');
+    } else {
+      console.error('[Security] NOTIK_SECRET_KEY not configured - rejecting request');
+      return new Response('CONFIG_ERROR', {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
     }
 
     // Parse payout (can be negative for rejections)

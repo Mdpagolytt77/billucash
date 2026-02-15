@@ -196,20 +196,16 @@ serve(async (req) => {
       });
     }
 
-    // Optional signature verification - skip if no signature/api_key provided
-    if (signature || apiKey) {
-      const isValid = await verifySignature(signature, apiKey, userId, payoutRaw, transactionId);
-      if (!isValid) {
-        console.error('[Security] Signature/API key verification failed');
-        return new Response('Approved', {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
-        });
-      }
-      console.log('[Security] Request verified via signature/API key');
-    } else {
-      console.log('[Security] No signature/API key provided, skipping verification');
+    // SECURITY: Signature/API key verification is MANDATORY
+    const isValid = await verifySignature(signature, apiKey, userId, payoutRaw, transactionId);
+    if (!isValid) {
+      console.error('[Security] Signature/API key verification failed - rejecting');
+      return new Response('UNAUTHORIZED', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
     }
+    console.log('[Security] Request verified via signature/API key');
 
     console.log('[Security] Request verified successfully');
 

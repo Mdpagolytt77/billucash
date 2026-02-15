@@ -17,10 +17,12 @@ interface OfferPartnersSectionProps {
   title: string;
   partners: OfferPartner[];
   isPremium?: boolean;
+  cardHeight?: number;
+  cardColumns?: number;
   onPartnerClick: (partner: { name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale' }) => void;
 }
 
-const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerClick }: OfferPartnersSectionProps) => {
+const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight = 280, cardColumns = 5, onPartnerClick }: OfferPartnersSectionProps) => {
   const getBadgeStyle = (type: 'hot' | 'new' | 'bonus') => {
     switch (type) {
       case 'hot':
@@ -93,7 +95,8 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
           </div>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[18px]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-[18px]" style={{ '--lg-cols': cardColumns } as React.CSSProperties} id="offer-grid">
+          <style>{`@media (min-width: 1024px) { #offer-grid { grid-template-columns: repeat(var(--lg-cols), minmax(0, 1fr)) !important; } }`}</style>
           {partners.map((partner, index) => (
             <div
               key={partner.id}
@@ -108,9 +111,9 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               className="cursor-pointer group"
             >
               <div 
-                className="relative w-full overflow-hidden transition-all duration-300 ease-out transform group-hover:scale-[1.05] group-hover:-translate-y-1.5 flex flex-col items-center justify-center p-4"
+                className="relative w-full overflow-hidden transition-all duration-300 ease-out transform group-hover:scale-[1.05] group-hover:-translate-y-1.5 flex flex-col items-center justify-center p-4 max-sm:!h-[160px]"
                 style={{
-                  height: '280px',
+                  height: `${cardHeight}px`,
                   borderRadius: '20px',
                   background: getCardBackground(partner.color, index),
                   border: '1px solid rgba(255,255,255,0.08)',

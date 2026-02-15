@@ -34,7 +34,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
     }
   };
 
-  const partnerGradients = [
+  const defaultGradients = [
     'linear-gradient(135deg, #00C6FF, #0072FF)',
     'linear-gradient(135deg, #1E3A8A, #0F172A)',
     'linear-gradient(135deg, #22D3EE, #0284C7)',
@@ -42,6 +42,14 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
     'linear-gradient(135deg, #2563EB, #1E40AF)',
     'linear-gradient(135deg, #00C6FF, #003566)',
   ];
+
+  const getCardBackground = (color: string, index: number) => {
+    if (color && color !== '#1a1a2e' && color !== '#2bd96f') {
+      // Use admin-set color as a gradient base
+      return `linear-gradient(135deg, ${color}, ${color}cc)`;
+    }
+    return defaultGradients[index % defaultGradients.length];
+  };
 
   const renderStars = (rating: number) => (
     <div className="flex gap-0.5">
@@ -104,7 +112,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
                 style={{
                   height: '190px',
                   borderRadius: '20px',
-                  background: partnerGradients[index % partnerGradients.length],
+                  background: getCardBackground(partner.color, index),
                   border: '1px solid rgba(255,255,255,0.08)',
                 }}
                 onMouseEnter={(e) => {

@@ -9,6 +9,7 @@ interface EarningEvent {
   username: string;
   coins: number;
   offerwall: string;
+  country: string | null;
   created_at: Date;
 }
 
@@ -152,11 +153,12 @@ const LiveEarningsTracker = () => {
       const { data } = await supabase.rpc('get_live_tracker_offers', { limit_count: 20 });
       
       if (data) {
-        setEarnings(data.map((offer: { id: string; username: string; coin: number; offerwall: string; created_at: string }) => ({
+        setEarnings(data.map((offer: { id: string; username: string; coin: number; offerwall: string; country: string | null; created_at: string }) => ({
           id: offer.id,
           username: offer.username,
           coins: offer.coin,
           offerwall: offer.offerwall,
+          country: offer.country || null,
           created_at: new Date(offer.created_at),
         })));
       }
@@ -179,6 +181,7 @@ const LiveEarningsTracker = () => {
             username: string; 
             coin: number; 
             offerwall: string;
+            country: string | null;
             created_at: string; 
           };
           
@@ -187,6 +190,7 @@ const LiveEarningsTracker = () => {
             username: newOffer.username,
             coins: newOffer.coin,
             offerwall: newOffer.offerwall,
+            country: newOffer.country || null,
             created_at: new Date(newOffer.created_at),
           };
           setEarnings(prev => [newEarning, ...prev.slice(0, 19)]);
@@ -369,8 +373,8 @@ const LiveEarningsTracker = () => {
                   onClick={() => handleOfferClick(earning)}
                   className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
                 >
-                  {/* Coin Icon */}
-                  <CoinIcon className="w-6 h-6 flex-shrink-0" />
+                  {/* Country Flag */}
+                  <span className="text-lg flex-shrink-0">{getCountryFlag(earning.country)}</span>
                   {/* Info */}
                   <div className="flex flex-col leading-none">
                     <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">

@@ -9,7 +9,8 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-
+import BottomNavBar from '@/components/dashboard/BottomNavBar';
+import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
@@ -342,9 +343,12 @@ const Dashboard = () => {
             partners={allPartners}
             onPartnerClick={handleOfferClick}
           />
+          <div className="pb-20 md:pb-0" />
         </main>
 
         <Footer />
+        <FloatingChatButton />
+        <BottomNavBar />
       </div>
     </>
   );

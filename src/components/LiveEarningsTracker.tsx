@@ -339,8 +339,8 @@ const LiveEarningsTracker = () => {
       )}
 
       {/* Tracker */}
-      <div className="w-full bg-gradient-to-r from-background via-card/50 to-background border-b border-border/30 overflow-hidden">
-        <div className="flex items-center h-10 px-1">
+      <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
+        <div className="flex items-center h-12 px-1">
           <div 
             ref={scrollRef}
             className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
@@ -363,21 +363,26 @@ const LiveEarningsTracker = () => {
                 <div 
                   key={`${earning.id}-${index}`}
                   onClick={() => handleOfferClick(earning)}
-                  className="flex-shrink-0 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-card/70 border border-border/40 cursor-pointer hover:bg-card hover:border-primary/30 transition-all"
+                  className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
                 >
-                  {/* Info - Username top, Offerwall bottom */}
+                  {/* Avatar */}
+                  <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-[10px] font-bold text-white">
+                      {earning.username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  {/* Info */}
                   <div className="flex flex-col leading-none">
-                    <span className="text-[11px] font-semibold text-foreground">
+                    <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
                       {earning.username}
                     </span>
                     <span className="text-[9px] text-muted-foreground capitalize">
                       {earning.offerwall}
                     </span>
                   </div>
-                  
                   {/* Coins */}
-                  <span className="text-[11px] font-bold text-primary">
-                    +{earning.coins.toLocaleString()}
+                  <span className="text-[11px] font-bold text-yellow-400">
+                    🪙 {earning.coins.toLocaleString()}
                   </span>
                 </div>
               ))}

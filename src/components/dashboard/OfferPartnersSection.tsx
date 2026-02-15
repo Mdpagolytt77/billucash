@@ -100,16 +100,16 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
           >
             {/* Card */}
             <div 
-              className="relative w-full rounded-2xl overflow-hidden transition-all duration-300 transform group-hover:scale-[1.03] group-hover:-translate-y-1 flex flex-col items-center justify-center p-4 py-5 border border-white/10 group-hover:border-white/30"
+              className="relative w-full rounded-2xl overflow-hidden transition-all duration-300 transform group-hover:scale-[1.03] group-hover:-translate-y-1 flex flex-col items-center justify-center p-4 py-5 border border-primary/15 group-hover:border-primary/40"
               style={{
                 background: `linear-gradient(160deg, ${partner.color}33, ${partner.color}15 60%, hsl(var(--background)))`,
-                boxShadow: `0 0 0 1px rgba(255,255,255,0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`,
+                boxShadow: `0 0 0 1px hsl(var(--primary) / 0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 15px 2px rgba(255,255,255,0.1), 0 0 30px 4px ${partner.color}22, 0 4px 20px -4px rgba(0,0,0,0.5)`;
+                e.currentTarget.style.boxShadow = `0 0 15px 2px hsl(var(--primary) / 0.15), 0 0 30px 4px hsl(var(--primary) / 0.08), 0 4px 20px -4px rgba(0,0,0,0.5)`;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 0 1px rgba(255,255,255,0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`;
+                e.currentTarget.style.boxShadow = `0 0 0 1px hsl(var(--primary) / 0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`;
               }}
             >
               {/* Badge */}

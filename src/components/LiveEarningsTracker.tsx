@@ -369,12 +369,8 @@ const LiveEarningsTracker = () => {
                   onClick={() => handleOfferClick(earning)}
                   className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
                 >
-                  {/* Avatar */}
-                  <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-[10px] font-bold text-white">
-                      {earning.username.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  {/* Coin Icon */}
+                  <CoinIcon className="w-6 h-6 flex-shrink-0" />
                   {/* Info */}
                   <div className="flex flex-col leading-none">
                     <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">

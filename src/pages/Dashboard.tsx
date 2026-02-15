@@ -348,7 +348,6 @@ const Dashboard = () => {
 
         <Footer />
         <FloatingChatButton />
-        <BottomNavBar />
       </div>
     </>
   );

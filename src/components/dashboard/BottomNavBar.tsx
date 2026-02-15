@@ -15,7 +15,14 @@ const BottomNavBar = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      <div className="relative flex items-end justify-around px-4 pb-2 pt-3 bg-background/95 backdrop-blur-xl border-t border-border/30">
+      <div 
+        className="relative flex items-end justify-around px-4 pb-2 pt-3 backdrop-blur-xl"
+        style={{
+          height: '65px',
+          background: '#0F172A',
+          borderTop: '1px solid rgba(0,170,255,0.3)',
+        }}
+      >
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
@@ -27,10 +34,16 @@ const BottomNavBar = () => {
                 onClick={() => navigate(item.path)}
                 className="relative -mt-6 flex flex-col items-center"
               >
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/40 hover:scale-110 transition-transform">
+                <div 
+                  className="w-[60px] h-[60px] rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                  style={{
+                    background: 'linear-gradient(135deg, #00C6FF, #0072FF)',
+                    boxShadow: '0 0 25px rgba(0,170,255,0.6)',
+                  }}
+                >
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-[10px] font-semibold text-green-400 mt-1">{item.label}</span>
+                <span className="text-[10px] font-semibold text-[#00C6FF] mt-1">{item.label}</span>
               </button>
             );
           }
@@ -41,8 +54,17 @@ const BottomNavBar = () => {
               onClick={() => navigate(item.path)}
               className="flex flex-col items-center gap-0.5 py-1"
             >
-              <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-              <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
+              <Icon 
+                className="w-5 h-5 transition-colors"
+                style={{ 
+                  color: isActive ? '#00C6FF' : '#A1A1AA',
+                  filter: isActive ? '0 0 10px #00C6FF' : 'none',
+                }} 
+              />
+              <span 
+                className="text-[10px] font-medium transition-colors"
+                style={{ color: isActive ? '#00C6FF' : '#A1A1AA' }}
+              >
                 {item.label}
               </span>
             </button>

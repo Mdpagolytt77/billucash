@@ -36,37 +36,20 @@ const LiveEarningsBar = () => {
 
     const channel = supabase
       .channel('live-bar-earnings')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'completed_offers',
-        },
-        (payload) => {
-          const newOffer = payload.new as { 
-            id: string; 
-            username: string; 
-            coin: number; 
-            offerwall: string;
-            created_at: string; 
-          };
-          
-          const newEarning: EarningEvent = {
-            id: newOffer.id,
-            username: newOffer.username,
-            coins: newOffer.coin,
-            offerwall: newOffer.offerwall,
-            created_at: new Date(newOffer.created_at),
-          };
-          setEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
-        }
-      )
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'completed_offers' }, (payload) => {
+        const newOffer = payload.new as any;
+        const newEarning: EarningEvent = {
+          id: newOffer.id,
+          username: newOffer.username,
+          coins: newOffer.coin,
+          offerwall: newOffer.offerwall,
+          created_at: new Date(newOffer.created_at),
+        };
+        setEarnings(prev => [newEarning, ...prev.slice(0, 9)]);
+      })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   if (earnings.length === 0) return null;
@@ -79,17 +62,6 @@ const LiveEarningsBar = () => {
     return `${Math.floor(seconds / 86400)} days ago`;
   };
 
-  const getAvatarColor = (name: string) => {
-    const colors = [
-      'from-primary to-secondary',
-      'from-green-400 to-emerald-500',
-      'from-orange-400 to-amber-500',
-      'from-pink-400 to-rose-500',
-      'from-purple-400 to-violet-500',
-    ];
-    return colors[name.charCodeAt(0) % colors.length];
-  };
-
   const displayItems = [...earnings, ...earnings];
 
   return (
@@ -98,29 +70,32 @@ const LiveEarningsBar = () => {
         {displayItems.map((earning, index) => (
           <div 
             key={`${earning.id}-${index}`}
-            className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/60 border border-border/50"
+            className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full"
+            style={{
+              background: 'linear-gradient(135deg, #00C6FF, #0072FF)',
+            }}
           >
             {/* Avatar */}
-            <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center`}>
+            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
               <span className="text-[10px] font-bold text-white">
                 {earning.username.charAt(0).toUpperCase()}
               </span>
             </div>
             
             {/* Username */}
-            <span className="text-xs font-medium text-foreground">
+            <span className="text-xs font-medium text-white">
               {earning.username}
             </span>
             
             {/* Time */}
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[10px] text-white/70">
               {getTimeAgo(earning.created_at)}
             </span>
             
             {/* Coins Badge */}
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: '#0B0F19' }}>
               <CoinIcon className="w-3 h-3" />
-              <span className="text-xs font-bold text-primary">
+              <span className="text-xs font-bold text-[#00C6FF]">
                 {earning.coins.toLocaleString()}
               </span>
             </div>

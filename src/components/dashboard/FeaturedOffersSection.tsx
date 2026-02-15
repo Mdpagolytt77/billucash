@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Play } from 'lucide-react';
+import { Sparkles, Play, ChevronRight } from 'lucide-react';
 import { CoinIcon } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -29,9 +29,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
-      if (!error && data) {
-        setOffers(data);
-      }
+      if (!error && data) setOffers(data);
       setLoading(false);
     };
 
@@ -39,33 +37,17 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
     const channel = supabase
       .channel('featured-offers-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'featured_offers',
-        },
-        () => {
-          loadOffers();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'featured_offers' }, () => { loadOffers(); })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const handleOfferClick = (offer: FeaturedOffer) => {
     if (offer.link_url) {
       window.open(offer.link_url, '_blank');
     } else {
-      onOfferClick({ 
-        name: offer.name, 
-        color: offer.color || '#1a1a2e', 
-        iframeUrl: '' 
-      });
+      onOfferClick({ name: offer.name, color: offer.color || '#1a1a2e', iframeUrl: '' });
     }
   };
 
@@ -83,13 +65,13 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     return (
       <section className="mb-6">
         <div className="flex items-center gap-2 mb-3 px-1">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <h3 className="font-display font-bold text-lg">Featured Partners</h3>
+          <Sparkles className="w-5 h-5 text-[#00C6FF]" />
+          <h3 className="font-display font-bold text-lg text-white">Featured Partners</h3>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="w-full h-28 rounded-2xl bg-muted" />
+              <div className="w-full h-28 rounded-[18px] bg-[#111827]" />
             </div>
           ))}
         </div>
@@ -99,61 +81,103 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   return (
     <section className="mb-8">
-      <div className="flex items-center gap-2 mb-4 px-1">
-        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
-          <Sparkles className="w-4 h-4 text-white" />
-        </div>
-        <h3 className="font-display font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Featured Partners</h3>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {displayOffers.map((offer) => (
-          <div
-            key={offer.id}
-            onClick={() => handleOfferClick(offer)}
-            className="relative cursor-pointer group overflow-hidden border border-primary/10 hover:border-primary/30 transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-lg hover:shadow-green-500/10"
-            style={{ 
-              height: '190px',
+      {/* Section Container */}
+      <div 
+        className="p-5"
+        style={{
+          borderRadius: '22px',
+          background: '#0F172A',
+          border: '1px solid rgba(0,170,255,0.25)',
+          boxShadow: '0 0 25px rgba(0,170,255,0.2)',
+        }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #00C6FF, #0072FF)' }}>
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="font-display font-bold text-lg text-white">Featured Partners</h3>
+          </div>
+          <button 
+            className="flex items-center gap-1 text-sm font-semibold transition-all duration-300 px-4 py-1.5 hover:text-white"
+            style={{
+              color: '#00C6FF',
+              border: '1px solid #00C6FF',
               borderRadius: '20px',
-              background: offer.image_url 
-                ? undefined 
-                : `linear-gradient(135deg, ${offer.color || '#1a1a2e'}, ${offer.color || '#1a1a2e'}88)`,
+              background: 'transparent',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#00C6FF'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00C6FF'; }}
           >
-            {/* Background image */}
-            {offer.image_url && (
-              <img 
-                src={offer.image_url} 
-                alt={offer.name}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            )}
-            
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-            
-            {/* Content */}
-            <div className="relative z-10 h-full flex flex-col justify-between p-6">
-              {/* Logo/Name at top */}
-              <span className="text-sm font-bold text-white/90 drop-shadow-md">{offer.name}</span>
+            View All <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+        
+        {/* Horizontal scroll for game cards */}
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+          {displayOffers.map((offer) => (
+            <div
+              key={offer.id}
+              onClick={() => handleOfferClick(offer)}
+              className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300 ease-out hover:scale-[1.04] hover:-translate-y-1"
+              style={{ 
+                width: '150px',
+                height: '190px',
+                borderRadius: '18px',
+                background: '#111827',
+                border: '1px solid rgba(0,170,255,0.2)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 20px rgba(0,170,255,0.4)';
+                e.currentTarget.style.borderColor = '#00C6FF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.borderColor = 'rgba(0,170,255,0.2)';
+              }}
+            >
+              {/* Image area */}
+              <div className="relative h-[110px] overflow-hidden" style={{ borderRadius: '18px 18px 0 0' }}>
+                {offer.image_url ? (
+                  <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${offer.color || '#1a1a2e'}, ${offer.color || '#1a1a2e'}88)` }}>
+                    <span className="text-3xl">🎮</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111827] via-transparent to-transparent" />
+                
+                {/* Reward Badge */}
+                <div 
+                  className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
+                  style={{ background: '#00C6FF' }}
+                >
+                  <CoinIcon className="w-3 h-3 inline mr-0.5" />
+                  {offer.coins.toLocaleString()}
+                </div>
+              </div>
               
-              <div>
-                <p className="text-lg sm:text-xl font-extrabold text-white drop-shadow-lg leading-tight">
-                  EARN UP TO {offer.coins.toLocaleString()}
-                  <span className="ml-1 inline-flex"><CoinIcon className="w-4 h-4 inline" /></span>
+              {/* Info */}
+              <div className="p-3">
+                <h4 className="text-xs font-semibold text-white truncate">{offer.name}</h4>
+                <p className="text-[10px] text-[#A1A1AA] truncate mt-0.5">
+                  {offer.description || 'Complete this offer'}
                 </p>
-                <p className="text-[11px] text-white/70 font-semibold tracking-widest mt-1 uppercase">
-                  {offer.description || 'SIMPLE, FAST, REAL'}
-                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="font-bold text-sm" style={{ color: '#00C6FF' }}>
+                    ${(offer.coins / 100).toFixed(2)}
+                  </p>
+                  <div 
+                    className="w-6 h-6 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(0,170,255,0.15)' }}
+                  >
+                    <Play className="w-3 h-3 text-[#00C6FF] fill-[#00C6FF]" />
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* Play button */}
-            <div className="absolute right-4 bottom-4 z-10 w-[50px] h-[50px] rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/40 group-hover:scale-110 transition-transform">
-              <Play className="w-5 h-5 text-white fill-white ml-0.5" />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -43,13 +43,9 @@ const isoToFlag = (code: string): string => {
 // Country name/code to flag emoji mapping
 const getCountryFlag = (country: string | null): string => {
   if (!country || country === 'Unknown' || country === 'TEST') return '🌍';
-  
-  // If it's a 2-letter ISO code, convert directly
   if (country.length === 2 && /^[A-Za-z]{2}$/.test(country)) {
     return isoToFlag(country);
   }
-
-  // Common country name to ISO code mapping
   const nameToCode: Record<string, string> = {
     'afghanistan': 'AF', 'albania': 'AL', 'algeria': 'DZ', 'argentina': 'AR', 'australia': 'AU',
     'austria': 'AT', 'bangladesh': 'BD', 'belgium': 'BE', 'brazil': 'BR', 'canada': 'CA',
@@ -66,10 +62,8 @@ const getCountryFlag = (country: string | null): string => {
     'united kingdom': 'GB', 'uk': 'GB', 'united states': 'US', 'usa': 'US',
     'vietnam': 'VN', 'venezuela': 'VE',
   };
-
   const code = nameToCode[country.toLowerCase()];
   if (code) return isoToFlag(code);
-  
   return '🌍';
 };
 
@@ -102,23 +96,14 @@ const LiveEarningsTracker = () => {
   const getTimeAgo = (date: Date) => {
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
     if (seconds < 60) return 'Just now';
-    if (seconds < 3600) {
-      const mins = Math.floor(seconds / 60);
-      return `${mins}m ago`;
-    }
-    if (seconds < 86400) {
-      const hours = Math.floor(seconds / 3600);
-      return `${hours}h ago`;
-    }
-    const days = Math.floor(seconds / 86400);
-    return `${days}d ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
   };
 
   const handleOfferClick = async (earning: EarningEvent) => {
-    if (!user) return; // Only authenticated users can see details
-    
+    if (!user) return;
     setLoadingDetails(true);
     try {
       const { data } = await supabase.rpc('get_offer_details', { offer_id: earning.id });
@@ -146,34 +131,22 @@ const LiveEarningsTracker = () => {
 
     const channel = supabase
       .channel('tracker-settings-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'site_settings',
-          filter: 'id=eq.default'
-        },
-        (payload) => {
-          const newData = payload.new as any;
-          if (newData.offerwall_settings?.trackerSettings) {
-            setSettings(newData.offerwall_settings.trackerSettings);
-          }
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'site_settings', filter: 'id=eq.default' }, (payload) => {
+        const newData = payload.new as any;
+        if (newData.offerwall_settings?.trackerSettings) {
+          setSettings(newData.offerwall_settings.trackerSettings);
         }
-      )
+      })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   useEffect(() => {
     const loadRecentOffers = async () => {
       const { data } = await supabase.rpc('get_live_tracker_offers', { limit_count: 20 });
-      
       if (data) {
-        setEarnings(data.map((offer: { id: string; username: string; coin: number; offerwall: string; country: string | null; created_at: string }) => ({
+        setEarnings(data.map((offer: any) => ({
           id: offer.id,
           username: offer.username,
           coins: offer.coin,
@@ -183,44 +156,25 @@ const LiveEarningsTracker = () => {
         })));
       }
     };
-    
     loadRecentOffers();
 
     const channel = supabase
       .channel('live-tracker-earnings')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'completed_offers',
-        },
-        (payload) => {
-          const newOffer = payload.new as { 
-            id: string; 
-            username: string; 
-            coin: number; 
-            offerwall: string;
-            country: string | null;
-            created_at: string; 
-          };
-          
-          const newEarning: EarningEvent = {
-            id: newOffer.id,
-            username: newOffer.username,
-            coins: newOffer.coin,
-            offerwall: newOffer.offerwall,
-            country: newOffer.country || null,
-            created_at: new Date(newOffer.created_at),
-          };
-          setEarnings(prev => [newEarning, ...prev.slice(0, 19)]);
-        }
-      )
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'completed_offers' }, (payload) => {
+        const newOffer = payload.new as any;
+        const newEarning: EarningEvent = {
+          id: newOffer.id,
+          username: newOffer.username,
+          coins: newOffer.coin,
+          offerwall: newOffer.offerwall,
+          country: newOffer.country || null,
+          created_at: new Date(newOffer.created_at),
+        };
+        setEarnings(prev => [newEarning, ...prev.slice(0, 19)]);
+      })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -229,31 +183,23 @@ const LiveEarningsTracker = () => {
     setStartX(e.pageX - scrollRef.current.offsetLeft);
     setScrollLeft(scrollRef.current.scrollLeft);
   };
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || !scrollRef.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
+    scrollRef.current.scrollLeft = scrollLeft - (x - startX) * 2;
   };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
+  const handleMouseUp = () => setIsDragging(false);
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!settings.manualScrollEnabled || !scrollRef.current) return;
     setIsDragging(true);
     setStartX(e.touches[0].pageX - scrollRef.current.offsetLeft);
     setScrollLeft(scrollRef.current.scrollLeft);
   };
-
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || !scrollRef.current) return;
     const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
+    scrollRef.current.scrollLeft = scrollLeft - (x - startX) * 2;
   };
 
   if (earnings.length === 0) return null;
@@ -262,7 +208,7 @@ const LiveEarningsTracker = () => {
 
   const getAvatarColor = (name: string) => {
     const colors = [
-      'from-primary to-secondary',
+      'from-[#00C6FF] to-[#0072FF]',
       'from-green-400 to-emerald-600',
       'from-orange-400 to-amber-600',
       'from-pink-400 to-rose-600',
@@ -276,79 +222,56 @@ const LiveEarningsTracker = () => {
     <>
       {/* Details Popup */}
       {selectedOffer && (
-        <div 
-          className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 animate-fade-in"
-          onClick={() => setSelectedOffer(null)}
-        >
-          <div 
-            className="bg-background border border-border rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-scale-in"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/10 to-secondary/10">
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setSelectedOffer(null)}>
+          <div className="bg-[#0F172A] border border-[rgba(0,170,255,0.3)] rounded-[22px] w-full max-w-sm overflow-hidden shadow-2xl animate-scale-in" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-[rgba(0,170,255,0.2)] bg-gradient-to-r from-[#00C6FF]/10 to-[#0072FF]/10">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAvatarColor(selectedOffer.username)} flex items-center justify-center shadow-lg`}>
-                  <span className="text-sm font-bold text-white">
-                    {selectedOffer.username.charAt(0).toUpperCase()}
-                  </span>
+                  <span className="text-sm font-bold text-white">{selectedOffer.username.charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground">{selectedOffer.username}</h3>
-                  <p className="text-xs text-muted-foreground">Offer Details</p>
+                  <h3 className="font-bold text-white">{selectedOffer.username}</h3>
+                  <p className="text-xs text-[#A1A1AA]">Offer Details</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setSelectedOffer(null)}
-                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-              >
+              <button onClick={() => setSelectedOffer(null)} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
-
-            {/* Details */}
             <div className="p-4 space-y-3">
-              {/* Coins */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30">
-                <Coins className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-3 p-3 rounded-[14px] bg-gradient-to-r from-[#00C6FF]/20 to-[#0072FF]/20 border border-[rgba(0,170,255,0.3)]">
+                <Coins className="w-5 h-5 text-[#00C6FF]" />
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Coins Earned</p>
-                  <p className="font-bold text-lg text-primary">+{selectedOffer.coin.toLocaleString()}</p>
+                  <p className="text-xs text-[#A1A1AA]">Coins Earned</p>
+                  <p className="font-bold text-lg text-[#00C6FF]">+{selectedOffer.coin.toLocaleString()}</p>
                 </div>
               </div>
-
-              {/* Offer Name */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
-                <Gift className="w-5 h-5 text-muted-foreground" />
+              <div className="flex items-center gap-3 p-3 rounded-[14px] bg-[#0B0F19] border border-[rgba(0,170,255,0.15)]">
+                <Gift className="w-5 h-5 text-[#A1A1AA]" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground">Offer Name</p>
-                  <p className="font-medium text-sm text-foreground truncate">{selectedOffer.offer_name || 'N/A'}</p>
+                  <p className="text-xs text-[#A1A1AA]">Offer Name</p>
+                  <p className="font-medium text-sm text-white truncate">{selectedOffer.offer_name || 'N/A'}</p>
                 </div>
               </div>
-
-              {/* Offerwall */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
-                <Server className="w-5 h-5 text-muted-foreground" />
+              <div className="flex items-center gap-3 p-3 rounded-[14px] bg-[#0B0F19] border border-[rgba(0,170,255,0.15)]">
+                <Server className="w-5 h-5 text-[#A1A1AA]" />
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Offerwall</p>
-                  <p className="font-medium text-sm text-foreground capitalize">{selectedOffer.offerwall}</p>
+                  <p className="text-xs text-[#A1A1AA]">Offerwall</p>
+                  <p className="font-medium text-sm text-white capitalize">{selectedOffer.offerwall}</p>
                 </div>
               </div>
-
-              {/* Country */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
+              <div className="flex items-center gap-3 p-3 rounded-[14px] bg-[#0B0F19] border border-[rgba(0,170,255,0.15)]">
                 <span className="text-2xl">{getCountryFlag(selectedOffer.country)}</span>
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Country</p>
-                  <p className="font-medium text-sm text-foreground">{selectedOffer.country || 'Unknown'}</p>
+                  <p className="text-xs text-[#A1A1AA]">Country</p>
+                  <p className="font-medium text-sm text-white">{selectedOffer.country || 'Unknown'}</p>
                 </div>
               </div>
-
-              {/* Time */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
-                <Clock className="w-5 h-5 text-muted-foreground" />
+              <div className="flex items-center gap-3 p-3 rounded-[14px] bg-[#0B0F19] border border-[rgba(0,170,255,0.15)]">
+                <Clock className="w-5 h-5 text-[#A1A1AA]" />
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Completed</p>
-                  <p className="font-medium text-sm text-foreground">{getTimeAgo(new Date(selectedOffer.created_at))}</p>
+                  <p className="text-xs text-[#A1A1AA]">Completed</p>
+                  <p className="font-medium text-sm text-white">{getTimeAgo(new Date(selectedOffer.created_at))}</p>
                 </div>
               </div>
             </div>
@@ -356,17 +279,27 @@ const LiveEarningsTracker = () => {
         </div>
       )}
 
-      {/* Loading overlay */}
       {loadingDetails && (
         <div className="fixed inset-0 bg-black/50 z-[99] flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#00C6FF] border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
-      {/* Tracker */}
-      <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
-        <div className="flex items-center h-12 px-3 gap-3">
-          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+      {/* Live Earn Slider Bar */}
+      <div 
+        className="w-full overflow-hidden"
+        style={{
+          height: '70px',
+          background: '#0F172A',
+          border: '1px solid rgba(0,170,255,0.3)',
+          borderRadius: '20px',
+          boxShadow: '0 0 20px rgba(0,170,255,0.2)',
+          margin: '8px auto',
+          maxWidth: 'calc(100% - 16px)',
+        }}
+      >
+        <div className="flex items-center h-full px-4 gap-3">
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[#00C6FF] to-[#0072FF] shadow-lg shadow-[rgba(0,170,255,0.4)]">
             <span className="text-lg leading-none">{getCountryFlag(userCountry)}</span>
           </div>
           <div 
@@ -381,7 +314,7 @@ const LiveEarningsTracker = () => {
             onTouchEnd={handleMouseUp}
           >
             <div 
-              className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
+              className={`flex items-center gap-3 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
               style={{
                 animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
                 animationPlayState: isDragging ? 'paused' : 'running',
@@ -391,23 +324,40 @@ const LiveEarningsTracker = () => {
                 <div 
                   key={`${earning.id}-${index}`}
                   onClick={() => handleOfferClick(earning)}
-                  className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
+                  className="flex-shrink-0 flex items-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.04]"
+                  style={{
+                    width: '160px',
+                    height: '48px',
+                    background: 'linear-gradient(135deg, #00C6FF, #0072FF)',
+                    borderRadius: '30px',
+                    padding: '0 12px',
+                  }}
                 >
-                  {/* Coin Icon */}
-                  <CoinIcon className="w-5 h-5 flex-shrink-0" />
+                  {/* Avatar */}
+                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-[10px] font-bold text-white">
+                      {earning.username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
                   {/* Info */}
-                  <div className="flex flex-col leading-none">
-                    <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
+                  <div className="flex flex-col leading-none flex-1 min-w-0">
+                    <span className="text-[11px] font-semibold text-white truncate">
                       {earning.username}
                     </span>
-                    <span className="text-[9px] text-muted-foreground capitalize">
+                    <span className="text-[9px] text-white/70 capitalize truncate">
                       {earning.offerwall}
                     </span>
                   </div>
-                  {/* Coins */}
-                  <span className="text-[11px] font-bold text-primary">
-                    {earning.coins.toLocaleString()}
-                  </span>
+                  {/* Coin Badge */}
+                  <div 
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full flex-shrink-0"
+                    style={{ background: '#0B0F19' }}
+                  >
+                    <CoinIcon className="w-3 h-3" />
+                    <span className="text-[10px] font-bold text-[#00C6FF]">
+                      {earning.coins.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

@@ -111,7 +111,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
           <div
             key={offer.id}
             onClick={() => handleOfferClick(offer)}
-            className="relative cursor-pointer group rounded-2xl overflow-hidden h-28 sm:h-32 border border-primary/10 group-hover:border-primary/30 transition-all duration-300"
+            className="relative cursor-pointer group rounded-2xl overflow-hidden h-28 sm:h-32 border border-primary/10 hover:border-primary/30 transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10"
             style={{ 
               background: offer.image_url 
                 ? undefined 

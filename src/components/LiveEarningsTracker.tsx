@@ -285,21 +285,10 @@ const LiveEarningsTracker = () => {
         </div>
       )}
 
-      {/* Live Earn Slider Bar */}
-      <div 
-        className="w-full overflow-hidden"
-        style={{
-          height: '70px',
-          background: '#0F172A',
-          border: '1px solid rgba(0,170,255,0.3)',
-          borderRadius: '20px',
-          boxShadow: '0 0 20px rgba(0,170,255,0.2)',
-          margin: '8px auto',
-          maxWidth: 'calc(100% - 16px)',
-        }}
-      >
-        <div className="flex items-center h-full px-4 gap-3">
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[#00C6FF] to-[#0072FF] shadow-lg shadow-[rgba(0,170,255,0.4)]">
+      {/* Tracker */}
+      <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
+        <div className="flex items-center h-12 px-3 gap-3">
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
             <span className="text-lg leading-none">{getCountryFlag(userCountry)}</span>
           </div>
           <div 
@@ -314,7 +303,7 @@ const LiveEarningsTracker = () => {
             onTouchEnd={handleMouseUp}
           >
             <div 
-              className={`flex items-center gap-3 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
+              className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
               style={{
                 animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
                 animationPlayState: isDragging ? 'paused' : 'running',
@@ -324,40 +313,23 @@ const LiveEarningsTracker = () => {
                 <div 
                   key={`${earning.id}-${index}`}
                   onClick={() => handleOfferClick(earning)}
-                  className="flex-shrink-0 flex items-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.04]"
-                  style={{
-                    width: '160px',
-                    height: '48px',
-                    background: 'linear-gradient(135deg, #00C6FF, #0072FF)',
-                    borderRadius: '30px',
-                    padding: '0 12px',
-                  }}
+                  className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
                 >
-                  {/* Avatar */}
-                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-[10px] font-bold text-white">
-                      {earning.username.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  {/* Coin Icon */}
+                  <CoinIcon className="w-5 h-5 flex-shrink-0" />
                   {/* Info */}
-                  <div className="flex flex-col leading-none flex-1 min-w-0">
-                    <span className="text-[11px] font-semibold text-white truncate">
+                  <div className="flex flex-col leading-none">
+                    <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
                       {earning.username}
                     </span>
-                    <span className="text-[9px] text-white/70 capitalize truncate">
+                    <span className="text-[9px] text-muted-foreground capitalize">
                       {earning.offerwall}
                     </span>
                   </div>
-                  {/* Coin Badge */}
-                  <div 
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full flex-shrink-0"
-                    style={{ background: '#0B0F19' }}
-                  >
-                    <CoinIcon className="w-3 h-3" />
-                    <span className="text-[10px] font-bold text-[#00C6FF]">
-                      {earning.coins.toLocaleString()}
-                    </span>
-                  </div>
+                  {/* Coins */}
+                  <span className="text-[11px] font-bold text-primary">
+                    {earning.coins.toLocaleString()}
+                  </span>
                 </div>
               ))}
             </div>

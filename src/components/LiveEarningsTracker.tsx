@@ -356,7 +356,7 @@ const LiveEarningsTracker = () => {
       <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
         <div className="flex items-center h-12 px-3 gap-3">
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-            <CoinIcon className="w-5 h-5" />
+            <span className="text-lg leading-none">{getCountryFlag(earnings[0]?.country)}</span>
           </div>
           <div 
             ref={scrollRef}
@@ -382,8 +382,8 @@ const LiveEarningsTracker = () => {
                   onClick={() => handleOfferClick(earning)}
                   className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
                 >
-                  {/* Country Flag */}
-                  <span className="text-lg flex-shrink-0">{getCountryFlag(earning.country)}</span>
+                  {/* Coin Icon */}
+                  <CoinIcon className="w-5 h-5 flex-shrink-0" />
                   {/* Info */}
                   <div className="flex flex-col leading-none">
                     <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">

@@ -160,36 +160,18 @@ const Dashboard = () => {
 
   const offerwalls = adminOfferwalls.length > 0 ? adminOfferwalls : defaultOfferwalls;
 
-  // Split offerwalls dynamically - first half regular, second half premium
-  const halfLength = Math.ceil(offerwalls.length / 2);
-  
-  const regularPartners = offerwalls.slice(0, halfLength).map((w, i) => ({
-    id: w.id,
-    name: w.name,
-    logoUrl: w.logoUrl,
-    color: w.color,
-    iframeUrl: w.iframeUrl,
-    rating: 4 + Math.random(),
-    badge: i === 1 ? { text: '+50%', type: 'bonus' as const } 
-         : i === 2 ? { text: 'New', type: 'new' as const }
-         : i === 3 ? { text: 'Hot', type: 'hot' as const }
-         : i === 4 ? { text: '+50%', type: 'bonus' as const }
-         : i === 5 ? { text: '+45%', type: 'bonus' as const }
-         : undefined,
-    popupWidth: w.popupWidth,
-    popupHeight: w.popupHeight,
-    popupAnimation: w.popupAnimation,
-  }));
-
-  const premiumPartners = offerwalls.slice(halfLength).map((w, i) => ({
+  const allPartners = offerwalls.map((w, i) => ({
     id: w.id,
     name: w.name,
     logoUrl: w.logoUrl,
     color: w.color,
     iframeUrl: w.iframeUrl,
     rating: 3.5 + Math.random() * 1.5,
-    badge: i < 5 ? { text: '+60%', type: 'bonus' as const } 
-         : { text: 'New', type: 'new' as const },
+    badge: i === 1 ? { text: '+50%', type: 'bonus' as const } 
+         : i === 2 ? { text: 'New', type: 'new' as const }
+         : i === 3 ? { text: 'Hot', type: 'hot' as const }
+         : i === 5 ? { text: '+60%', type: 'bonus' as const }
+         : undefined,
     popupWidth: w.popupWidth,
     popupHeight: w.popupHeight,
     popupAnimation: w.popupAnimation,
@@ -354,26 +336,10 @@ const Dashboard = () => {
           {/* Featured Offers */}
           <FeaturedOffersSection onOfferClick={handleOfferClick} />
 
-          {/* Offers Partners */}
+          {/* Offer Partners */}
           <OfferPartnersSection
-            title="Offers Partners"
-            partners={regularPartners}
-            onPartnerClick={handleOfferClick}
-          />
-
-          {/* Premium Partners */}
-          <OfferPartnersSection
-            title="Premium Partners"
-            partners={premiumPartners}
-            isPremium={true}
-            onPartnerClick={handleOfferClick}
-          />
-
-
-          {/* Survey Partners */}
-          <OfferPartnersSection
-            title="Survey Partners"
-            partners={regularPartners.slice(0, 4).map(p => ({ ...p, badge: undefined }))}
+            title="Offer Partners"
+            partners={allPartners}
             onPartnerClick={handleOfferClick}
           />
         </main>

@@ -193,6 +193,8 @@ const AdminOfferwallCustomize = () => {
   const { backgrounds } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [offerwalls, setOfferwalls] = useState<Offerwall[]>([]);
+  const [cardHeight, setCardHeight] = useState(280);
+  const [cardColumns, setCardColumns] = useState(5);
   const [newOfferwall, setNewOfferwall] = useState('');
   const [newProvider, setNewProvider] = useState('custom');
   const [isSaving, setIsSaving] = useState(false);
@@ -247,6 +249,8 @@ const AdminOfferwallCustomize = () => {
       if (Array.isArray(offerData.offerwalls)) {
         migrateAndSetOfferwalls(offerData.offerwalls as Offerwall[]);
       }
+      if (typeof offerData.cardHeight === 'number') setCardHeight(offerData.cardHeight);
+      if (typeof offerData.cardColumns === 'number') setCardColumns(offerData.cardColumns);
     }
   };
 
@@ -275,7 +279,7 @@ const AdminOfferwallCustomize = () => {
       }
 
       const { error } = await supabase.from('site_settings').update({
-        offerwall_settings: JSON.parse(JSON.stringify({ offerwalls })),
+        offerwall_settings: JSON.parse(JSON.stringify({ offerwalls, cardHeight, cardColumns })),
         provider_logos: JSON.parse(JSON.stringify(newProviderLogos)),
         updated_at: new Date().toISOString()
       }).eq('id', 'default');
@@ -795,6 +799,49 @@ const AdminOfferwallCustomize = () => {
         <main className="p-3 md:px-[5%] max-w-3xl mx-auto">
           <div className="glass-card p-4">
             <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-4"><Layers className="w-4 h-4" /> Universal Offerwall Management</h2>
+
+            {/* Card Layout Settings */}
+            <div className="p-3 bg-muted/50 rounded-lg border border-border mb-4 space-y-3">
+              <h4 className="text-xs font-semibold text-primary flex items-center gap-1"><Layers className="w-3 h-3" /> Card Layout Settings</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Card Height (px)</label>
+                  <input
+                    type="number"
+                    min="150"
+                    max="500"
+                    value={cardHeight}
+                    onChange={(e) => setCardHeight(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">150 - 500px</p>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Cards Per Row (Desktop)</label>
+                  <select
+                    value={cardColumns}
+                    onChange={(e) => setCardColumns(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
+                  >
+                    <option value={3}>3 columns</option>
+                    <option value={4}>4 columns</option>
+                    <option value={5}>5 columns</option>
+                    <option value={6}>6 columns</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {[180, 220, 280, 350].map(h => (
+                  <button
+                    key={h}
+                    onClick={() => setCardHeight(h)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-medium border transition-colors ${cardHeight === h ? 'bg-primary/20 text-primary border-primary/40' : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'}`}
+                  >
+                    {h}px
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Add new offerwall */}
             <div className="flex gap-2 mb-4">

@@ -316,7 +316,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      site_settings_safe: {
+        Row: {
+          background_settings: Json | null
+          coin_icon_url: string | null
+          homepage_images: Json | null
+          id: string | null
+          logo_image_url: string | null
+          logo_text: string | null
+          logo_type: string | null
+          offerwall_settings: Json | null
+          provider_logos: Json | null
+          social_links_settings: Json | null
+          sound_settings: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          background_settings?: Json | null
+          coin_icon_url?: string | null
+          homepage_images?: Json | null
+          id?: string | null
+          logo_image_url?: string | null
+          logo_text?: string | null
+          logo_type?: string | null
+          offerwall_settings?: Json | null
+          provider_logos?: Json | null
+          social_links_settings?: Json | null
+          sound_settings?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          background_settings?: Json | null
+          coin_icon_url?: string | null
+          homepage_images?: Json | null
+          id?: string | null
+          logo_image_url?: string | null
+          logo_text?: string | null
+          logo_type?: string | null
+          offerwall_settings?: Json | null
+          provider_logos?: Json | null
+          social_links_settings?: Json | null
+          sound_settings?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_adjust_balance: {

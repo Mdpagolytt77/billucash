@@ -95,7 +95,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight =
           </div>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-[18px]" style={{ '--lg-cols': cardColumns } as React.CSSProperties} id="offer-grid">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" style={{ '--lg-cols': cardColumns } as React.CSSProperties} id="offer-grid">
           <style>{`@media (min-width: 1024px) { #offer-grid { grid-template-columns: repeat(var(--lg-cols), minmax(0, 1fr)) !important; } }`}</style>
           {partners.map((partner, index) => (
             <div

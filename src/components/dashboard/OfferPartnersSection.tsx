@@ -54,11 +54,11 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-3 h-3 ${
+            className={`w-3.5 h-3.5 ${
               star <= rating 
-                ? 'fill-yellow-400 text-yellow-400 drop-shadow-sm' 
+                ? 'fill-[#FFC107] text-[#FFC107]' 
                 : star - 0.5 <= rating 
-                  ? 'fill-yellow-400/50 text-yellow-400' 
+                  ? 'fill-[#FFC107]/50 text-[#FFC107]' 
                   : 'fill-muted text-muted-foreground/30'
             }`}
           />
@@ -84,7 +84,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
         </div>
       </div>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-[18px]">
         {partners.map((partner) => (
           <div
             key={partner.id}
@@ -100,16 +100,20 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
           >
             {/* Card */}
             <div 
-              className="relative w-full rounded-2xl overflow-hidden transition-all duration-300 transform group-hover:scale-[1.03] group-hover:-translate-y-1 flex flex-col items-center justify-center p-4 py-5 border border-primary/15 group-hover:border-primary/40"
+              className="relative w-full overflow-hidden transition-all duration-300 transform group-hover:scale-[1.03] group-hover:-translate-y-1 flex flex-col items-center justify-center p-5"
               style={{
-                background: `linear-gradient(160deg, ${partner.color}33, ${partner.color}15 60%, hsl(var(--background)))`,
-                boxShadow: `0 0 0 1px hsl(var(--primary) / 0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`,
+                height: '120px',
+                borderRadius: '16px',
+                background: '#111111',
+                border: '1px solid #1f1f1f',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 15px 2px hsl(var(--primary) / 0.15), 0 0 30px 4px hsl(var(--primary) / 0.08), 0 4px 20px -4px rgba(0,0,0,0.5)`;
+                e.currentTarget.style.border = '1px solid hsl(var(--primary) / 0.4)';
+                e.currentTarget.style.boxShadow = `0 0 15px 2px hsl(var(--primary) / 0.12), 0 0 30px 4px hsl(var(--primary) / 0.06)`;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 0 1px hsl(var(--primary) / 0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`;
+                e.currentTarget.style.border = '1px solid #1f1f1f';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
               {/* Badge */}
@@ -125,10 +129,10 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
                 <img 
                   src={partner.logoUrl} 
                   alt={partner.name}
-                  className="w-16 h-16 object-contain mb-3"
+                  className="h-10 object-contain mb-2"
                 />
               ) : (
-                <span className="text-lg font-black text-white drop-shadow-lg tracking-wide mb-3">
+                <span className="text-base font-black text-white drop-shadow-lg tracking-wide mb-2">
                   {partner.name}
                 </span>
               )}
@@ -136,7 +140,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               {/* Name */}
               <h4 className="text-xs font-semibold text-foreground truncate w-full text-center">{partner.name}</h4>
               {/* Rating */}
-              <div className="flex justify-center mt-1.5">
+              <div className="flex justify-center mt-1">
                 {renderStars(partner.rating)}
               </div>
             </div>

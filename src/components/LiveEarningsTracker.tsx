@@ -76,6 +76,7 @@ const getCountryFlag = (country: string | null): string => {
 const LiveEarningsTracker = () => {
   const { user } = useAuth();
   const [earnings, setEarnings] = useState<EarningEvent[]>([]);
+  const [userCountry, setUserCountry] = useState<string | null>(null);
   const [settings, setSettings] = useState<TrackerSettings>({
     enabled: true,
     speed: 25,
@@ -87,6 +88,16 @@ const LiveEarningsTracker = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+
+  // Detect user's country via IP geolocation
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.country_code) setUserCountry(data.country_code);
+      })
+      .catch(() => setUserCountry(null));
+  }, []);
 
   const getTimeAgo = (date: Date) => {
     const now = new Date();
@@ -356,7 +367,7 @@ const LiveEarningsTracker = () => {
       <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
         <div className="flex items-center h-12 px-3 gap-3">
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-            <span className="text-lg leading-none">{getCountryFlag(earnings[0]?.country)}</span>
+            <span className="text-lg leading-none">{getCountryFlag(userCountry)}</span>
           </div>
           <div 
             ref={scrollRef}

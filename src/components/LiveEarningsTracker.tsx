@@ -31,35 +31,44 @@ interface TrackerSettings {
   manualScrollEnabled: boolean;
 }
 
-// Country name to flag emoji mapping
+// Convert ISO 3166-1 alpha-2 country code to flag emoji
+const isoToFlag = (code: string): string => {
+  const upper = code.toUpperCase();
+  if (upper.length !== 2) return '';
+  const cp1 = 0x1F1E6 + (upper.charCodeAt(0) - 65);
+  const cp2 = 0x1F1E6 + (upper.charCodeAt(1) - 65);
+  return String.fromCodePoint(cp1, cp2);
+};
+
+// Country name/code to flag emoji mapping
 const getCountryFlag = (country: string | null): string => {
-  if (!country || country === 'Unknown') return '🌍';
+  if (!country || country === 'Unknown' || country === 'TEST') return '🌍';
   
-  const countryFlags: Record<string, string> = {
-    'Afghanistan': '🇦🇫', 'Albania': '🇦🇱', 'Algeria': '🇩🇿', 'Argentina': '🇦🇷', 'Australia': '🇦🇺',
-    'Austria': '🇦🇹', 'Bangladesh': '🇧🇩', 'Belgium': '🇧🇪', 'Brazil': '🇧🇷', 'Canada': '🇨🇦',
-    'Chile': '🇨🇱', 'China': '🇨🇳', 'Colombia': '🇨🇴', 'Czech Republic': '🇨🇿', 'Denmark': '🇩🇰',
-    'Egypt': '🇪🇬', 'Finland': '🇫🇮', 'France': '🇫🇷', 'Germany': '🇩🇪', 'Greece': '🇬🇷',
-    'Hong Kong': '🇭🇰', 'Hungary': '🇭🇺', 'India': '🇮🇳', 'Indonesia': '🇮🇩', 'Iran': '🇮🇷',
-    'Iraq': '🇮🇶', 'Ireland': '🇮🇪', 'Israel': '🇮🇱', 'Italy': '🇮🇹', 'Japan': '🇯🇵',
-    'Kenya': '🇰🇪', 'South Korea': '🇰🇷', 'Korea': '🇰🇷', 'Malaysia': '🇲🇾', 'Mexico': '🇲🇽',
-    'Morocco': '🇲🇦', 'Netherlands': '🇳🇱', 'New Zealand': '🇳🇿', 'Nigeria': '🇳🇬', 'Norway': '🇳🇴',
-    'Pakistan': '🇵🇰', 'Peru': '🇵🇪', 'Philippines': '🇵🇭', 'Poland': '🇵🇱', 'Portugal': '🇵🇹',
-    'Romania': '🇷🇴', 'Russia': '🇷🇺', 'Saudi Arabia': '🇸🇦', 'Singapore': '🇸🇬', 'South Africa': '🇿🇦',
-    'Spain': '🇪🇸', 'Sweden': '🇸🇪', 'Switzerland': '🇨🇭', 'Taiwan': '🇹🇼', 'Thailand': '🇹🇭',
-    'Turkey': '🇹🇷', 'Ukraine': '🇺🇦', 'United Arab Emirates': '🇦🇪', 'UAE': '🇦🇪',
-    'United Kingdom': '🇬🇧', 'UK': '🇬🇧', 'GB': '🇬🇧', 'United States': '🇺🇸', 'US': '🇺🇸', 'USA': '🇺🇸',
-    'Vietnam': '🇻🇳', 'Venezuela': '🇻🇪',
-  };
-  
-  // Try exact match first
-  if (countryFlags[country]) return countryFlags[country];
-  
-  // Try case-insensitive match
-  const lowerCountry = country.toLowerCase();
-  for (const [key, flag] of Object.entries(countryFlags)) {
-    if (key.toLowerCase() === lowerCountry) return flag;
+  // If it's a 2-letter ISO code, convert directly
+  if (country.length === 2 && /^[A-Za-z]{2}$/.test(country)) {
+    return isoToFlag(country);
   }
+
+  // Common country name to ISO code mapping
+  const nameToCode: Record<string, string> = {
+    'afghanistan': 'AF', 'albania': 'AL', 'algeria': 'DZ', 'argentina': 'AR', 'australia': 'AU',
+    'austria': 'AT', 'bangladesh': 'BD', 'belgium': 'BE', 'brazil': 'BR', 'canada': 'CA',
+    'chile': 'CL', 'china': 'CN', 'colombia': 'CO', 'czech republic': 'CZ', 'denmark': 'DK',
+    'egypt': 'EG', 'finland': 'FI', 'france': 'FR', 'germany': 'DE', 'greece': 'GR',
+    'hong kong': 'HK', 'hungary': 'HU', 'india': 'IN', 'indonesia': 'ID', 'iran': 'IR',
+    'iraq': 'IQ', 'ireland': 'IE', 'israel': 'IL', 'italy': 'IT', 'japan': 'JP',
+    'kenya': 'KE', 'south korea': 'KR', 'korea': 'KR', 'malaysia': 'MY', 'mexico': 'MX',
+    'morocco': 'MA', 'netherlands': 'NL', 'new zealand': 'NZ', 'nigeria': 'NG', 'norway': 'NO',
+    'pakistan': 'PK', 'peru': 'PE', 'philippines': 'PH', 'poland': 'PL', 'portugal': 'PT',
+    'romania': 'RO', 'russia': 'RU', 'saudi arabia': 'SA', 'singapore': 'SG', 'south africa': 'ZA',
+    'spain': 'ES', 'sweden': 'SE', 'switzerland': 'CH', 'taiwan': 'TW', 'thailand': 'TH',
+    'turkey': 'TR', 'ukraine': 'UA', 'united arab emirates': 'AE', 'uae': 'AE',
+    'united kingdom': 'GB', 'uk': 'GB', 'united states': 'US', 'usa': 'US',
+    'vietnam': 'VN', 'venezuela': 'VE',
+  };
+
+  const code = nameToCode[country.toLowerCase()];
+  if (code) return isoToFlag(code);
   
   return '🌍';
 };

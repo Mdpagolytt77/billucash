@@ -194,7 +194,7 @@ const Dashboard = () => {
 
       <div 
         className="min-h-screen"
-        style={bgStyle}
+        style={{ ...bgStyle, background: bgStyle.background || '#0B0F19' }}
       >
         {/* Offerwall Popup */}
         {selectedOfferwall && (() => {

@@ -6,41 +6,47 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
+    --background: 220 50% 7%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 33% 11%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 33% 11%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 199 89% 58%;
-    --primary-foreground: 210 40% 10%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 220 50% 7%;
 
-    --secondary: 199 80% 45%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 215 100% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 220 40% 13%;
+    --muted-foreground: 240 4% 66%;
 
-    --accent: 199 85% 52%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 195 100% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 10%;
-    --ring: 199 89% 58%;
+    --border: 215 50% 20%;
+    --input: 220 40% 10%;
+    --ring: 195 100% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
     /* Custom tokens */
-    --glass-bg: 199 50% 50% / 0.08;
-    --glass-border: 199 60% 60% / 0.2;
-    --glow-primary: 199 89% 58% / 0.35;
-    --gradient-primary: linear-gradient(135deg, hsl(199 89% 58%), hsl(199 80% 45%));
+    --glass-bg: 215 50% 50% / 0.08;
+    --glass-border: 195 100% 50% / 0.2;
+    --glow-primary: 195 100% 50% / 0.35;
+    --gradient-primary: linear-gradient(135deg, #00C6FF, #0072FF);
+    
+    /* TakeDollers specific */
+    --td-dark-bg: 220 50% 7%;
+    --td-card-bg: 220 33% 11%;
+    --td-inner-card: 220 47% 11%;
+    --td-border-glow: 195 100% 50% / 0.3;
   }
 
   .dark {

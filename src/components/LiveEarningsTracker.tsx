@@ -341,7 +341,10 @@ const LiveEarningsTracker = () => {
 
       {/* Tracker */}
       <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
-        <div className="flex items-center h-12 px-1">
+        <div className="flex items-center h-12 px-2 gap-2">
+          <div className="flex-shrink-0">
+            <SiteLogo size="sm" />
+          </div>
           <div 
             ref={scrollRef}
             className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
@@ -366,9 +369,11 @@ const LiveEarningsTracker = () => {
                   onClick={() => handleOfferClick(earning)}
                   className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
                 >
-                  {/* Logo */}
-                  <div className="w-7 h-7 flex-shrink-0">
-                    <SiteLogo size="sm" />
+                  {/* Avatar */}
+                  <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-[10px] font-bold text-white">
+                      {earning.username.charAt(0).toUpperCase()}
+                    </span>
                   </div>
                   {/* Info */}
                   <div className="flex flex-col leading-none">

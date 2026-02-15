@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Globe, Server, Clock, Gift, Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 
 interface EarningEvent {
   id: string;
@@ -365,11 +366,9 @@ const LiveEarningsTracker = () => {
                   onClick={() => handleOfferClick(earning)}
                   className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
                 >
-                  {/* Avatar */}
-                  <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${getAvatarColor(earning.username)} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-[10px] font-bold text-white">
-                      {earning.username.charAt(0).toUpperCase()}
-                    </span>
+                  {/* Logo */}
+                  <div className="w-7 h-7 flex-shrink-0">
+                    <SiteLogo size="sm" />
                   </div>
                   {/* Info */}
                   <div className="flex flex-col leading-none">
@@ -382,7 +381,7 @@ const LiveEarningsTracker = () => {
                   </div>
                   {/* Coins */}
                   <span className="text-[11px] font-bold text-yellow-400">
-                    🪙 {earning.coins.toLocaleString()}
+                    {earning.coins.toLocaleString()}
                   </span>
                 </div>
               ))}

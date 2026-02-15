@@ -1,4 +1,4 @@
-import { HelpCircle, ChevronRight, Star, Flame, Crown } from 'lucide-react';
+import { Star, Flame, Crown } from 'lucide-react';
 
 interface OfferPartner {
   id: string;
@@ -81,14 +81,10 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
             </div>
           )}
           <h3 className="font-display font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{title}</h3>
-          <HelpCircle className="w-4 h-4 text-muted-foreground/50 cursor-help hover:text-muted-foreground transition-colors" />
         </div>
-        <button className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors">
-          View All <ChevronRight className="w-4 h-4" />
-        </button>
       </div>
       
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {partners.map((partner) => (
           <div
             key={partner.id}
@@ -100,42 +96,47 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               popupHeight: partner.popupHeight,
               popupAnimation: partner.popupAnimation,
             })}
-            className="flex-shrink-0 w-[155px] cursor-pointer group"
+            className="cursor-pointer group"
           >
-            {/* Card - Clean gradient portrait */}
+            {/* Card */}
             <div 
-              className="relative w-full h-[190px] rounded-3xl overflow-hidden transition-all duration-400 transform group-hover:scale-[1.05] group-hover:-translate-y-1 flex items-center justify-center"
+              className="relative w-full rounded-2xl overflow-hidden transition-all duration-300 transform group-hover:scale-[1.03] group-hover:-translate-y-1 flex flex-col items-center justify-center p-4 py-5 border border-white/10 group-hover:border-white/30"
               style={{
-                background: `linear-gradient(165deg, ${partner.color}ee, ${partner.color}88 50%, ${partner.color}44)`,
-                boxShadow: `0 8px 24px -6px ${partner.color}55, 0 4px 12px rgba(0,0,0,0.4)`,
+                background: `linear-gradient(160deg, ${partner.color}33, ${partner.color}15 60%, hsl(var(--background)))`,
+                boxShadow: `0 0 0 1px rgba(255,255,255,0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 15px 2px rgba(255,255,255,0.1), 0 0 30px 4px ${partner.color}22, 0 4px 20px -4px rgba(0,0,0,0.5)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 0 1px rgba(255,255,255,0.05), 0 4px 20px -4px rgba(0,0,0,0.5)`;
               }}
             >
               {/* Badge */}
               {partner.badge && (
-                <div className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
+                <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
                   {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
                   {partner.badge.text}
                 </div>
               )}
 
-              {/* Logo centered */}
+              {/* Logo */}
               {partner.logoUrl ? (
                 <img 
                   src={partner.logoUrl} 
                   alt={partner.name}
-                  className="w-20 h-20 object-contain drop-shadow-[0_4px_15px_rgba(0,0,0,0.4)]"
+                  className="w-16 h-16 object-contain mb-3"
                 />
               ) : (
-                <span className="text-2xl font-black text-white drop-shadow-lg tracking-wide">
+                <span className="text-lg font-black text-white drop-shadow-lg tracking-wide mb-3">
                   {partner.name}
                 </span>
               )}
-            </div>
 
-            {/* Name & Rating below card */}
-            <div className="mt-2 text-center px-1">
-              <h4 className="text-xs font-bold text-foreground truncate">{partner.name}</h4>
-              <div className="flex justify-center mt-1">
+              {/* Name */}
+              <h4 className="text-xs font-semibold text-foreground truncate w-full text-center">{partner.name}</h4>
+              {/* Rating */}
+              <div className="flex justify-center mt-1.5">
                 {renderStars(partner.rating)}
               </div>
             </div>

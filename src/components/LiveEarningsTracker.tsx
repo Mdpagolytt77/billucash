@@ -341,8 +341,8 @@ const LiveEarningsTracker = () => {
 
       {/* Tracker */}
       <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
-        <div className="flex items-center h-12 px-2 gap-2">
-          <div className="flex-shrink-0">
+        <div className="flex items-center h-12 px-3 gap-3">
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
             <SiteLogo size="sm" />
           </div>
           <div 
@@ -385,7 +385,7 @@ const LiveEarningsTracker = () => {
                     </span>
                   </div>
                   {/* Coins */}
-                  <span className="text-[11px] font-bold text-yellow-400">
+                  <span className="text-[11px] font-bold text-primary">
                     {earning.coins.toLocaleString()}
                   </span>
                 </div>

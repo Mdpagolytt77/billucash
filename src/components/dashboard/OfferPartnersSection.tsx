@@ -110,7 +110,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               <div 
                 className="relative w-full overflow-hidden transition-all duration-300 ease-out transform group-hover:scale-[1.05] group-hover:-translate-y-1.5 flex flex-col items-center justify-center p-4"
                 style={{
-                  height: '220px',
+                  height: '280px',
                   borderRadius: '20px',
                   background: getCardBackground(partner.color, index),
                   border: '1px solid rgba(255,255,255,0.08)',

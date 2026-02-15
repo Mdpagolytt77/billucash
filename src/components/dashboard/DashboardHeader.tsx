@@ -55,9 +55,9 @@ const DashboardHeader = ({
       </div>
 
       {/* Center - Balance */}
-      <div className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-secondary/20 border border-primary/30 shadow-lg shadow-primary/10">
+      <div className="flex items-center gap-1.5 px-3 py-1.5">
         <CoinIcon className="w-5 h-5" />
-        <span className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        <span className="font-bold text-lg text-foreground">
           {profile?.balance?.toFixed(0) || '0'}
         </span>
       </div>
@@ -71,11 +71,11 @@ const DashboardHeader = ({
         <div className="relative">
           <button 
             onClick={() => setShowNotifications(!showNotifications)}
-            className="w-9 h-9 rounded-xl bg-gradient-to-br from-muted to-muted/50 border border-border/50 flex items-center justify-center hover:from-primary/20 hover:to-primary/10 transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-primary/20 relative"
+            className="flex items-center justify-center hover:bg-primary/10 rounded-xl p-2 transition-all duration-300 relative"
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-5 h-5 text-muted-foreground" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-destructive to-red-600 rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse shadow-lg shadow-destructive/50">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive rounded-full text-[9px] font-bold flex items-center justify-center text-white">
                 {unreadCount}
               </span>
             )}

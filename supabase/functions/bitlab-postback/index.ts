@@ -58,8 +58,16 @@ serve(async (req) => {
       });
     }
 
-    // Signature verification (BitLabs uses SHA1 hash typically)
-    if (BITLAB_SECRET_KEY && incomingHash) {
+    // Signature verification (mandatory when secret key is configured)
+    if (BITLAB_SECRET_KEY) {
+      if (!incomingHash) {
+        console.error('[Security] Missing signature hash');
+        return new Response('SIGNATURE_MISMATCH', {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        });
+      }
+
       const formats = [
         `${userId}${payout}${BITLAB_SECRET_KEY}`,
         `${txid}${userId}${payout}${BITLAB_SECRET_KEY}`,
@@ -77,7 +85,11 @@ serve(async (req) => {
       }
 
       if (!signatureValid) {
-        console.warn('[Security] Signature mismatch, proceeding anyway');
+        console.error('[Security] Signature verification failed');
+        return new Response('SIGNATURE_MISMATCH', {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        });
       }
     }
 

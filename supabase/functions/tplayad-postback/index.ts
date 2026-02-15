@@ -18,6 +18,22 @@ serve(async (req) => {
     console.log('=== Tplayad Postback Received ===');
     console.log('All params:', Object.fromEntries(params.entries()));
 
+    // SECURITY: Verify request using a secret key or IP whitelist
+    const TPLAYAD_SECRET_KEY = Deno.env.get('TPLAYAD_SECRET_KEY');
+    if (TPLAYAD_SECRET_KEY) {
+      const incomingKey = params.get('secret') || params.get('api_key') || params.get('password') || params.get('sig') || '';
+      if (incomingKey !== TPLAYAD_SECRET_KEY) {
+        console.error('[Security] Invalid secret/API key');
+        return new Response('UNAUTHORIZED', {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        });
+      }
+      console.log('[Security] Request verified via secret key');
+    } else {
+      console.warn('[Security] No TPLAYAD_SECRET_KEY configured - requests are unprotected!');
+    }
+
     // Extract user ID (flexible param names)
     const userId = params.get('userid') || params.get('user_id') || params.get('subid') || params.get('sub_id') || '';
 

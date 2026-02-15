@@ -93,7 +93,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
           </div>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[18px]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[18px]">
           {partners.map((partner, index) => (
             <div
               key={partner.id}
@@ -108,9 +108,9 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               className="cursor-pointer group"
             >
               <div 
-                className="relative w-full overflow-hidden transition-all duration-300 ease-out transform group-hover:scale-[1.05] group-hover:-translate-y-1.5 flex flex-col items-center justify-center p-5"
+                className="relative w-full overflow-hidden transition-all duration-300 ease-out transform group-hover:scale-[1.05] group-hover:-translate-y-1.5 flex flex-col items-center justify-center p-4"
                 style={{
-                  height: '190px',
+                  height: '220px',
                   borderRadius: '20px',
                   background: getCardBackground(partner.color, index),
                   border: '1px solid rgba(255,255,255,0.08)',

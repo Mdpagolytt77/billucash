@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Globe, Server, Clock, Gift, Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import { SiteLogo, CoinIcon } from '@/contexts/SiteSettingsContext';
 
 interface EarningEvent {
   id: string;
@@ -343,7 +343,7 @@ const LiveEarningsTracker = () => {
       <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
         <div className="flex items-center h-12 px-3 gap-3">
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-            <SiteLogo size="sm" />
+            <CoinIcon className="w-5 h-5" />
           </div>
           <div 
             ref={scrollRef}

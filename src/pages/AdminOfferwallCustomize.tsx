@@ -193,8 +193,12 @@ const AdminOfferwallCustomize = () => {
   const { backgrounds } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [offerwalls, setOfferwalls] = useState<Offerwall[]>([]);
-  const [cardHeight, setCardHeight] = useState(280);
-  const [cardColumns, setCardColumns] = useState(5);
+   const [cardHeight, setCardHeight] = useState(280);
+   const [cardColumns, setCardColumns] = useState(5);
+   const [cardGap, setCardGap] = useState(12);
+   const [cardBorderRadius, setCardBorderRadius] = useState(20);
+   const [mobileCardHeight, setMobileCardHeight] = useState(160);
+   const [cardPadding, setCardPadding] = useState(16);
   const [newOfferwall, setNewOfferwall] = useState('');
   const [newProvider, setNewProvider] = useState('custom');
   const [isSaving, setIsSaving] = useState(false);
@@ -251,6 +255,10 @@ const AdminOfferwallCustomize = () => {
       }
       if (typeof offerData.cardHeight === 'number') setCardHeight(offerData.cardHeight);
       if (typeof offerData.cardColumns === 'number') setCardColumns(offerData.cardColumns);
+      if (typeof offerData.cardGap === 'number') setCardGap(offerData.cardGap);
+      if (typeof offerData.cardBorderRadius === 'number') setCardBorderRadius(offerData.cardBorderRadius);
+      if (typeof offerData.mobileCardHeight === 'number') setMobileCardHeight(offerData.mobileCardHeight);
+      if (typeof offerData.cardPadding === 'number') setCardPadding(offerData.cardPadding);
     }
   };
 
@@ -279,7 +287,7 @@ const AdminOfferwallCustomize = () => {
       }
 
       const { error } = await supabase.from('site_settings').update({
-        offerwall_settings: JSON.parse(JSON.stringify({ offerwalls, cardHeight, cardColumns })),
+        offerwall_settings: JSON.parse(JSON.stringify({ offerwalls, cardHeight, cardColumns, cardGap, cardBorderRadius, mobileCardHeight, cardPadding })),
         provider_logos: JSON.parse(JSON.stringify(newProviderLogos)),
         updated_at: new Date().toISOString()
       }).eq('id', 'default');
@@ -806,37 +814,37 @@ const AdminOfferwallCustomize = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Card Height (px)</label>
-                  <input
-                    type="number"
-                    min="150"
-                    max="500"
-                    value={cardHeight}
-                    onChange={(e) => setCardHeight(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
-                  />
-                  <p className="text-[10px] text-muted-foreground mt-1">150 - 500px</p>
+                  <input type="number" min="100" max="500" value={cardHeight} onChange={(e) => setCardHeight(Number(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Mobile Height (px)</label>
+                  <input type="number" min="80" max="400" value={mobileCardHeight} onChange={(e) => setMobileCardHeight(Number(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm" />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Cards Per Row (Desktop)</label>
-                  <select
-                    value={cardColumns}
-                    onChange={(e) => setCardColumns(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm"
-                  >
+                  <select value={cardColumns} onChange={(e) => setCardColumns(Number(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm">
                     <option value={3}>3 columns</option>
                     <option value={4}>4 columns</option>
                     <option value={5}>5 columns</option>
                     <option value={6}>6 columns</option>
                   </select>
                 </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Card Gap (px)</label>
+                  <input type="number" min="0" max="40" value={cardGap} onChange={(e) => setCardGap(Number(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Border Radius (px)</label>
+                  <input type="number" min="0" max="50" value={cardBorderRadius} onChange={(e) => setCardBorderRadius(Number(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Card Padding (px)</label>
+                  <input type="number" min="0" max="40" value={cardPadding} onChange={(e) => setCardPadding(Number(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm" />
+                </div>
               </div>
-              <div className="flex gap-2">
-                {[180, 220, 280, 350].map(h => (
-                  <button
-                    key={h}
-                    onClick={() => setCardHeight(h)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-medium border transition-colors ${cardHeight === h ? 'bg-primary/20 text-primary border-primary/40' : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'}`}
-                  >
+              <div className="flex gap-2 flex-wrap">
+                {[140, 180, 220, 280, 350].map(h => (
+                  <button key={h} onClick={() => setCardHeight(h)} className={`px-3 py-1.5 rounded-lg text-[10px] font-medium border transition-colors ${cardHeight === h ? 'bg-primary/20 text-primary border-primary/40' : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'}`}>
                     {h}px
                   </button>
                 ))}

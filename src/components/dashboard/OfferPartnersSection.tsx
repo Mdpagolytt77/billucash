@@ -22,7 +22,7 @@ interface OfferPartnersSectionProps {
   onPartnerClick: (partner: { name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale' }) => void;
 }
 
-const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight = 280, cardColumns = 5, onPartnerClick }: OfferPartnersSectionProps) => {
+const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight = 200, cardColumns = 5, onPartnerClick }: OfferPartnersSectionProps) => {
   const getBadgeStyle = (type: 'hot' | 'new' | 'bonus') => {
     switch (type) {
       case 'hot':

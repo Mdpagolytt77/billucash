@@ -19,10 +19,14 @@ interface OfferPartnersSectionProps {
   isPremium?: boolean;
   cardHeight?: number;
   cardColumns?: number;
+  cardGap?: number;
+  cardBorderRadius?: number;
+  mobileCardHeight?: number;
+  cardPadding?: number;
   onPartnerClick: (partner: { name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale' }) => void;
 }
 
-const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight = 200, cardColumns = 5, onPartnerClick }: OfferPartnersSectionProps) => {
+const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight = 200, cardColumns = 5, cardGap = 12, cardBorderRadius = 20, mobileCardHeight = 160, cardPadding = 16, onPartnerClick }: OfferPartnersSectionProps) => {
   const getBadgeStyle = (type: 'hot' | 'new' | 'bonus') => {
     switch (type) {
       case 'hot':
@@ -95,8 +99,8 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight =
           </div>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" style={{ '--lg-cols': cardColumns } as React.CSSProperties} id="offer-grid">
-          <style>{`@media (min-width: 1024px) { #offer-grid { grid-template-columns: repeat(var(--lg-cols), minmax(0, 1fr)) !important; } }`}</style>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4" style={{ gap: `${cardGap}px`, '--lg-cols': cardColumns } as React.CSSProperties} id="offer-grid">
+          <style>{`@media (min-width: 1024px) { #offer-grid { grid-template-columns: repeat(var(--lg-cols), minmax(0, 1fr)) !important; } } @media (max-width: 639px) { #offer-grid > div > div[id^="card-"] { height: ${mobileCardHeight}px !important; } }`}</style>
           {partners.map((partner, index) => (
             <div
               key={partner.id}
@@ -111,13 +115,16 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, cardHeight =
               className="cursor-pointer group"
             >
               <div 
-                className="relative w-full overflow-hidden transition-all duration-300 ease-out transform group-hover:scale-[1.05] group-hover:-translate-y-1.5 flex flex-col items-center justify-center p-4 max-sm:!h-[160px]"
+                className="relative w-full overflow-hidden transition-all duration-300 ease-out transform group-hover:scale-[1.05] group-hover:-translate-y-1.5 flex flex-col items-center justify-center"
                 style={{
                   height: `${cardHeight}px`,
-                  borderRadius: '20px',
+                  borderRadius: `${cardBorderRadius}px`,
+                  padding: `${cardPadding}px`,
                   background: getCardBackground(partner.color, index),
                   border: '1px solid rgba(255,255,255,0.08)',
-                }}
+                  '--mobile-h': `${mobileCardHeight}px`,
+                } as React.CSSProperties}
+                id={`card-${partner.id}`}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = '0 0 25px rgba(0,170,255,0.5)';
                 }}

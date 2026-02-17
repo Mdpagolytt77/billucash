@@ -56,8 +56,12 @@ const Dashboard = () => {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [selectedOfferwall, setSelectedOfferwall] = useState<{name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale'; popupBorderColor?: string; popupBorderWidth?: string} | null>(null);
   const [adminOfferwalls, setAdminOfferwalls] = useState<AdminOfferwall[]>([]);
-  const [cardHeight, setCardHeight] = useState(280);
-  const [cardColumns, setCardColumns] = useState(5);
+   const [cardHeight, setCardHeight] = useState(280);
+   const [cardColumns, setCardColumns] = useState(5);
+   const [cardGap, setCardGap] = useState(12);
+   const [cardBorderRadius, setCardBorderRadius] = useState(20);
+   const [mobileCardHeight, setMobileCardHeight] = useState(160);
+   const [cardPadding, setCardPadding] = useState(16);
   const [popupLoading, setPopupLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: '1', message: 'Welcome to WallsCash! Start earning now.', type: 'system', read: false, time: 'Just now', created_at: new Date() },
@@ -95,12 +99,16 @@ const Dashboard = () => {
       const { data } = await supabase.rpc('get_public_site_settings');
       
       if (data && data.length > 0 && data[0].offerwall_settings && typeof data[0].offerwall_settings === 'object') {
-        const settings = data[0].offerwall_settings as { offerwalls?: AdminOfferwall[]; cardHeight?: number; cardColumns?: number };
-        if (Array.isArray(settings.offerwalls)) {
-          setAdminOfferwalls(settings.offerwalls.filter(w => w.enabled));
-        }
-        if (typeof settings.cardHeight === 'number') setCardHeight(settings.cardHeight);
-        if (typeof settings.cardColumns === 'number') setCardColumns(settings.cardColumns);
+         const settings = data[0].offerwall_settings as { offerwalls?: AdminOfferwall[]; cardHeight?: number; cardColumns?: number; cardGap?: number; cardBorderRadius?: number; mobileCardHeight?: number; cardPadding?: number };
+         if (Array.isArray(settings.offerwalls)) {
+           setAdminOfferwalls(settings.offerwalls.filter(w => w.enabled));
+         }
+         if (typeof settings.cardHeight === 'number') setCardHeight(settings.cardHeight);
+         if (typeof settings.cardColumns === 'number') setCardColumns(settings.cardColumns);
+         if (typeof settings.cardGap === 'number') setCardGap(settings.cardGap);
+         if (typeof settings.cardBorderRadius === 'number') setCardBorderRadius(settings.cardBorderRadius);
+         if (typeof settings.mobileCardHeight === 'number') setMobileCardHeight(settings.mobileCardHeight);
+         if (typeof settings.cardPadding === 'number') setCardPadding(settings.cardPadding);
       }
     };
     
@@ -342,13 +350,17 @@ const Dashboard = () => {
           <FeaturedOffersSection onOfferClick={handleOfferClick} />
 
           {/* Offer Partners */}
-          <OfferPartnersSection
-            title="Offer Partners"
-            partners={allPartners}
-            onPartnerClick={handleOfferClick}
-            cardHeight={cardHeight}
-            cardColumns={cardColumns}
-          />
+           <OfferPartnersSection
+             title="Offer Partners"
+             partners={allPartners}
+             onPartnerClick={handleOfferClick}
+             cardHeight={cardHeight}
+             cardColumns={cardColumns}
+             cardGap={cardGap}
+             cardBorderRadius={cardBorderRadius}
+             mobileCardHeight={mobileCardHeight}
+             cardPadding={cardPadding}
+           />
           <div className="pb-20 md:pb-0" />
         </main>
 

@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.bitlab-postback]
 verify_jwt = false
+
+[functions.gemiad-postback]
+verify_jwt = false

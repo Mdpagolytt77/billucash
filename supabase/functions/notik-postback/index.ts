@@ -1,16 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Notik Configuration - from environment variables
 const NOTIK_SECRET_KEY = Deno.env.get('NOTIK_SECRET_KEY');
-
-// Security limits
-const MAX_PAYOUT = 100000; // Maximum 100,000 coins per transaction (coins, not USD)
+const MAX_PAYOUT = 10000000;
 const MAX_OFFER_NAME_LENGTH = 200;
 
 // Helper to convert bytes to hex string
@@ -18,15 +14,15 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// SHA-256 hash function (MD5 not supported in Deno)
-async function sha256Hash2(input: string): Promise<string> {
+// SHA-1 hash function (Notik uses SHA1)
+async function sha1Hash(input: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
   return bytesToHex(new Uint8Array(hashBuffer));
 }
 
-// SHA256 hash function
+// SHA-256 hash function (fallback)
 async function sha256Hash(input: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
@@ -35,254 +31,227 @@ async function sha256Hash(input: string): Promise<string> {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const url = new URL(req.url);
-    
-    // Get the raw query string and fix multiple encoding issues
-    // 1. URL decode first to handle %26 -> &, %3B -> ;, etc.
-    // 2. Then fix HTML entities like &amp; -> &
-    let rawQuery = decodeURIComponent(url.search);
-    
-    // Fix HTML encoded ampersands (multiple variations)
-    rawQuery = rawQuery
-      .replace(/&amp;/gi, '&')  // &amp; -> &
-      .replace(/&amp%3B/gi, '&') // &amp%3B -> &
-      .replace(/amp;/gi, '');   // Remove any remaining amp; fragments
-    
-    // Rebuild URL with fixed query
-    const fixedUrl = new URL(url.origin + url.pathname + rawQuery);
-    const params = fixedUrl.searchParams;
+    const params = url.searchParams;
 
-    // Get client IP (kept for logging + storage only)
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-                     req.headers.get('cf-connecting-ip') || 
-                     req.headers.get('x-real-ip') || '';
+                     req.headers.get('cf-connecting-ip') || '';
 
     console.log('=== Notik Postback Received ===');
-    console.log('Client IP:', clientIp);
-    console.log('Original query:', url.search);
-    console.log('Fixed query:', rawQuery);
     console.log('All params:', Object.fromEntries(params.entries()));
 
-    // Extract Notik parameters based on user's postback URL configuration:
-    // {user_id} -> user_id
-    // {txn_id} -> transaction_id (txn_id)
-    // {offer_name} -> offer_name
-    // {amount} or {payout} -> points/payout
+    // Extract parameters
     const userId = params.get('user_id') || '';
-    const txid = params.get('txn_id') || params.get('transaction_id') || '';
+    const txid = params.get('txn_id') || params.get('trans_id') || params.get('transaction_id') || '';
     let offerName = params.get('offer_name') || 'Notik Offer';
-    const payout = params.get('payout') || params.get('points') || '0';
-    
-    // Additional optional parameters
-    const incomingHash = params.get('sig') || params.get('hash') || params.get('signature') || '';
-    const status = params.get('status') || params.get('result') || 'completed';
-    const country = params.get('country') || params.get('country_code') || params.get('geo') || 'Unknown';
-    const userIp = params.get('ip') || clientIp || '';
-    
-    console.log('Parsed Notik values:', { userId, txid, offerName, payout });
+    // Use 'amount' for coins (not 'payout' which is USD)
+    const amountStr = params.get('amount') || params.get('reward') || params.get('points') || '0';
+    const payoutUsd = params.get('payout') || '0';
+    const incomingHash = params.get('hash') || params.get('sig') || params.get('signature') || '';
+    const userIp = params.get('conversion_ip') || params.get('ip') || clientIp || '';
+    const country = params.get('country') || params.get('country_code') || 'Unknown';
 
-    console.log('Parameters received:', { 
-      userId: !!userId, 
-      txid: !!txid, 
-      status, 
-      payout: !!payout,
-      offerName: !!offerName,
-      hasSignature: !!incomingHash
-    });
+    console.log('Parsed:', { userId, txid, offerName, amount: amountStr, payoutUsd, hasHash: !!incomingHash });
 
     // Validate required parameters
     if (!userId) {
-      console.error('[Validation] Missing user_id parameter');
-      return new Response(JSON.stringify({ success: false, error: 'Missing user_id' }), {
+      console.error('Missing user_id');
+      return new Response('MISSING_USER_ID', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // SECURITY: Signature Verification (mandatory when secret key is configured)
+    // Signature verification
     if (NOTIK_SECRET_KEY) {
       if (!incomingHash) {
-        console.error('[Security] Missing signature - rejecting request');
+        console.error('Missing hash/signature');
         return new Response('SIGNATURE_MISMATCH', {
-          status: 401,
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
         });
       }
 
-      // Notik typically uses: MD5 or SHA256 of user_id + payout + secret_key
+      // Detect hash length: 40 = SHA1, 64 = SHA256
+      const hashLen = incomingHash.length;
+      const hashFn = hashLen <= 40 ? sha1Hash : sha256Hash;
+      const hashName = hashLen <= 40 ? 'SHA1' : 'SHA256';
+
+      // Try common signature formats
       const signatureFormats = [
-        `${userId}${payout}${NOTIK_SECRET_KEY}`,
-        `${userId}${txid}${payout}${NOTIK_SECRET_KEY}`,
-        `${txid}${userId}${payout}${NOTIK_SECRET_KEY}`,
+        `${userId}${amountStr}${NOTIK_SECRET_KEY}`,
+        `${userId}${payoutUsd}${NOTIK_SECRET_KEY}`,
+        `${userId}${txid}${amountStr}${NOTIK_SECRET_KEY}`,
+        `${txid}${userId}${amountStr}${NOTIK_SECRET_KEY}`,
+        `${userId}${txid}${payoutUsd}${NOTIK_SECRET_KEY}`,
+        `${txid}${payoutUsd}${NOTIK_SECRET_KEY}`,
+        `${txid}${amountStr}${NOTIK_SECRET_KEY}`,
+        `${NOTIK_SECRET_KEY}${userId}${amountStr}`,
+        `${NOTIK_SECRET_KEY}${txid}${amountStr}`,
       ];
 
       let signatureValid = false;
-
       for (const format of signatureFormats) {
-        const sha256Expected = await sha256Hash(format);
-        if (sha256Expected.toLowerCase() === incomingHash.toLowerCase()) {
+        const expected = await hashFn(format);
+        if (expected.toLowerCase() === incomingHash.toLowerCase()) {
           signatureValid = true;
-          console.log('[Security] SHA256 signature verification passed');
+          console.log(`${hashName} signature verified with format: ${format.replace(NOTIK_SECRET_KEY, '***')}`);
           break;
         }
       }
 
       if (!signatureValid) {
-        console.error('[Security] Signature verification failed - rejecting request');
+        // Also try the other hash function as fallback
+        const altHashFn = hashLen <= 40 ? sha256Hash : sha1Hash;
+        for (const format of signatureFormats) {
+          const expected = await altHashFn(format);
+          if (expected.toLowerCase() === incomingHash.toLowerCase()) {
+            signatureValid = true;
+            console.log('Signature verified with alt hash');
+            break;
+          }
+        }
+      }
+
+      if (!signatureValid) {
+        console.error('Signature verification failed');
+        console.error('Incoming hash:', incomingHash, `(${hashLen} chars)`);
         return new Response('SIGNATURE_MISMATCH', {
-          status: 401,
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
         });
       }
     } else {
-      console.error('[Security] NOTIK_SECRET_KEY not configured - rejecting request');
+      console.error('NOTIK_SECRET_KEY not configured');
       return new Response('CONFIG_ERROR', {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Parse payout (can be negative for rejections)
-    let payoutValue = parseFloat(payout) || 0;
+    // Parse coin amount from 'amount' field (not USD payout)
+    let coinAmount = Math.round(parseFloat(amountStr) || 0);
 
-    // SECURITY: Maximum payout validation
-    if (Math.abs(payoutValue) > MAX_PAYOUT) {
-      console.error(`[Security] Payout ${payoutValue} exceeds maximum ${MAX_PAYOUT}`);
-      return new Response(JSON.stringify({ success: false, error: 'Payout exceeds limit' }), {
+    if (Math.abs(coinAmount) > MAX_PAYOUT) {
+      console.error('Amount exceeds limit:', coinAmount);
+      return new Response('PAYOUT_TOO_HIGH', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Handle status
-    const lowerStatus = status.toLowerCase();
-    if (lowerStatus === 'rejected' || lowerStatus === 'chargeback' || lowerStatus === 'reversed') {
-      if (payoutValue > 0) {
-        payoutValue = -payoutValue;
-      }
-      console.log('Processing rejection/chargeback, payout:', payoutValue);
-    } else if (lowerStatus !== 'completed' && lowerStatus !== 'success' && lowerStatus !== '1') {
-      console.log('Unknown status, treating as completed:', status);
+    if (coinAmount === 0) {
+      console.error('Zero coin amount');
+      return new Response('INVALID_REWARD', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
     }
 
-    // Validate string field lengths
     if (offerName.length > MAX_OFFER_NAME_LENGTH) {
       offerName = offerName.substring(0, MAX_OFFER_NAME_LENGTH);
     }
 
-    // Create Supabase client with service role key
+    // Supabase REST API
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const headers = {
+      'Content-Type': 'application/json',
+      'apikey': supabaseServiceKey,
+      'Authorization': `Bearer ${supabaseServiceKey}`,
+    };
 
-    // Check for duplicate transaction
+    // Check duplicate
     const transactionId = txid || `notik_${Date.now()}_${userId}`;
     if (txid) {
-      const { data: existing } = await supabase
-        .from('completed_offers')
-        .select('id')
-        .eq('transaction_id', txid)
-        .maybeSingle();
-
-      if (existing) {
-        console.log('Duplicate transaction, already processed');
-        return new Response(JSON.stringify({ success: true, message: 'Already processed' }), {
+      const dupRes = await fetch(
+        `${supabaseUrl}/rest/v1/completed_offers?transaction_id=eq.${encodeURIComponent(txid)}&select=id&limit=1`,
+        { headers }
+      );
+      const dupData = await dupRes.json();
+      if (dupData && dupData.length > 0) {
+        console.log('Duplicate transaction');
+        return new Response('DUP', {
           status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
         });
       }
     }
 
     // Get user profile
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('username, balance')
-      .eq('id', userId)
-      .maybeSingle();
+    const profileRes = await fetch(
+      `${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=username,balance&limit=1`,
+      { headers }
+    );
+    const profileData = await profileRes.json();
 
-    if (profileError || !profile) {
-      console.error('[Validation] User not found:', userId);
-      return new Response(JSON.stringify({ success: false, error: 'User not found' }), {
+    if (!profileData || profileData.length === 0) {
+      console.error('User not found:', userId);
+      return new Response('USER_NOT_FOUND', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Calculate coins to award (payout is already in the correct unit from Notik)
-    // Notik sends payout in the reward currency configured in their dashboard
-    const coinsToAward = Math.round(payoutValue);
+    const profile = profileData[0];
 
-    // Use the increment_balance function
-    const { error: balanceError } = await supabase.rpc('increment_balance', {
-      user_id_input: userId,
-      amount_input: coinsToAward
+    // Update balance
+    const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/increment_balance`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ user_id_input: userId, amount_input: coinAmount }),
     });
 
-    if (balanceError) {
-      console.error('Failed to update balance:', balanceError);
-      return new Response(JSON.stringify({ success: false, error: 'Failed to update balance' }), {
+    if (!rpcRes.ok) {
+      const errText = await rpcRes.text();
+      console.error('Balance update failed:', errText);
+      return new Response('BALANCE_ERROR', {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
+    await rpcRes.text();
 
-    // Get updated balance
-    const { data: updatedProfile } = await supabase
-      .from('profiles')
-      .select('balance')
-      .eq('id', userId)
-      .maybeSingle();
-
-    const newBalance = updatedProfile?.balance || 0;
-
-    // Insert completed offer record
-    const { error: insertError } = await supabase
-      .from('completed_offers')
-      .insert({
+    // Insert completed offer
+    const insertRes = await fetch(`${supabaseUrl}/rest/v1/completed_offers`, {
+      method: 'POST',
+      headers: { ...headers, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
         user_id: userId,
-        username: profile.username,
+        username: profile.username || userId,
         offer_name: offerName,
         offerwall: 'Notik',
-        coin: coinsToAward,
+        coin: coinAmount,
         transaction_id: transactionId,
         ip: userIp || null,
-        country: country,
-      });
-
-    if (insertError) {
-      console.error('Failed to insert offer:', insertError);
-    }
-
-    console.log('=== Notik Postback Processed Successfully ===', {
-      userId,
-      offerName,
-      coinsAwarded: coinsToAward,
-      newBalance,
-      transactionId
+        country: country || 'Unknown',
+      }),
     });
 
-    // Return success response
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Postback processed',
-      coins_awarded: coinsToAward,
-      new_balance: newBalance
-    }), {
+    if (!insertRes.ok) {
+      const errText = await insertRes.text();
+      console.error('Insert failed:', errText);
+    } else {
+      await insertRes.text();
+    }
+
+    console.log(`Success: ${profile.username} credited ${coinAmount} coins via Notik`);
+
+    return new Response('OK', {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
     });
 
   } catch (error) {
-    console.error('Processing error:', error);
-    return new Response(JSON.stringify({ success: false, error: 'Internal error' }), {
+    console.error('Error:', error);
+    return new Response('ERROR', {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
     });
   }
 });

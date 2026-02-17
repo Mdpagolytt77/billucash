@@ -29,3 +29,9 @@ verify_jwt = false
 
 [functions.timewall-postback]
 verify_jwt = false
+
+[functions.hello-test]
+verify_jwt = false
+
+[functions.bitlab-postback]
+verify_jwt = false

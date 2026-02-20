@@ -31,20 +31,11 @@ interface TrackerSettings {
   manualScrollEnabled: boolean;
 }
 
-// Convert ISO 3166-1 alpha-2 country code to flag emoji
-const isoToFlag = (code: string): string => {
-  const upper = code.toUpperCase();
-  if (upper.length !== 2) return '';
-  const cp1 = 0x1F1E6 + (upper.charCodeAt(0) - 65);
-  const cp2 = 0x1F1E6 + (upper.charCodeAt(1) - 65);
-  return String.fromCodePoint(cp1, cp2);
-};
-
-// Country name/code to flag emoji mapping
-const getCountryFlag = (country: string | null): string => {
-  if (!country || country === 'Unknown' || country === 'TEST') return '🌍';
+// Convert country code or name to ISO 2-letter code
+const getCountryCode = (country: string | null): string | null => {
+  if (!country || country === 'Unknown' || country === 'TEST') return null;
   if (country.length === 2 && /^[A-Za-z]{2}$/.test(country)) {
-    return isoToFlag(country);
+    return country.toUpperCase();
   }
   const nameToCode: Record<string, string> = {
     'afghanistan': 'AF', 'albania': 'AL', 'algeria': 'DZ', 'argentina': 'AR', 'australia': 'AU',
@@ -62,9 +53,23 @@ const getCountryFlag = (country: string | null): string => {
     'united kingdom': 'GB', 'uk': 'GB', 'united states': 'US', 'usa': 'US',
     'vietnam': 'VN', 'venezuela': 'VE',
   };
-  const code = nameToCode[country.toLowerCase()];
-  if (code) return isoToFlag(code);
-  return '🌍';
+  return nameToCode[country.toLowerCase()] || null;
+};
+
+// Flag image component using flagcdn.com (works on all devices)
+const FlagImage = ({ country, className = 'w-5 h-4' }: { country: string | null; className?: string }) => {
+  const code = getCountryCode(country);
+  if (!code) return <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />;
+  return (
+    <img
+      src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
+      alt={code}
+      className={`object-cover rounded-sm flex-shrink-0 ${className}`}
+      onError={(e) => {
+        (e.target as HTMLImageElement).style.display = 'none';
+      }}
+    />
+  );
 };
 
 const LiveEarningsTracker = () => {
@@ -273,7 +278,7 @@ const LiveEarningsTracker = () => {
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-[14px] bg-[#0B0F19] border border-[rgba(0,170,255,0.15)]">
-                <span className="text-2xl">{getCountryFlag(selectedOffer.country)}</span>
+                <FlagImage country={selectedOffer.country} className="w-6 h-5" />
                 <div className="flex-1">
                   <p className="text-xs text-[#A1A1AA]">Country</p>
                   <p className="font-medium text-sm text-white">{selectedOffer.country || 'Unknown'}</p>
@@ -301,7 +306,7 @@ const LiveEarningsTracker = () => {
       <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
         <div className="flex items-center h-12 px-3 gap-3">
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-            <span className="text-lg leading-none">{getCountryFlag(userCountry)}</span>
+            <FlagImage country={userCountry} className="w-5 h-4" />
           </div>
           <div 
             ref={scrollRef}

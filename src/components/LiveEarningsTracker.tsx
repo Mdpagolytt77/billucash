@@ -160,8 +160,23 @@ const LiveEarningsTracker = () => {
   }, []);
 
   useEffect(() => {
+    const getTodayRange = () => {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      return { startOfDay: startOfDay.toISOString(), endOfDay: endOfDay.toISOString() };
+    };
+
     const loadRecentOffers = async () => {
-      const { data } = await supabase.rpc('get_live_tracker_offers', { limit_count: 20 });
+      const { startOfDay, endOfDay } = getTodayRange();
+      const { data } = await supabase
+        .from('completed_offers')
+        .select('id, username, coin, offerwall, country, created_at')
+        .gte('created_at', startOfDay)
+        .lte('created_at', endOfDay)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
       if (data) {
         setEarnings(data.map((offer: any) => ({
           id: offer.id,
@@ -179,15 +194,24 @@ const LiveEarningsTracker = () => {
       .channel('live-tracker-earnings')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'completed_offers' }, (payload) => {
         const newOffer = payload.new as any;
-        const newEarning: EarningEvent = {
-          id: newOffer.id,
-          username: newOffer.username,
-          coins: newOffer.coin,
-          offerwall: newOffer.offerwall,
-          country: newOffer.country || null,
-          created_at: new Date(newOffer.created_at),
-        };
-        setEarnings(prev => [newEarning, ...prev.slice(0, 19)]);
+        const offerDate = new Date(newOffer.created_at);
+        const now = new Date();
+        // Only add if it's today's offer
+        if (
+          offerDate.getFullYear() === now.getFullYear() &&
+          offerDate.getMonth() === now.getMonth() &&
+          offerDate.getDate() === now.getDate()
+        ) {
+          const newEarning: EarningEvent = {
+            id: newOffer.id,
+            username: newOffer.username,
+            coins: newOffer.coin,
+            offerwall: newOffer.offerwall,
+            country: newOffer.country || null,
+            created_at: offerDate,
+          };
+          setEarnings(prev => [newEarning, ...prev.slice(0, 19)]);
+        }
       })
       .subscribe();
 
@@ -219,7 +243,7 @@ const LiveEarningsTracker = () => {
     scrollRef.current.scrollLeft = scrollLeft - (x - startX) * 2;
   };
 
-  if (earnings.length === 0) return null;
+  const noOffersToday = earnings.length === 0;
 
   const displayItems = earnings.length >= 5 ? [...earnings, ...earnings] : earnings;
 
@@ -308,49 +332,55 @@ const LiveEarningsTracker = () => {
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
             <FlagImage country={userCountry} className="w-5 h-4" />
           </div>
-          <div 
-            ref={scrollRef}
-            className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleMouseUp}
-          >
+          {noOffersToday ? (
+            <div className="flex-1 flex items-center gap-2 text-muted-foreground">
+              <span className="text-xs">No completed offers today</span>
+            </div>
+          ) : (
             <div 
-              className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
-              style={{
-                animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
-                animationPlayState: isDragging ? 'paused' : 'running',
-              }}
+              ref={scrollRef}
+              className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleMouseUp}
             >
-              {displayItems.map((earning, index) => (
-                <div 
-                  key={`${earning.id}-${index}`}
-                  onClick={() => handleOfferClick(earning)}
-                  className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
-                >
-                  {/* Coin Icon */}
-                  <CoinIcon className="w-5 h-5 flex-shrink-0" />
-                  {/* Info */}
-                  <div className="flex flex-col leading-none">
-                    <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
-                      {earning.username}
-                    </span>
-                    <span className="text-[9px] text-muted-foreground capitalize">
-                      {earning.offerwall}
+              <div 
+                className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
+                style={{
+                  animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
+                  animationPlayState: isDragging ? 'paused' : 'running',
+                }}
+              >
+                {displayItems.map((earning, index) => (
+                  <div 
+                    key={`${earning.id}-${index}`}
+                    onClick={() => handleOfferClick(earning)}
+                    className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
+                  >
+                    {/* Coin Icon */}
+                    <CoinIcon className="w-5 h-5 flex-shrink-0" />
+                    {/* Info */}
+                    <div className="flex flex-col leading-none">
+                      <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
+                        {earning.username}
+                      </span>
+                      <span className="text-[9px] text-muted-foreground capitalize">
+                        {earning.offerwall}
+                      </span>
+                    </div>
+                    {/* Coins */}
+                    <span className="text-[11px] font-bold text-primary">
+                      {earning.coins.toLocaleString()}
                     </span>
                   </div>
-                  {/* Coins */}
-                  <span className="text-[11px] font-bold text-primary">
-                    {earning.coins.toLocaleString()}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>

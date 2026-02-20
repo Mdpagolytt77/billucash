@@ -83,14 +83,26 @@ const LiveEarningsTracker = () => {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Detect user's country via IP geolocation
+  // Detect user's country via IP geolocation (multiple fallbacks)
   useEffect(() => {
-    fetch('https://ipapi.co/json/')
-      .then(res => res.json())
-      .then(data => {
-        if (data?.country_code) setUserCountry(data.country_code);
-      })
-      .catch(() => setUserCountry(null));
+    const detectCountry = async () => {
+      const apis = [
+        () => fetch('https://ipapi.co/json/').then(r => r.json()).then(d => d?.country_code),
+        () => fetch('https://api.country.is/').then(r => r.json()).then(d => d?.country),
+        () => fetch('https://ipwho.is/').then(r => r.json()).then(d => d?.country_code),
+      ];
+      for (const api of apis) {
+        try {
+          const code = await api();
+          if (code && /^[A-Z]{2}$/.test(code)) {
+            setUserCountry(code);
+            return;
+          }
+        } catch {}
+      }
+      setUserCountry(null);
+    };
+    detectCountry();
   }, []);
 
   const getTimeAgo = (date: Date) => {

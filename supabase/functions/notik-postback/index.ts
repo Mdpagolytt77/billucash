@@ -54,7 +54,19 @@ serve(async (req) => {
     const payoutUsd = params.get('payout') || '0';
     const incomingHash = params.get('hash') || params.get('sig') || params.get('signature') || '';
     const userIp = params.get('conversion_ip') || params.get('ip') || clientIp || '';
-    const country = params.get('country') || params.get('country_code') || 'Unknown';
+    let country = params.get('country') || params.get('country_code') || '';
+
+    // If no country from postback, try to detect from IP
+    if (!country && userIp) {
+      try {
+        const geoRes = await fetch(`https://ipapi.co/${userIp}/country_code/`);
+        if (geoRes.ok) {
+          const code = (await geoRes.text()).trim();
+          if (/^[A-Z]{2}$/.test(code)) country = code;
+        }
+      } catch {}
+    }
+    if (!country) country = 'Unknown';
 
     console.log('Parsed:', { userId, txid, offerName, amount: amountStr, payoutUsd, hasHash: !!incomingHash });
 

@@ -168,14 +168,7 @@ const LiveEarningsTracker = () => {
     };
 
     const loadRecentOffers = async () => {
-      const { startOfDay, endOfDay } = getTodayRange();
-      const { data } = await supabase
-        .from('completed_offers')
-        .select('id, username, coin, offerwall, country, created_at')
-        .gte('created_at', startOfDay)
-        .lte('created_at', endOfDay)
-        .order('created_at', { ascending: false })
-        .limit(20);
+      const { data } = await supabase.rpc('get_live_tracker_offers', { limit_count: 20 });
 
       if (data) {
         setEarnings(data.map((offer: any) => ({

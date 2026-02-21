@@ -238,7 +238,7 @@ const LiveEarningsTracker = () => {
 
   const noOffersToday = earnings.length === 0;
 
-  const displayItems = earnings.length > 0 ? [...earnings, ...earnings, ...earnings, ...earnings] : earnings;
+  const displayItems = earnings.length > 1 ? [...earnings, ...earnings, ...earnings, ...earnings] : earnings;
 
   const getAvatarColor = (name: string) => {
     const colors = [
@@ -342,7 +342,7 @@ const LiveEarningsTracker = () => {
               onTouchEnd={handleMouseUp}
             >
               <div 
-                className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging ? 'animate-scroll-left' : ''}`}
+                className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging && earnings.length > 1 ? 'animate-scroll-left' : ''}`}
                 style={{
                   animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
                   animationPlayState: isDragging ? 'paused' : 'running',

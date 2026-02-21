@@ -29,6 +29,7 @@ interface TrackerSettings {
   enabled: boolean;
   speed: number;
   manualScrollEnabled: boolean;
+  trackerVisible?: boolean;
 }
 
 // Convert country code or name to ISO 2-letter code
@@ -80,6 +81,7 @@ const LiveEarningsTracker = () => {
     enabled: true,
     speed: 25,
     manualScrollEnabled: false,
+    trackerVisible: true,
   });
   const [selectedOffer, setSelectedOffer] = useState<OfferDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -251,6 +253,9 @@ const LiveEarningsTracker = () => {
     ];
     return colors[name.charCodeAt(0) % colors.length];
   };
+
+  // If tracker is hidden via admin settings, render nothing
+  if (settings.trackerVisible === false) return null;
 
   return (
     <>

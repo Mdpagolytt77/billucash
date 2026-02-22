@@ -430,7 +430,7 @@ const AdminCompletedOffers = () => {
                         <th className="text-center p-1.5 text-muted-foreground">Amount</th>
                         <th className="text-center p-1.5 text-muted-foreground">Revenue</th>
                         <th className="text-left p-1.5 text-muted-foreground">Transaction ID</th>
-                        <th className="text-left p-1.5 text-muted-foreground">IP</th>
+                        <th className="text-left p-1.5 text-muted-foreground">Country</th>
                         <th className="text-left p-1.5 text-muted-foreground">Date Time</th>
                         <th className="text-center p-1.5 text-muted-foreground">Action</th>
                       </tr>
@@ -455,7 +455,7 @@ const AdminCompletedOffers = () => {
                           <td className="p-1.5 text-center text-green-400">${calculateAmount(row.coin)}</td>
                           <td className="p-1.5 text-center text-primary">${calculateRevenue(row.coin)}</td>
                           <td className="p-1.5 text-muted-foreground text-[8px] max-w-[120px] truncate" title={row.transaction_id || ''}>{row.transaction_id || '-'}</td>
-                          <td className="p-1.5 text-muted-foreground">{row.ip || '-'}</td>
+                          <td className="p-1.5 text-muted-foreground">{row.country || 'Unknown'}</td>
                           <td className="p-1.5 text-muted-foreground whitespace-nowrap">{formatDate(row.created_at)}</td>
                           <td className="p-1.5 text-center">
                             <button

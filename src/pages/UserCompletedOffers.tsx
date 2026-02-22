@@ -232,7 +232,7 @@ const UserCompletedOffers = () => {
                     </thead>
                     <tbody>
                       {pageData.map((row, index) => (
-                        <tr key={row.id} className="border-t border-border/50 hover:bg-primary/5">
+                        <tr key={row.id} className={`border-t border-border/50 ${row.coin < 0 ? 'bg-red-500/10 hover:bg-red-500/15' : 'hover:bg-primary/5'}`}>
                           <td className="p-2 text-muted-foreground">{startIndex + index + 1}</td>
                           <td className="p-2 font-medium text-primary">{row.username}</td>
                           <td className="p-2">
@@ -241,12 +241,13 @@ const UserCompletedOffers = () => {
                             </span>
                           </td>
                           <td className="p-2 max-w-[200px] truncate" title={row.offer_name}>
+                            {row.coin < 0 && <span className="text-red-400 font-semibold mr-1">[Chargeback]</span>}
                             {row.offer_name}
                           </td>
                           <td className="p-2 text-center">
-                            <div className="flex items-center justify-center gap-1 text-green-400 font-semibold">
+                            <div className={`flex items-center justify-center gap-1 font-semibold ${row.coin < 0 ? 'text-red-400' : 'text-green-400'}`}>
                               <CoinIcon className="w-3 h-3" />
-                              {row.coin.toLocaleString()}
+                              {row.coin < 0 ? '' : '+'}{row.coin.toLocaleString()}
                             </div>
                           </td>
                           <td className="p-2 text-muted-foreground whitespace-nowrap">{formatDate(row.created_at)}</td>

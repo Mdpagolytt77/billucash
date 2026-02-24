@@ -345,26 +345,21 @@ const Dashboard = () => {
         <LiveEarningsTracker />
 
         {/* Main Content */}
-        <main className="px-3 md:px-[5%] py-4">
+        <main className="px-3 md:px-[5%] py-3">
           {/* Featured Offers */}
           <FeaturedOffersSection onOfferClick={handleOfferClick} />
 
           {/* Offer Partners */}
            <OfferPartnersSection
-             title="Offer Partners"
+             title="Offerwalls"
              partners={allPartners}
              onPartnerClick={handleOfferClick}
-             cardHeight={cardHeight}
-             cardColumns={cardColumns}
-             cardGap={cardGap}
-             cardBorderRadius={cardBorderRadius}
-             mobileCardHeight={mobileCardHeight}
-             cardPadding={cardPadding}
            />
           <div className="pb-20 md:pb-0" />
         </main>
 
         <Footer />
+        <BottomNavBar />
         <FloatingChatButton />
       </div>
     </>

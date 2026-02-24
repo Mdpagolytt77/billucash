@@ -21,19 +21,15 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-4">
-          <span className="text-primary">Earn rewards.</span>{' '}
-          <span className="text-foreground">testing apps,</span>
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-3">
+          <span className="text-primary">Get paid</span>{' '}
+          <span className="text-foreground">for</span>
           <br />
-          <span className="text-foreground">anywhere & anytime.</span>
+          <span className="text-foreground">Testing Apps, Games and Surveys</span>
         </h1>
 
-        <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
-          Earn money online up to <span className="font-bold text-foreground">$14.99</span> per offer{' '}
-          <span className="inline-flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="font-medium text-foreground">340</span> available offers now
-          </span>
+        <p className="text-sm md:text-lg text-muted-foreground max-w-lg mx-auto">
+          Earn up to <span className="font-bold text-foreground">$10.00</span> per offer
         </p>
       </div>
     </section>

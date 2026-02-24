@@ -70,15 +70,15 @@ const Index = () => {
           </div>
 
           {/* Featured Offers + Login Box side by side */}
-          <div className="animate-fade-in px-4 pb-8" style={{ animationDelay: '0.15s' }}>
-            <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
-              {/* Featured Offers - Left */}
-              <div className="flex-1 w-full">
+          <div className="animate-fade-in px-4 pb-6" style={{ animationDelay: '0.15s' }}>
+            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
+              {/* Featured Offers - Left (3 cards, middle bigger) */}
+              <div className="flex-1 w-full flex justify-center">
                 <FeaturedOffersSection onOfferClick={handleOfferClick} />
               </div>
 
-              {/* Login Box - Right */}
-              <div className="w-full lg:w-[400px] flex-shrink-0">
+              {/* Login Box - Right (compact) */}
+              <div className="w-full lg:w-[340px] flex-shrink-0">
                 <LoginBox />
               </div>
             </div>

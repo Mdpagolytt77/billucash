@@ -4,7 +4,7 @@ const HeroSection = () => {
   const { homepageImages } = useSiteSettings();
 
   return (
-    <section className="relative px-4 pt-8 pb-4 md:pt-16 md:pb-8">
+    <section className="relative px-4 pt-6 pb-2 md:pt-10 md:pb-4">
       {/* Background image if set */}
       {homepageImages.heroIllustration && (
         <div 
@@ -21,14 +21,14 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-3">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-display font-bold leading-tight mb-2">
           <span className="text-primary">Get paid</span>{' '}
           <span className="text-foreground">for</span>
           <br />
           <span className="text-foreground">Testing Apps, Games and Surveys</span>
         </h1>
 
-        <p className="text-sm md:text-lg text-muted-foreground max-w-lg mx-auto">
+        <p className="text-xs md:text-sm text-muted-foreground max-w-lg mx-auto">
           Earn up to <span className="font-bold text-foreground">$10.00</span> per offer
         </p>
       </div>

@@ -29,7 +29,8 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
           .from('featured_offers')
           .select('*')
           .eq('is_active', true)
-          .order('sort_order', { ascending: true });
+          .order('sort_order', { ascending: true })
+          .limit(3);
 
         if (error) throw error;
         setOffers(data || []);
@@ -45,15 +46,14 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   if (loading) {
     return (
-      <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+      <div className="flex items-end justify-center gap-3 md:gap-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="w-40 flex-shrink-0 bg-muted/50 rounded-2xl overflow-hidden animate-pulse border border-border/30">
-            <div className="h-36 bg-muted-foreground/10" />
-            <div className="p-3 space-y-2">
-              <div className="h-4 bg-muted-foreground/10 rounded w-3/4" />
-              <div className="h-3 bg-muted-foreground/10 rounded w-1/2" />
-            </div>
-          </div>
+          <div
+            key={i}
+            className={`bg-muted/50 rounded-2xl overflow-hidden animate-pulse border border-border/30 ${
+              i === 1 ? 'w-36 md:w-44 h-52 md:h-60' : 'w-28 md:w-36 h-44 md:h-52'
+            }`}
+          />
         ))}
       </div>
     );
@@ -61,50 +61,62 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   if (offers.length === 0) return null;
 
+  // Pad to 3 if less
+  const displayOffers = offers.slice(0, 3);
+
   return (
-    <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-      {offers.map((offer) => (
-        <div
-          key={offer.id}
-          onClick={onOfferClick}
-          className="w-40 md:w-44 flex-shrink-0 bg-muted/60 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border border-border/40 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 group"
-        >
-          <div className="relative h-36 md:h-40 overflow-hidden">
-            {offer.image_url ? (
-              <img 
-                src={offer.image_url}
-                alt={offer.name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
-              />
-            ) : (
-              <div className={`w-full h-full bg-gradient-to-br ${offer.color || 'from-primary/80 to-primary/40'} flex items-center justify-center`}>
-                <span className="text-4xl">🎮</span>
+    <div className="flex items-end justify-center gap-3 md:gap-5">
+      {displayOffers.map((offer, index) => {
+        const isCenter = index === 1 || displayOffers.length === 1;
+        const cardWidth = isCenter ? 'w-36 md:w-44' : 'w-28 md:w-36';
+        const cardHeight = isCenter ? 'h-52 md:h-60' : 'h-44 md:h-52';
+        const imageHeight = isCenter ? 'h-32 md:h-38' : 'h-24 md:h-32';
+
+        return (
+          <div
+            key={offer.id}
+            onClick={onOfferClick}
+            className={`${cardWidth} ${cardHeight} flex-shrink-0 bg-muted/60 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border border-border/40 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 group flex flex-col`}
+          >
+            <div className={`relative ${imageHeight} overflow-hidden flex-shrink-0`}>
+              {offer.image_url ? (
+                <img
+                  src={offer.image_url}
+                  alt={offer.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className={`w-full h-full bg-gradient-to-br ${offer.color || 'from-primary/80 to-primary/40'} flex items-center justify-center`}>
+                  <span className={`${isCenter ? 'text-5xl' : 'text-3xl'}`}>🎮</span>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+            </div>
+
+            <div className="p-2 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 className={`${isCenter ? 'text-sm' : 'text-xs'} font-semibold truncate text-foreground`}>{offer.name}</h3>
+                <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                  {offer.description || 'Complete this offer'}
+                </p>
               </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
-          </div>
-          
-          <div className="p-3">
-            <h3 className="text-sm font-semibold truncate text-foreground">{offer.name}</h3>
-            <p className="text-xs text-muted-foreground truncate mt-0.5">
-              {offer.description || 'Complete this offer'}
-            </p>
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-primary font-bold text-base">
-                ${(offer.coins / 100).toFixed(2)}
-              </p>
-              <div className="flex items-center gap-0.5">
-                <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                <span className="text-xs text-muted-foreground">5.0</span>
+              <div className="flex items-center justify-between mt-1.5">
+                <p className={`text-primary font-bold ${isCenter ? 'text-sm' : 'text-xs'}`}>
+                  ${(offer.coins / 100).toFixed(2)}
+                </p>
+                <div className="flex items-center gap-0.5">
+                  <Star className="w-2.5 h-2.5 fill-yellow-500 text-yellow-500" />
+                  <span className="text-[9px] text-muted-foreground">5.0</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

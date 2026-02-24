@@ -46,17 +46,17 @@ const LoginBox = () => {
   };
 
   return (
-    <div className="bg-muted/80 backdrop-blur-xl border border-border rounded-2xl p-6 md:p-8 max-w-md w-full mx-auto transition-all duration-300">
+    <div className="bg-muted/80 backdrop-blur-xl border border-border rounded-2xl p-4 md:p-5 max-w-sm w-full mx-auto transition-all duration-300">
       {/* Title */}
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-display font-bold mb-1">Get Started!</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="text-center mb-3">
+        <h2 className="text-base font-display font-bold mb-0.5">Get Started!</h2>
+        <p className="text-xs text-muted-foreground">
           It's free! Sign up and start to earn money!
         </p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="text-sm font-medium mb-1.5 block">Email</label>
           <input
@@ -64,7 +64,7 @@ const LoginBox = () => {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+            className="w-full px-3 py-2 rounded-lg bg-background border border-border text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
           />
         </div>
         
@@ -81,7 +81,7 @@ const LoginBox = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all pr-10"
+              className="w-full px-3 py-2 rounded-lg bg-background border border-border text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all pr-10"
             />
             <button
               type="button"
@@ -107,7 +107,7 @@ const LoginBox = () => {
         <button 
           type="submit" 
           disabled={isLoading}
-          className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-xs transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
@@ -126,7 +126,7 @@ const LoginBox = () => {
         
         <button 
           type="button"
-          className="w-full py-3 rounded-lg bg-background border border-border text-sm font-medium transition-all hover:bg-muted flex items-center justify-center gap-2"
+          className="w-full py-2 rounded-lg bg-background border border-border text-xs font-medium transition-all hover:bg-muted flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

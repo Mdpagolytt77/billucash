@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Menu, Search, Loader2, Calendar } from 'lucide-react';
+import { CheckCircle, Menu, Search, Loader2, Calendar, Globe } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -16,6 +16,7 @@ interface CompletedOffer {
   offer_name: string;
   coin: number;
   created_at: string;
+  country: string | null;
 }
 
 const UserCompletedOffers = () => {
@@ -23,6 +24,7 @@ const UserCompletedOffers = () => {
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(15);
@@ -36,7 +38,7 @@ const UserCompletedOffers = () => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('completed_offers')
-        .select('id, username, offerwall, offer_name, coin, created_at')
+        .select('id, username, offerwall, offer_name, coin, created_at, country')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -71,12 +73,17 @@ const UserCompletedOffers = () => {
     };
   }, []);
 
-  // Filter by search term (username, offer name) and date range
+  // Get unique countries for filter
+  const uniqueCountries = [...new Set(offers.map(o => o.country || 'Unknown'))].sort();
+
+  // Filter by search term (username, offer name), country, and date range
   const filteredData = offers.filter(row => {
     const matchesSearch = 
       row.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.offer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.offerwall.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCountry = !countryFilter || (row.country || 'Unknown') === countryFilter;
     
     let matchesDate = true;
     if (row.created_at) {
@@ -90,14 +97,14 @@ const UserCompletedOffers = () => {
       }
     }
     
-    return matchesSearch && matchesDate;
+    return matchesSearch && matchesCountry && matchesDate;
   });
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const pageData = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, dateFrom, dateTo, rowsPerPage]);
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, countryFilter, dateFrom, dateTo, rowsPerPage]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -169,6 +176,17 @@ const UserCompletedOffers = () => {
                   />
                 </div>
                 <div className="flex items-center gap-1">
+                  <Globe className="w-3 h-3 text-muted-foreground" />
+                  <select 
+                    value={countryFilter} 
+                    onChange={(e) => setCountryFilter(e.target.value)} 
+                    className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]"
+                  >
+                    <option value="">All Countries</option>
+                    {uniqueCountries.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="flex items-center gap-1">
                   <span className="text-[10px] text-muted-foreground">From:</span>
                   <div className="relative">
                     <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
@@ -192,10 +210,10 @@ const UserCompletedOffers = () => {
                     />
                   </div>
                 </div>
-                {(dateFrom || dateTo) && (
+                {(dateFrom || dateTo || countryFilter) && (
                   <button 
-                    onClick={() => { setDateFrom(''); setDateTo(''); }} 
-                    className="px-2 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] hover:bg-red-500/30"
+                    onClick={() => { setDateFrom(''); setDateTo(''); setCountryFilter(''); }} 
+                    className="px-2 py-1.5 bg-destructive/20 text-destructive rounded-lg text-[10px] hover:bg-destructive/30"
                   >
                     Clear
                   </button>
@@ -226,7 +244,8 @@ const UserCompletedOffers = () => {
                         <th className="text-left p-2 text-muted-foreground">Username</th>
                         <th className="text-left p-2 text-muted-foreground">Offerwall</th>
                         <th className="text-left p-2 text-muted-foreground">Offer Name</th>
-                        <th className="text-center p-2 text-muted-foreground">Coins</th>
+                         <th className="text-center p-2 text-muted-foreground">Coins</th>
+                        <th className="text-left p-2 text-muted-foreground">Country</th>
                         <th className="text-left p-2 text-muted-foreground">Date & Time</th>
                       </tr>
                     </thead>
@@ -249,6 +268,9 @@ const UserCompletedOffers = () => {
                               <CoinIcon className="w-3 h-3" />
                               {row.coin < 0 ? '' : '+'}{row.coin.toLocaleString()}
                             </div>
+                          </td>
+                          <td className="p-2 text-muted-foreground text-[9px]">
+                            <span className="px-1.5 py-0.5 rounded bg-muted text-[9px]">{row.country || 'Unknown'}</span>
                           </td>
                           <td className="p-2 text-muted-foreground whitespace-nowrap">{formatDate(row.created_at)}</td>
                         </tr>

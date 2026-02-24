@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,52 +6,52 @@
 
 @layer base {
   :root {
-    --background: 220 50% 7%;
+    --background: 222 60% 7%;
     --foreground: 0 0% 100%;
 
-    --card: 220 33% 11%;
+    --card: 220 50% 10%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 220 33% 11%;
+    --popover: 220 50% 10%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 195 100% 50%;
-    --primary-foreground: 220 50% 7%;
+    --primary: 207 100% 50%;
+    --primary-foreground: 220 60% 7%;
 
-    --secondary: 215 100% 50%;
+    --secondary: 224 100% 56%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 40% 13%;
-    --muted-foreground: 240 4% 66%;
+    --muted: 220 45% 12%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 195 100% 50%;
+    --accent: 199 100% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 50% 20%;
-    --input: 220 40% 10%;
-    --ring: 195 100% 50%;
+    --border: 215 40% 18%;
+    --input: 220 50% 9%;
+    --ring: 207 100% 50%;
 
     --radius: 0.875rem;
 
-    /* Custom tokens */
-    --glass-bg: 215 50% 50% / 0.08;
-    --glass-border: 195 100% 50% / 0.2;
-    --glow-primary: 195 100% 50% / 0.35;
-    --gradient-primary: linear-gradient(135deg, #00C6FF, #0072FF);
-    
-    /* TakeDollers specific */
-    --td-dark-bg: 220 50% 7%;
-    --td-card-bg: 220 33% 11%;
-    --td-inner-card: 220 47% 11%;
-    --td-border-glow: 195 100% 50% / 0.3;
+    /* Neon glow tokens */
+    --neon-blue: 207 100% 50%;
+    --neon-cyan: 199 100% 50%;
+    --neon-deep: 224 100% 44%;
+
+    /* Glass tokens */
+    --glass-bg: 220 50% 50% / 0.06;
+    --glass-border: 207 100% 50% / 0.15;
+    --glow-primary: 207 100% 50% / 0.35;
+    --gradient-primary: linear-gradient(135deg, #00B0FF, #2979FF);
+    --gradient-cta: linear-gradient(135deg, #00B0FF, #2979FF, #1565C0);
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 222 60% 7%;
+    --foreground: 0 0% 100%;
   }
 }
 
@@ -80,32 +80,49 @@
     background-image: var(--gradient-primary);
   }
 
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #4FC3F7, #2979FF, #1565C0);
+  }
+
+  /* Premium glass card */
   .glass-card {
     @apply backdrop-blur-xl border rounded-2xl;
     background: hsl(var(--glass-bg));
     border-color: hsl(var(--glass-border));
-    box-shadow: 
-      0 15px 30px rgba(0,0,0,0.3),
-      0 0 0 1px hsl(var(--glow-primary)),
-      0 0 30px hsl(var(--glow-primary));
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
   }
 
   .glass-card:hover {
+    transform: translateY(-8px);
     box-shadow: 
-      0 20px 40px rgba(0,0,0,0.4),
-      0 0 0 1px hsl(199 89% 58% / 0.2),
-      0 0 50px hsl(var(--glow-primary));
+      0 20px 50px rgba(0,0,0,0.5),
+      0 0 30px hsl(var(--neon-cyan) / 0.4);
+    border-color: hsl(var(--neon-cyan) / 0.4);
   }
 
+  .glass-card-mini {
+    background: hsl(var(--glass-bg));
+    border-color: hsl(var(--glass-border));
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .glass-card-mini:hover {
+    box-shadow: 
+      0 12px 32px rgba(0,0,0,0.4),
+      0 0 20px hsl(var(--neon-cyan) / 0.2);
+  }
+
+  /* Premium logo */
   .logo-3d {
     @apply font-display font-black;
     color: hsl(var(--primary));
     text-shadow: 
-      0 1px 0 hsl(199 70% 35%),
-      0 2px 0 hsl(199 70% 35%),
-      0 3px 0 hsl(199 70% 35%),
-      0 4px 0 hsl(199 70% 35%),
-      0 5px 0 hsl(199 70% 35%),
+      0 1px 0 hsl(207 70% 35%),
+      0 2px 0 hsl(207 70% 35%),
+      0 3px 0 hsl(207 70% 35%),
+      0 4px 0 hsl(207 70% 35%),
+      0 5px 0 hsl(207 70% 35%),
       0 6px 1px rgba(0,0,0,0.1),
       0 0 5px rgba(0,0,0,0.1),
       0 1px 3px rgba(0,0,0,0.3),
@@ -113,60 +130,63 @@
       0 5px 10px rgba(0,0,0,0.25),
       0 10px 10px rgba(0,0,0,0.2),
       0 20px 20px rgba(0,0,0,0.15);
-    transform: perspective(500px) rotateX(10deg);
   }
 
+  /* Buttons */
   .btn-primary {
-    @apply px-6 py-3 rounded-full font-display font-bold text-sm transition-all duration-300;
+    @apply px-6 py-3 rounded-lg font-display font-bold text-sm transition-all duration-300;
     background: var(--gradient-primary);
     color: white;
+    box-shadow: 0 5px 20px rgba(41,121,255,0.4);
   }
 
   .btn-primary:hover {
     @apply -translate-y-1;
-    box-shadow: 0 8px 20px hsl(var(--glow-primary));
+    box-shadow: 0 10px 30px rgba(41,121,255,0.5);
   }
 
   .btn-glass {
-    @apply px-6 py-3 rounded-full font-display font-bold text-sm transition-all duration-300 backdrop-blur-lg;
-    background: hsl(var(--glass-bg));
-    border: 1px solid hsl(var(--glass-border));
+    @apply px-6 py-3 rounded-lg font-display font-bold text-sm transition-all duration-300 backdrop-blur-lg;
+    background: #162235;
+    border: 1px solid rgba(255,255,255,0.08);
   }
 
   .btn-glass:hover {
     @apply -translate-y-1;
-    background: hsl(0 0% 100% / 0.15);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    background: #1a2a42;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   }
 
-  .glass-card-mini {
-    background: hsl(var(--glass-bg));
-    border-color: hsl(var(--glass-border));
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-  }
-
-  .glass-card-mini:hover {
-    box-shadow: 
-      0 12px 32px rgba(0,0,0,0.3),
-      0 0 0 1px hsl(var(--glass-border));
-  }
-
+  /* Form inputs */
   .form-input-custom {
-    @apply w-full px-5 py-4 rounded-xl text-sm transition-all duration-300;
-    background: hsl(0 0% 100% / 0.1);
-    border: 1px solid hsl(var(--glass-border));
-    color: hsl(var(--foreground));
+    @apply w-full px-4 py-3 rounded-xl text-sm transition-all duration-300;
+    background: #0E1625;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #FFFFFF;
   }
 
   .form-input-custom:focus {
     @apply outline-none;
     border-color: hsl(var(--primary));
-    background: hsl(0 0% 100% / 0.15);
     box-shadow: 0 0 15px hsl(var(--glow-primary));
   }
 
   .form-input-custom::placeholder {
-    color: hsl(0 0% 100% / 0.6);
+    color: #6B7785;
+  }
+
+  /* Neon glow pulse animation */
+  @keyframes neon-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(var(--neon-cyan) / 0.3), 0 5px 20px rgba(41,121,255,0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px hsl(var(--neon-cyan) / 0.5), 0 5px 30px rgba(41,121,255,0.5);
+    }
+  }
+
+  .animate-neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite;
   }
 }
 
@@ -223,18 +243,18 @@
       transform: translateY(0) rotate(0deg); 
     }
     25% {
-      transform: translateY(-8px) rotate(5deg);
+      transform: translateY(-8px) rotate(3deg);
     }
     50% { 
       transform: translateY(-15px) rotate(0deg); 
     }
     75% {
-      transform: translateY(-8px) rotate(-5deg);
+      transform: translateY(-8px) rotate(-3deg);
     }
   }
 
   .animate-float {
-    animation: float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
   }
 
   @keyframes glow-pulse {
@@ -256,7 +276,7 @@
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
+    animation: neon-pulse 2s ease-in-out infinite;
   }
 
   @keyframes slideInUp {

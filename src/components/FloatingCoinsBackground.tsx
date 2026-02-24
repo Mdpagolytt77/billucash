@@ -11,7 +11,6 @@ const FloatingCoinsBackground = ({
   showGlow = true,
   showBeams = true 
 }: FloatingCoinsBackgroundProps) => {
-  // Different coin configurations based on density
   const coinConfigs = {
     low: [
       { top: '10%', left: '5%', delay: '0s', size: 'w-5 h-5' },
@@ -44,24 +43,40 @@ const FloatingCoinsBackground = ({
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Glow effects */}
+      {/* Layered gradient background */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 60% at 0% 0%, #0F1C2E 0%, transparent 50%),
+            radial-gradient(circle 140px at 50% 40%, rgba(41,121,255,0.15) 0%, transparent 100%),
+            radial-gradient(ellipse 60% 60% at 100% 100%, #050B18 0%, transparent 50%)
+          `
+        }}
+      />
+
+      {/* Neon glow blobs */}
       {showGlow && (
         <>
           <div 
-            className="absolute inset-0 opacity-40"
+            className="absolute top-[20%] left-[10%] w-[400px] h-[400px] rounded-full opacity-20"
             style={{
-              background: `
-                radial-gradient(ellipse 60% 40% at 50% 0%, hsl(var(--primary) / 0.2) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 100% 50%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse 40% 60% at 0% 100%, hsl(var(--primary) / 0.08) 0%, transparent 50%)
-              `
+              background: 'radial-gradient(circle, #00B0FF 0%, transparent 70%)',
+              filter: 'blur(80px)',
             }}
           />
-          {/* Center glow */}
           <div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-20 blur-3xl"
+            className="absolute top-[50%] right-[5%] w-[300px] h-[300px] rounded-full opacity-15"
             style={{
-              background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)'
+              background: 'radial-gradient(circle, #2962FF 0%, transparent 70%)',
+              filter: 'blur(100px)',
+            }}
+          />
+          <div 
+            className="absolute bottom-[10%] left-[40%] w-[350px] h-[350px] rounded-full opacity-10"
+            style={{
+              background: 'radial-gradient(circle, #00B0FF 0%, transparent 70%)',
+              filter: 'blur(120px)',
             }}
           />
         </>
@@ -71,16 +86,30 @@ const FloatingCoinsBackground = ({
       {showBeams && (
         <>
           <div 
-            className="absolute w-[200%] h-0.5 bg-gradient-to-r from-transparent via-primary/15 to-transparent rotate-45 animate-pulse"
-            style={{ top: '25%', left: '-50%' }}
+            className="absolute w-[200%] h-0.5 rotate-45 animate-pulse"
+            style={{ 
+              top: '25%', 
+              left: '-50%',
+              background: 'linear-gradient(90deg, transparent, rgba(0,176,255,0.08), transparent)',
+            }}
           />
           <div 
-            className="absolute w-[200%] h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent -rotate-12 animate-pulse"
-            style={{ top: '55%', left: '-50%', animationDelay: '1s' }}
+            className="absolute w-[200%] h-px -rotate-12 animate-pulse"
+            style={{ 
+              top: '55%', 
+              left: '-50%', 
+              animationDelay: '1s',
+              background: 'linear-gradient(90deg, transparent, rgba(41,121,255,0.06), transparent)',
+            }}
           />
           <div 
-            className="absolute w-[200%] h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent rotate-12 animate-pulse"
-            style={{ top: '75%', left: '-50%', animationDelay: '2s' }}
+            className="absolute w-[200%] h-px rotate-12 animate-pulse"
+            style={{ 
+              top: '75%', 
+              left: '-50%', 
+              animationDelay: '2s',
+              background: 'linear-gradient(90deg, transparent, rgba(0,176,255,0.06), transparent)',
+            }}
           />
         </>
       )}
@@ -95,10 +124,16 @@ const FloatingCoinsBackground = ({
             left: coin.left,
             right: coin.right,
             animationDelay: coin.delay,
-            animationDuration: '3s',
+            animationDuration: '4s',
           }}
         >
-          <div className="w-full h-full rounded-lg bg-primary/80 flex items-center justify-center shadow-lg shadow-primary/30 backdrop-blur-sm">
+          <div 
+            className="w-full h-full rounded-lg flex items-center justify-center backdrop-blur-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,176,255,0.6), rgba(41,121,255,0.4))',
+              boxShadow: '0 4px 15px rgba(0,176,255,0.3)',
+            }}
+          >
             <DollarSign className="w-3/4 h-3/4 text-white" />
           </div>
         </div>

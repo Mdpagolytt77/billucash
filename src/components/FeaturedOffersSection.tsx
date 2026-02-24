@@ -46,13 +46,14 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   if (loading) {
     return (
-      <div className="flex items-end justify-center gap-3 md:gap-4">
+      <div className="flex items-end justify-center gap-4 md:gap-6">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className={`bg-muted/50 rounded-2xl overflow-hidden animate-pulse border border-border/30 ${
-              i === 1 ? 'w-36 md:w-44 h-52 md:h-60' : 'w-28 md:w-36 h-44 md:h-52'
+            className={`rounded-2xl animate-pulse ${
+              i === 1 ? 'w-[200px] md:w-[220px] h-[260px] md:h-[280px]' : 'w-[160px] md:w-[180px] h-[220px] md:h-[240px]'
             }`}
+            style={{ background: '#111C2D', border: '1px solid rgba(0,176,255,0.2)' }}
           />
         ))}
       </div>
@@ -61,56 +62,72 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   if (offers.length === 0) return null;
 
-  // Pad to 3 if less
   const displayOffers = offers.slice(0, 3);
 
   return (
-    <div className="flex items-end justify-center gap-3 md:gap-5">
+    <div className="flex items-end justify-center gap-4 md:gap-6">
       {displayOffers.map((offer, index) => {
         const isCenter = index === 1 || displayOffers.length === 1;
-        const cardWidth = isCenter ? 'w-36 md:w-44' : 'w-28 md:w-36';
-        const cardHeight = isCenter ? 'h-52 md:h-60' : 'h-44 md:h-52';
-        const imageHeight = isCenter ? 'h-32 md:h-38' : 'h-24 md:h-32';
 
         return (
           <div
             key={offer.id}
             onClick={onOfferClick}
-            className={`${cardWidth} ${cardHeight} flex-shrink-0 bg-muted/60 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border border-border/40 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 group flex flex-col`}
+            className={`flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group flex flex-col ${
+              isCenter 
+                ? 'w-[200px] md:w-[220px] h-[260px] md:h-[280px]' 
+                : 'w-[160px] md:w-[180px] h-[220px] md:h-[240px]'
+            }`}
+            style={{
+              background: '#111C2D',
+              border: '1px solid rgba(0,176,255,0.2)',
+              boxShadow: '0 15px 40px rgba(0,0,0,0.6)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-8px)';
+              e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(0,176,255,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.6)';
+            }}
           >
-            <div className={`relative ${imageHeight} overflow-hidden flex-shrink-0`}>
+            {/* Image */}
+            <div className={`relative overflow-hidden flex-shrink-0 ${isCenter ? 'h-[160px] md:h-[180px]' : 'h-[130px] md:h-[150px]'}`}>
               {offer.image_url ? (
                 <img
                   src={offer.image_url}
                   alt={offer.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
                   }}
                 />
               ) : (
-                <div className={`w-full h-full bg-gradient-to-br ${offer.color || 'from-primary/80 to-primary/40'} flex items-center justify-center`}>
-                  <span className={`${isCenter ? 'text-5xl' : 'text-3xl'}`}>🎮</span>
+                <div className={`w-full h-full bg-gradient-to-br ${offer.color || 'from-primary/80 to-secondary/60'} flex items-center justify-center`}>
+                  <span className={`${isCenter ? 'text-5xl' : 'text-4xl'}`}>🎮</span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111C2D] via-transparent to-transparent" />
             </div>
 
-            <div className="p-2 flex-1 flex flex-col justify-between">
+            {/* Info */}
+            <div className="p-3 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className={`${isCenter ? 'text-sm' : 'text-xs'} font-semibold truncate text-foreground`}>{offer.name}</h3>
+                <h3 className={`${isCenter ? 'text-sm' : 'text-xs'} font-bold truncate text-foreground`}>{offer.name}</h3>
                 <p className="text-[10px] text-muted-foreground truncate mt-0.5">
                   {offer.description || 'Complete this offer'}
                 </p>
               </div>
-              <div className="flex items-center justify-between mt-1.5">
-                <p className={`text-primary font-bold ${isCenter ? 'text-sm' : 'text-xs'}`}>
+              <div className="flex items-center justify-between mt-2">
+                <p className={`font-bold ${isCenter ? 'text-sm' : 'text-xs'}`} style={{ color: '#00B0FF' }}>
                   ${(offer.coins / 100).toFixed(2)}
                 </p>
                 <div className="flex items-center gap-0.5">
-                  <Star className="w-2.5 h-2.5 fill-yellow-500 text-yellow-500" />
-                  <span className="text-[9px] text-muted-foreground">5.0</span>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-2.5 h-2.5" style={{ fill: '#FFD54F', color: '#FFD54F' }} />
+                  ))}
                 </div>
               </div>
             </div>

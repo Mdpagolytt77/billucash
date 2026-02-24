@@ -49,14 +49,15 @@ const Index = () => {
 
       {/* Main Content */}
       <div 
-        className={`min-h-screen bg-background transition-opacity duration-500 relative ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        className={`min-h-screen transition-opacity duration-500 relative ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        style={{ background: '#0A0F1C' }}
       >
-        {/* Global Floating Coins Background */}
+        {/* Global Background with neon glows */}
         <div className="fixed inset-0 z-0">
           <FloatingCoinsBackground density="high" showGlow={true} showBeams={true} />
         </div>
 
-        {/* Content wrapper with relative z-index */}
+        {/* Content wrapper */}
         <div className="relative z-10">
           {/* Header */}
           <Header onLoginClick={() => setIsLoginOpen(true)} />
@@ -64,21 +65,21 @@ const Index = () => {
           {/* Live Earnings Tracker */}
           <LiveEarningsTracker />
 
-          {/* Hero Section - Centered text */}
+          {/* Hero Section */}
           <div className="animate-fade-in">
             <HeroSection />
           </div>
 
           {/* Featured Offers + Login Box side by side */}
-          <div className="animate-fade-in px-4 pb-6" style={{ animationDelay: '0.15s' }}>
-            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
-              {/* Featured Offers - Left (3 cards, middle bigger) */}
+          <div className="animate-fade-in px-4 pb-8" style={{ animationDelay: '0.15s' }}>
+            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-10">
+              {/* Featured Offers - Left */}
               <div className="flex-1 w-full flex justify-center">
                 <FeaturedOffersSection onOfferClick={handleOfferClick} />
               </div>
 
-              {/* Login Box - Right (compact) */}
-              <div className="w-full lg:w-[340px] flex-shrink-0">
+              {/* Login Box - Right */}
+              <div className="w-full lg:w-[380px] flex-shrink-0">
                 <LoginBox />
               </div>
             </div>

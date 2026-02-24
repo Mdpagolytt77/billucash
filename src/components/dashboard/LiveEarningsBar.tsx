@@ -64,19 +64,28 @@ const LiveEarningsBar = () => {
 
   const displayItems = [...earnings, ...earnings];
 
+  const getAvatarColor = (name: string) => {
+    const colors = ['#1DBF73', '#6C4BFF', '#FF6B35', '#00B0FF', '#E91E63', '#FF9800'];
+    return colors[name.charCodeAt(0) % colors.length];
+  };
+
   return (
-    <div className="w-full overflow-hidden py-2 px-3">
-      <div className="flex gap-3 animate-scroll-left" style={{ animationDuration: '30s' }}>
+    <div 
+      className="w-full overflow-hidden h-[60px] flex items-center px-4"
+      style={{ background: '#0F1F2F', borderBottom: '1px solid #162638' }}
+    >
+      <div className="flex gap-4 animate-scroll-left" style={{ animationDuration: '30s' }}>
         {displayItems.map((earning, index) => (
           <div 
             key={`${earning.id}-${index}`}
-            className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full"
-            style={{
-              background: 'linear-gradient(135deg, #00C6FF, #0072FF)',
-            }}
+            className="flex-shrink-0 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full"
+            style={{ background: '#142739', border: '1px solid #1e3448' }}
           >
             {/* Avatar */}
-            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+            <div 
+              className="w-[26px] h-[26px] rounded-full flex items-center justify-center"
+              style={{ background: getAvatarColor(earning.username) }}
+            >
               <span className="text-[10px] font-bold text-white">
                 {earning.username.charAt(0).toUpperCase()}
               </span>
@@ -87,17 +96,15 @@ const LiveEarningsBar = () => {
               {earning.username}
             </span>
             
-            {/* Time */}
-            <span className="text-[10px] text-white/70">
-              {getTimeAgo(earning.created_at)}
-            </span>
+            {/* Online dot */}
+            <div className="w-2 h-2 rounded-full" style={{ background: '#00FF66' }} />
             
-            {/* Coins Badge */}
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: '#0B0F19' }}>
-              <CoinIcon className="w-3 h-3" />
-              <span className="text-xs font-bold text-[#00C6FF]">
-                {earning.coins.toLocaleString()}
-              </span>
+            {/* Earning Badge */}
+            <div 
+              className="flex items-center gap-1 px-2 py-0.5 rounded-[10px] text-xs font-bold text-white"
+              style={{ background: '#1DBF73' }}
+            >
+              +{earning.coins.toLocaleString()}
             </div>
           </div>
         ))}

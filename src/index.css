@@ -47,6 +47,15 @@
     --glow-primary: 207 100% 50% / 0.35;
     --gradient-primary: linear-gradient(135deg, #00B0FF, #2979FF);
     --gradient-cta: linear-gradient(135deg, #00B0FF, #2979FF, #1565C0);
+
+    /* Dashboard green accent */
+    --dash-accent: 155 73% 44%;
+    --dash-accent-hex: #1DBF73;
+    --dash-bg: 210 40% 8%;
+    --dash-card: 210 35% 11%;
+    --dash-border: 210 30% 15%;
+    --dash-sidebar: 210 38% 10%;
+    --dash-text-muted: 205 20% 65%;
   }
 
   .dark {
@@ -297,5 +306,21 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Dashboard theme scrollbar */
+  .dashboard-theme ::-webkit-scrollbar {
+    width: 6px;
+  }
+  .dashboard-theme ::-webkit-scrollbar-track {
+    background: #0E1A27;
+  }
+  .dashboard-theme ::-webkit-scrollbar-thumb {
+    background: #1DBF73;
+    border-radius: 10px;
+  }
+  .dashboard-theme {
+    scrollbar-width: thin;
+    scrollbar-color: #1DBF73 #0E1A27;
   }
 }

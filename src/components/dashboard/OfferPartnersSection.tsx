@@ -27,7 +27,32 @@ interface OfferPartnersSectionProps {
   onPartnerClick: (partner: { name: string; color: string; iframeUrl: string; popupWidth?: string; popupHeight?: string; popupAnimation?: 'fade' | 'slide' | 'scale' }) => void;
 }
 
-const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerClick }: OfferPartnersSectionProps) => {
+const offerwallGradients: Record<string, string> = {
+  'Offery': 'linear-gradient(135deg, #0F3D3E, #1DBF73)',
+  'Notik': 'linear-gradient(135deg, #1F1C2C, #928DAB)',
+  'AdToWall': 'linear-gradient(135deg, #134E5E, #71B280)',
+  'Adtowall': 'linear-gradient(135deg, #134E5E, #71B280)',
+  'Pubscale': 'linear-gradient(135deg, #1E3C72, #2A5298)',
+  'PubScale': 'linear-gradient(135deg, #1E3C72, #2A5298)',
+  'GemiAd': 'linear-gradient(135deg, #3A1C71, #D76D77)',
+  'Mobivortex': 'linear-gradient(135deg, #42275a, #734b6d)',
+  'Adswed': 'linear-gradient(135deg, #000428, #004e92)',
+  'Adsved': 'linear-gradient(135deg, #000428, #004e92)',
+  'RadiantWall': 'linear-gradient(135deg, #2c3e50, #e74c3c)',
+  'Radientwall': 'linear-gradient(135deg, #2c3e50, #e74c3c)',
+  'Upwall': 'linear-gradient(135deg, #1D4350, #A43931)',
+  'Adbreak': 'linear-gradient(135deg, #141E30, #243B55)',
+  'Revtoo': 'linear-gradient(135deg, #0F2027, #2C5364)',
+  'Primewall': 'linear-gradient(135deg, #2C003E, #4B0082)',
+  'Adscend': 'linear-gradient(135deg, #0d4a4a, #0a3636)',
+  'Admantium': 'linear-gradient(135deg, #3d1f1f, #5c2e2e)',
+  'Mylead': 'linear-gradient(135deg, #2d2d44, #1a1035)',
+  'Lootably': 'linear-gradient(135deg, #3d2d4a, #2a1a38)',
+  'Adgatemedia': 'linear-gradient(135deg, #2d4a0d, #1a3006)',
+  'Pixylabs': 'linear-gradient(135deg, #0d2d4a, #061a30)',
+};
+
+const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartnersSectionProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -38,31 +63,19 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
 
   const getBadgeStyle = (type: 'hot' | 'new' | 'bonus') => {
     switch (type) {
-      case 'hot': return 'bg-orange-500 text-white';
-      case 'new': return 'bg-primary text-primary-foreground';
-      case 'bonus': return 'bg-emerald-500 text-white';
-      default: return '';
+      case 'hot': return { background: '#FF6B35', color: '#FFFFFF' };
+      case 'new': return { background: '#1DBF73', color: '#FFFFFF' };
+      case 'bonus': return { background: '#1DBF73', color: '#FFFFFF' };
+      default: return {};
     }
   };
 
-  const defaultGradients = [
-    'linear-gradient(135deg, #0d4a4a, #0a3636)',
-    'linear-gradient(135deg, #1E3A8A, #0F172A)',
-    'linear-gradient(135deg, #134e5e, #0a2e38)',
-    'linear-gradient(135deg, #16A34A, #065F46)',
-    'linear-gradient(135deg, #1a3a5c, #0e2240)',
-    'linear-gradient(135deg, #2d1f4e, #1a1035)',
-  ];
-
-  const getCardBackground = (color: string, index: number) => {
-    if (color && color !== '#1a1a2e' && color !== '#2bd96f') {
-      return `linear-gradient(135deg, ${color}, ${color}cc)`;
-    }
-    return defaultGradients[index % defaultGradients.length];
+  const getCardBackground = (name: string, color: string) => {
+    return offerwallGradients[name] || `linear-gradient(135deg, ${color}, ${color}cc)`;
   };
 
   const renderStars = (rating: number) => (
-    <div className="flex gap-0.5 justify-center mt-1.5">
+    <div className="flex gap-0.5 justify-center mt-2">
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
@@ -77,30 +90,32 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
   );
 
   return (
-    <section className="mb-5">
-      <div className="flex items-center justify-between mb-3 px-1">
+    <section className="mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Layers className="w-5 h-5 text-emerald-400" />
-          <h3 className="font-display font-bold text-base text-foreground">{title}</h3>
+          <Layers className="w-5 h-5" style={{ color: '#1DBF73' }} />
+          <h3 className="font-bold text-xl text-white">{title}</h3>
         </div>
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => scroll('left')}
-            className="w-7 h-7 rounded-lg bg-card border border-border/50 flex items-center justify-center hover:bg-muted transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            style={{ background: '#142739', border: '1px solid #1e3448' }}
           >
-            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+            <ChevronLeft className="w-4 h-4 text-[#9DB2C7]" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="w-7 h-7 rounded-lg bg-card border border-border/50 flex items-center justify-center hover:bg-muted transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            style={{ background: '#142739', border: '1px solid #1e3448' }}
           >
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <ChevronRight className="w-4 h-4 text-[#9DB2C7]" />
           </button>
         </div>
       </div>
       
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-        {partners.map((partner, index) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+        {partners.map((partner) => (
           <div
             key={partner.id}
             onClick={() => onPartnerClick({ 
@@ -111,19 +126,30 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               popupHeight: partner.popupHeight,
               popupAnimation: partner.popupAnimation,
             })}
-            className="cursor-pointer group transition-all duration-200 active:scale-[0.97]"
+            className="cursor-pointer group transition-all duration-300"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.03)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
           >
             <div 
-              className="relative w-full h-[180px] md:h-[200px] rounded-2xl overflow-hidden flex flex-col items-center justify-center p-3"
+              className="relative w-full rounded-[18px] overflow-hidden flex flex-col items-center justify-center p-4"
               style={{
-                background: getCardBackground(partner.color, index),
+                height: '240px',
+                background: getCardBackground(partner.name, partner.color),
                 border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
               }}
             >
               {/* Badge */}
               {partner.badge && (
-                <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-md text-[9px] font-bold flex items-center gap-0.5 ${getBadgeStyle(partner.badge.type)}`}>
-                  {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
+                <div 
+                  className="absolute top-3 right-3 px-2.5 py-1 rounded-[10px] text-xs font-bold flex items-center gap-0.5"
+                  style={getBadgeStyle(partner.badge.type)}
+                >
+                  {partner.badge.type === 'hot' && <Flame className="w-3 h-3" />}
                   {partner.badge.text}
                 </div>
               )}
@@ -133,11 +159,11 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
                 <img 
                   src={partner.logoUrl} 
                   alt={partner.name}
-                  className="h-12 object-contain mb-3"
+                  className="h-14 object-contain mb-3"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center mb-3">
-                  <span className="text-lg font-black text-white/90">{partner.name.charAt(0)}</span>
+                <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center mb-3">
+                  <span className="text-2xl font-black text-white/90">{partner.name.charAt(0)}</span>
                 </div>
               )}
 

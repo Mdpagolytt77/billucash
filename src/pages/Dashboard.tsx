@@ -9,9 +9,9 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import BottomNavBar from '@/components/dashboard/BottomNavBar';
 import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
+import LiveEarningsBar from '@/components/dashboard/LiveEarningsBar';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
@@ -190,8 +190,6 @@ const Dashboard = () => {
     popupAnimation: w.popupAnimation,
   }));
 
-  const bgStyle = getBackgroundStyle(backgrounds.dashboard, pageBg);
-
   if (isLoading || showLoadingScreen) {
     return <LoadingScreen isLoading={true} />;
   }
@@ -205,8 +203,8 @@ const Dashboard = () => {
       {snowEnabled && <SnowEffect />}
 
       <div 
-        className="min-h-screen"
-        style={{ ...bgStyle, background: bgStyle.background || '#0B0F19' }}
+        className="min-h-screen dashboard-theme"
+        style={{ background: 'linear-gradient(135deg, #0B1622 0%, #0E1C2B 50%, #0A1420 100%)' }}
       >
         {/* Offerwall Popup */}
         {selectedOfferwall && (() => {
@@ -230,45 +228,45 @@ const Dashboard = () => {
           const popupAnimation = animationClasses[selectedOfferwall.popupAnimation || 'fade'] || 'animate-fade-in';
           
           const borderWidth = selectedOfferwall.popupBorderWidth || '1';
-          const borderColor = selectedOfferwall.popupBorderColor || '#ffffff';
+          const borderColor = selectedOfferwall.popupBorderColor || '#1DBF73';
           
           return (
             <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setSelectedOfferwall(null)}>
               <div 
-                className={`bg-background/98 backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden shadow-2xl ${popupAnimation}`}
+                className={`backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden shadow-2xl ${popupAnimation}`}
                 style={{ 
+                  background: '#0E1A27',
                   borderWidth: `${borderWidth}px`,
                   borderColor: `${borderColor}33`,
                   borderStyle: 'solid'
                 }}
                 onClick={e => e.stopPropagation()}
               >
-                <div className="flex items-center justify-between p-3 border-b border-border" style={{ borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
+                <div className="flex items-center justify-between p-3" style={{ borderBottom: '1px solid #162638', borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setSelectedOfferwall(null)}
-                      className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                      className="p-1.5 hover:bg-white/5 rounded-lg transition-colors"
                     >
-                      <ArrowLeft className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4 text-white" />
                     </button>
-                    <Gift className="w-4 h-4 text-primary" />
-                    <h2 className="text-base font-bold">{selectedOfferwall.name}</h2>
+                    <Gift className="w-4 h-4" style={{ color: '#1DBF73' }} />
+                    <h2 className="text-base font-bold text-white">{selectedOfferwall.name}</h2>
                   </div>
                   <button 
                     onClick={() => setSelectedOfferwall(null)}
                     className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-3 h-3 text-white" />
                   </button>
                 </div>
                 <div className="p-4">
                   {popupLoading ? (
                     <div className="h-64 flex flex-col items-center justify-center">
                       <SiteLogo size="lg" className="animate-bounce mb-3" />
-                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                      <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#1DBF73' }} />
                     </div>
                   ) : (() => {
-                      // Extract clean URL from iframe/anchor HTML if admin pasted full tag
                       let rawUrl = selectedOfferwall.iframeUrl || '';
                       const srcMatch = rawUrl.match(/src=["']([^"']+)["']/);
                       if (srcMatch) rawUrl = srcMatch[1];
@@ -296,10 +294,10 @@ const Dashboard = () => {
                           allowFullScreen
                         />
                       ) : (
-                        <div className="h-52 bg-white/5 rounded-xl flex items-center justify-center border border-dashed border-white/20">
-                          <div className="text-center text-muted-foreground">
-                            <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                            <p className="text-sm">No offers available</p>
+                        <div className="h-52 rounded-xl flex items-center justify-center" style={{ background: '#142739', border: '1px dashed #1e3448' }}>
+                          <div className="text-center">
+                            <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" style={{ color: '#9DB2C7' }} />
+                            <p className="text-sm" style={{ color: '#9DB2C7' }}>No offers available</p>
                           </div>
                         </div>
                       );
@@ -313,53 +311,58 @@ const Dashboard = () => {
         {/* Sidebar */}
         <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Header */}
-        <DashboardHeader
-          profile={profile}
-          userEmail={user?.email}
-          snowEnabled={snowEnabled}
-          toggleSnow={toggleSnow}
-          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-          onLogout={handleLogout}
-          notifications={notifications}
-          onClearNotifications={clearAllNotifications}
-          onMarkAllRead={markAllRead}
-        />
+        {/* Main content area - offset for desktop sidebar */}
+        <div className="md:ml-[230px]">
+          {/* Header */}
+          <DashboardHeader
+            profile={profile}
+            userEmail={user?.email}
+            snowEnabled={snowEnabled}
+            toggleSnow={toggleSnow}
+            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+            onLogout={handleLogout}
+            notifications={notifications}
+            onClearNotifications={clearAllNotifications}
+            onMarkAllRead={markAllRead}
+          />
 
-        {/* Welcome Notification Popup */}
-        {showWelcomePopup && (
-          <div className="fixed top-20 right-4 z-50 animate-fade-in">
-            <div className="px-4 py-3 rounded-2xl bg-background/95 backdrop-blur-xl border border-primary/30 shadow-2xl shadow-primary/20 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Login Successful</p>
-                <p className="font-semibold text-sm text-foreground">Welcome back, {profile?.username || 'User'}!</p>
+          {/* Welcome Notification Popup */}
+          {showWelcomePopup && (
+            <div className="fixed top-20 right-4 z-50 animate-fade-in">
+              <div className="px-4 py-3 rounded-2xl backdrop-blur-xl flex items-center gap-3 shadow-2xl" style={{ background: '#0E1A27', border: '1px solid rgba(29,191,115,0.3)' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#1DBF73' }}>
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs" style={{ color: '#9DB2C7' }}>Login Successful</p>
+                  <p className="font-semibold text-sm text-white">Welcome back, {profile?.username || 'User'}!</p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Live Earnings Tracker */}
-        <LiveEarningsTracker />
+          {/* Live Earnings Bar */}
+          <LiveEarningsBar />
 
-        {/* Main Content */}
-        <main className="px-3 md:px-[5%] py-3">
-          {/* Featured Offers */}
-          <FeaturedOffersSection onOfferClick={handleOfferClick} />
+          {/* Live Earnings Tracker */}
+          <LiveEarningsTracker />
 
-          {/* Offer Partners */}
-           <OfferPartnersSection
-             title="Offerwalls"
-             partners={allPartners}
-             onPartnerClick={handleOfferClick}
-           />
-          <div className="pb-20 md:pb-0" />
-        </main>
+          {/* Main Content */}
+          <main className="px-4 md:px-8 py-6" style={{ maxWidth: '1400px' }}>
+            {/* Featured Offers */}
+            <FeaturedOffersSection onOfferClick={handleOfferClick} />
 
-        <Footer />
-        {/* BottomNavBar removed */}
+            {/* Offer Partners */}
+             <OfferPartnersSection
+               title="Offerwalls"
+               partners={allPartners}
+               onPartnerClick={handleOfferClick}
+             />
+          </main>
+
+          <Footer />
+        </div>
+
         <FloatingChatButton />
       </div>
     </>

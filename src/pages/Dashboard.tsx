@@ -359,7 +359,7 @@ const Dashboard = () => {
         </main>
 
         <Footer />
-        <BottomNavBar />
+        {/* BottomNavBar removed */}
         <FloatingChatButton />
       </div>
     </>

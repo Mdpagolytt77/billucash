@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
-import LiveEarningsBar from '@/components/dashboard/LiveEarningsBar';
+import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
@@ -336,11 +336,11 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Live Earnings Bar */}
-          <LiveEarningsBar />
+          {/* Live Earnings Tracker */}
+          <LiveEarningsTracker />
 
           {/* Main Content */}
-          <main className="px-4 md:px-8 py-6" style={{ maxWidth: '1400px' }}>
+          <main className="px-3 md:px-6 py-4" style={{ maxWidth: '1400px', margin: '0 auto' }}>
             {/* Featured Offers */}
             <FeaturedOffersSection onOfferClick={handleOfferClick} />
 

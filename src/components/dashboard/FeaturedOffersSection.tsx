@@ -82,7 +82,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Flame className="w-5 h-5" style={{ color: '#1DBF73' }} />
-          <h3 className="font-bold text-xl text-white">Hot Offers</h3>
+          <h3 className="font-bold text-lg text-white">Hot Offers</h3>
         </div>
         <button className="text-xs font-medium flex items-center gap-0.5 transition-colors" style={{ color: '#9DB2C7' }}>
           View All <ChevronRight className="w-3.5 h-3.5" />
@@ -91,17 +91,17 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
       
       {/* Wrap in a box container */}
       <div 
-        className="rounded-2xl p-5"
+        className="rounded-2xl p-4"
         style={{ background: '#0E1A27', border: '1px solid #162638' }}
       >
-        <div className="flex gap-5 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
           {displayOffers.map((offer) => (
             <div
               key={offer.id}
               onClick={() => handleOfferClick(offer)}
               className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
               style={{ 
-                width: '180px',
+                width: '150px',
                 borderRadius: '16px',
                 background: '#122333',
                 border: '1px solid rgba(29,191,115,0.15)',
@@ -117,7 +117,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
               }}
             >
               {/* Image area */}
-              <div className="relative h-[120px] overflow-hidden rounded-t-[16px]">
+              <div className="relative h-[90px] overflow-hidden rounded-t-[16px]">
                 {offer.image_url ? (
                   <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 ) : (
@@ -130,17 +130,17 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
               </div>
               
               {/* Info */}
-              <div className="p-4">
-                <h4 className="text-sm font-bold text-white truncate">{offer.name}</h4>
-                <p className="text-[11px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
+              <div className="p-3">
+                <h4 className="text-xs font-bold text-white truncate">{offer.name}</h4>
+                <p className="text-[10px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
                   {offer.description || 'Complete this offer'}
                 </p>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="font-semibold text-base" style={{ color: '#1DBF73' }}>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="font-semibold text-sm" style={{ color: '#1DBF73' }}>
                     ${(offer.coins / 100).toFixed(2)}
                   </span>
                   <span 
-                    className="text-[11px] font-bold px-2 py-1 rounded-lg text-white"
+                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md text-white"
                     style={{ background: '#6C4BFF' }}
                   >
                     APP

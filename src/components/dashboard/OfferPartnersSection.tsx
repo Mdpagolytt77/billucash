@@ -94,16 +94,16 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Layers className="w-5 h-5" style={{ color: '#1DBF73' }} />
-          <h3 className="font-bold text-xl text-white">{title}</h3>
+          <h3 className="font-bold text-lg text-white">{title}</h3>
         </div>
       </div>
       
       {/* Wrap in a box container */}
       <div 
-        className="rounded-2xl p-5"
+        className="rounded-2xl p-4"
         style={{ background: '#0E1A27', border: '1px solid #162638' }}
       >
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 justify-items-center">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 justify-items-center">
           {partners.map((partner) => (
             <div
               key={partner.id}
@@ -124,23 +124,23 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
               }}
             >
               <div 
-                className="relative overflow-hidden flex flex-col items-center justify-center p-4"
+                className="relative overflow-hidden flex flex-col items-center justify-center p-3"
                 style={{
-                  width: '210px',
-                  height: '270px',
-                  borderRadius: '18px',
+                  width: '160px',
+                  height: '200px',
+                  borderRadius: '16px',
                   background: getCardBackground(partner.name, partner.color),
                   border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
                 }}
               >
                 {/* Badge */}
                 {partner.badge && (
                   <div 
-                    className="absolute top-3 right-3 px-2.5 py-1 rounded-[10px] text-xs font-bold flex items-center gap-0.5"
+                    className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold flex items-center gap-0.5"
                     style={getBadgeStyle(partner.badge.type)}
                   >
-                    {partner.badge.type === 'hot' && <Flame className="w-3 h-3" />}
+                    {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
                     {partner.badge.text}
                   </div>
                 )}
@@ -150,16 +150,16 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
                   <img 
                     src={partner.logoUrl} 
                     alt={partner.name}
-                    className="h-14 object-contain mb-3"
+                    className="h-10 object-contain mb-2"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center mb-3">
-                    <span className="text-2xl font-black text-white/90">{partner.name.charAt(0)}</span>
+                  <div className="w-14 h-14 rounded-lg bg-white/10 flex items-center justify-center mb-2">
+                    <span className="text-xl font-black text-white/90">{partner.name.charAt(0)}</span>
                   </div>
                 )}
 
                 {/* Name */}
-                <h4 className="text-sm font-bold text-white text-center truncate w-full">{partner.name}</h4>
+                <h4 className="text-xs font-bold text-white text-center truncate w-full">{partner.name}</h4>
                 
                 {/* Rating */}
                 {renderStars(partner.rating)}

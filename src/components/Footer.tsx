@@ -169,10 +169,10 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
                         style={{ 
                           background: '#111C2D', 
                           color: '#9AA6B2',
-                          border: '1px solid rgba(0,176,255,0.1)',
+                          border: '1px solid rgba(29,191,115,0.1)',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #00B0FF, #2979FF)';
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #1DBF73, #17a566)';
                           e.currentTarget.style.color = '#FFFFFF';
                         }}
                         onMouseLeave={(e) => {

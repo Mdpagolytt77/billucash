@@ -49,7 +49,7 @@ const LoginBox = () => {
       style={{
         background: '#111C2D',
         backdropFilter: 'blur(15px)',
-        border: '1px solid rgba(0,176,255,0.15)',
+        border: '1px solid rgba(29,191,115,0.15)',
         boxShadow: '0 15px 40px rgba(0,0,0,0.5)',
       }}
     >
@@ -77,7 +77,7 @@ const LoginBox = () => {
         <div>
           <div className="flex justify-between items-center mb-1.5">
             <label className="text-sm font-medium text-muted-foreground">Password</label>
-            <button type="button" className="text-xs hover:underline" style={{ color: '#00B0FF' }}>
+            <button type="button" className="text-xs hover:underline" style={{ color: '#1DBF73' }}>
               Forgot Password?
             </button>
           </div>
@@ -115,8 +115,8 @@ const LoginBox = () => {
           disabled={isLoading}
           className="w-full h-[50px] rounded-lg font-semibold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed text-white animate-neon-pulse"
           style={{
-            background: 'linear-gradient(135deg, #00B0FF, #2979FF)',
-            boxShadow: '0 10px 25px rgba(0,176,255,0.4)',
+            background: 'linear-gradient(135deg, #1DBF73, #17a566)',
+            boxShadow: '0 10px 25px rgba(29,191,115,0.4)',
           }}
         >
           {isLoading ? (
@@ -154,7 +154,7 @@ const LoginBox = () => {
 
       {/* Link */}
       <div className="flex justify-center mt-5">
-        <Link to="/signup" className="text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1" style={{ color: '#00B0FF' }}>
+        <Link to="/signup" className="text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1" style={{ color: '#1DBF73' }}>
           <UserPlus className="w-4 h-4" />
           Create Account
         </Link>

@@ -102,11 +102,11 @@ const FAQSection = () => {
             className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all"
             style={{
               background: activeTab === tab 
-                ? 'linear-gradient(135deg, #00B0FF, #2979FF)' 
+                ? 'linear-gradient(135deg, #1DBF73, #17a566)' 
                 : '#111C2D',
               color: activeTab === tab ? '#FFFFFF' : '#9AA6B2',
               border: activeTab === tab ? 'none' : '1px solid rgba(255,255,255,0.05)',
-              boxShadow: activeTab === tab ? '0 5px 20px rgba(41,121,255,0.3)' : 'none',
+              boxShadow: activeTab === tab ? '0 5px 20px rgba(29,191,115,0.3)' : 'none',
             }}
           >
             {tab}
@@ -117,7 +117,7 @@ const FAQSection = () => {
       {/* FAQ Accordion */}
       <div 
         className="max-w-2xl mx-auto rounded-2xl overflow-hidden"
-        style={{ background: '#111C2D', border: '1px solid rgba(0,176,255,0.1)' }}
+        style={{ background: '#111C2D', border: '1px solid rgba(29,191,115,0.1)' }}
       >
         <Accordion type="single" collapsible className="w-full">
           {faqData[activeTab]?.map((faq, index) => (

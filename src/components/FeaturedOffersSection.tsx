@@ -53,7 +53,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
             className={`rounded-2xl animate-pulse ${
               i === 1 ? 'w-[200px] md:w-[220px] h-[260px] md:h-[280px]' : 'w-[160px] md:w-[180px] h-[220px] md:h-[240px]'
             }`}
-            style={{ background: '#111C2D', border: '1px solid rgba(0,176,255,0.2)' }}
+            style={{ background: '#111C2D', border: '1px solid rgba(29,191,115,0.2)' }}
           />
         ))}
       </div>
@@ -80,12 +80,12 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
             }`}
             style={{
               background: '#111C2D',
-              border: '1px solid rgba(0,176,255,0.2)',
+              border: '1px solid rgba(29,191,115,0.2)',
               boxShadow: '0 15px 40px rgba(0,0,0,0.6)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-8px)';
-              e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(0,176,255,0.4)';
+              e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(29,191,115,0.4)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
@@ -121,7 +121,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
                 </p>
               </div>
               <div className="flex items-center justify-between mt-2">
-                <p className={`font-bold ${isCenter ? 'text-sm' : 'text-xs'}`} style={{ color: '#00B0FF' }}>
+                <p className={`font-bold ${isCenter ? 'text-sm' : 'text-xs'}`} style={{ color: '#1DBF73' }}>
                   ${(offer.coins / 100).toFixed(2)}
                 </p>
                 <div className="flex items-center gap-0.5">

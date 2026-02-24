@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
@@ -38,11 +37,7 @@ const Index = () => {
       <title>WallsCash - Earn Money Online | Complete Tasks & Get Paid</title>
       <meta name="description" content="Join WallsCash and start earning real money online. Complete simple tasks, play games, watch videos, and refer friends. Instant withdrawals with 24/7 support." />
 
-      {/* Loading Screen */}
       <LoadingScreen isLoading={isLoading} />
-
-      {/* Snow Effect */}
-      <SnowEffect />
 
       {/* Login Popup */}
       <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />

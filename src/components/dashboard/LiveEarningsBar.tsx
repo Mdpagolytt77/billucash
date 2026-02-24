@@ -62,7 +62,7 @@ const LiveEarningsBar = () => {
     return `${Math.floor(seconds / 86400)} days ago`;
   };
 
-  const displayItems = [...earnings, ...earnings];
+  const displayItems = earnings;
 
   const getAvatarColor = (name: string) => {
     const colors = ['#1DBF73', '#6C4BFF', '#FF6B35', '#00B0FF', '#E91E63', '#FF9800'];

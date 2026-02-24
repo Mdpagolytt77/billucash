@@ -115,19 +115,14 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
 
   return (
     <>
-      {/* Desktop sidebar - always visible */}
-      <aside className="hidden md:block fixed top-0 left-0 h-full w-[230px] z-40" style={{ borderRight: '1px solid #162638' }}>
-        {sidebarContent}
-      </aside>
-
       {/* Mobile overlay */}
       <div 
-        className={`fixed inset-0 bg-black/70 z-40 transition-opacity md:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-black/70 z-40 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
       />
 
       {/* Mobile sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-[230px] z-50 transition-transform duration-300 md:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 h-full w-[230px] z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {sidebarContent}
       </aside>
     </>

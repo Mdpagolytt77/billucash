@@ -25,11 +25,11 @@ const StatsSection = () => {
           {/* Stats Grid */}
           <div className="flex-1 grid grid-cols-3 gap-6 md:gap-[100px] text-center">
             <div>
-              <div className="flex items-center justify-center gap-1 font-bold text-xl md:text-3xl" style={{ color: '#00B0FF' }}>
+              <div className="flex items-center justify-center gap-1 font-bold text-xl md:text-3xl" style={{ color: '#1DBF73' }}>
                 <Clock className="w-5 h-5 md:w-6 md:h-6" />
                 <span>00h</span>
               </div>
-              <div className="font-bold text-xl md:text-3xl" style={{ color: '#00B0FF' }}>00m</div>
+              <div className="font-bold text-xl md:text-3xl" style={{ color: '#1DBF73' }}>00m</div>
               <p className="text-xs md:text-sm mt-2" style={{ color: '#8FA3B8' }}>
                 Average Time<br />Until First Cashout
               </p>

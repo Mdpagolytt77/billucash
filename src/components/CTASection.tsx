@@ -6,7 +6,7 @@ const CTASection = () => {
     <section className="py-12 px-4">
       <div 
         className="rounded-2xl overflow-hidden max-w-4xl mx-auto"
-        style={{ background: '#111C2D', border: '1px solid rgba(0,176,255,0.15)' }}
+        style={{ background: '#111C2D', border: '1px solid rgba(29,191,115,0.15)' }}
       >
         <div className="grid md:grid-cols-2 gap-0 items-center">
           <div className="p-8 md:p-10">
@@ -23,8 +23,8 @@ const CTASection = () => {
               to="/signup"
               className="inline-flex items-center gap-2 px-8 py-3 rounded-lg font-semibold text-sm uppercase tracking-wide transition-all hover:-translate-y-1 text-white animate-neon-pulse"
               style={{
-                background: 'linear-gradient(135deg, #00B0FF, #2979FF)',
-                boxShadow: '0 10px 25px rgba(0,176,255,0.4)',
+                background: 'linear-gradient(135deg, #1DBF73, #17a566)',
+                boxShadow: '0 10px 25px rgba(29,191,115,0.4)',
               }}
             >
               Sign Up
@@ -37,7 +37,7 @@ const CTASection = () => {
             <div className="relative w-full max-w-[280px]">
               <div 
                 className="w-full aspect-square rounded-2xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, rgba(0,176,255,0.15), rgba(41,121,255,0.08))' }}
+                style={{ background: 'linear-gradient(135deg, rgba(29,191,115,0.15), rgba(23,165,102,0.08))' }}
               >
                 <div className="grid grid-cols-3 gap-3 p-6">
                   <div className="text-4xl animate-float" style={{ animationDelay: '0s' }}>🎮</div>

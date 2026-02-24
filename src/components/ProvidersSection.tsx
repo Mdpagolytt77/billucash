@@ -43,7 +43,7 @@ const ProvidersSection = () => {
         
         <div 
           className="rounded-2xl p-6 max-w-3xl mx-auto"
-          style={{ background: '#0E1625', border: '1px solid rgba(0,176,255,0.1)' }}
+          style={{ background: '#0E1625', border: '1px solid rgba(29,191,115,0.1)' }}
         >
           <div className="flex flex-wrap justify-center items-center gap-8">
             {['PremReach', 'SUSHI ADS', 'AdWebMedia', 'PubScale'].map((provider, index) => (
@@ -77,7 +77,7 @@ const ProvidersSection = () => {
       
       <div 
         className="rounded-2xl p-6 max-w-3xl mx-auto overflow-hidden"
-        style={{ background: '#0E1625', border: '1px solid rgba(0,176,255,0.1)' }}
+        style={{ background: '#0E1625', border: '1px solid rgba(29,191,115,0.1)' }}
       >
         <div 
           className="flex items-center gap-12 animate-scroll-left"

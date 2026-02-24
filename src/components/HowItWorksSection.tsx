@@ -54,10 +54,10 @@ const HowItWorksSection = () => {
             className="rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
             style={{
               background: '#111C2D',
-              border: '1px solid rgba(0,176,255,0.15)',
+              border: '1px solid rgba(29,191,115,0.15)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,176,255,0.2)';
+              e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.4), 0 0 20px rgba(29,191,115,0.2)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = 'none';
@@ -65,11 +65,11 @@ const HowItWorksSection = () => {
           >
             <div 
               className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all"
-              style={{ background: 'rgba(0,176,255,0.15)' }}
+              style={{ background: 'rgba(29,191,115,0.15)' }}
             >
-              <step.icon className="w-7 h-7" style={{ color: '#00B0FF' }} />
+              <step.icon className="w-7 h-7" style={{ color: '#1DBF73' }} />
             </div>
-            <div className="text-xs font-bold mb-1" style={{ color: '#00B0FF' }}>{step.number}</div>
+            <div className="text-xs font-bold mb-1" style={{ color: '#1DBF73' }}>{step.number}</div>
             <h3 className="font-semibold mb-2 text-foreground">{step.title}</h3>
             <p className="text-sm text-muted-foreground">{step.description}</p>
           </div>

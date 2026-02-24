@@ -49,7 +49,7 @@ const FloatingCoinsBackground = ({
         style={{
           background: `
             radial-gradient(ellipse 80% 60% at 0% 0%, #0F1C2E 0%, transparent 50%),
-            radial-gradient(circle 140px at 50% 40%, rgba(41,121,255,0.15) 0%, transparent 100%),
+            radial-gradient(circle 140px at 50% 40%, rgba(29,191,115,0.15) 0%, transparent 100%),
             radial-gradient(ellipse 60% 60% at 100% 100%, #050B18 0%, transparent 50%)
           `
         }}
@@ -61,21 +61,21 @@ const FloatingCoinsBackground = ({
           <div 
             className="absolute top-[20%] left-[10%] w-[400px] h-[400px] rounded-full opacity-20"
             style={{
-              background: 'radial-gradient(circle, #00B0FF 0%, transparent 70%)',
+              background: 'radial-gradient(circle, #1DBF73 0%, transparent 70%)',
               filter: 'blur(80px)',
             }}
           />
           <div 
             className="absolute top-[50%] right-[5%] w-[300px] h-[300px] rounded-full opacity-15"
             style={{
-              background: 'radial-gradient(circle, #2962FF 0%, transparent 70%)',
+              background: 'radial-gradient(circle, #17a566 0%, transparent 70%)',
               filter: 'blur(100px)',
             }}
           />
           <div 
             className="absolute bottom-[10%] left-[40%] w-[350px] h-[350px] rounded-full opacity-10"
             style={{
-              background: 'radial-gradient(circle, #00B0FF 0%, transparent 70%)',
+              background: 'radial-gradient(circle, #1DBF73 0%, transparent 70%)',
               filter: 'blur(120px)',
             }}
           />
@@ -90,7 +90,7 @@ const FloatingCoinsBackground = ({
             style={{ 
               top: '25%', 
               left: '-50%',
-              background: 'linear-gradient(90deg, transparent, rgba(0,176,255,0.08), transparent)',
+              background: 'linear-gradient(90deg, transparent, rgba(29,191,115,0.08), transparent)',
             }}
           />
           <div 
@@ -99,7 +99,7 @@ const FloatingCoinsBackground = ({
               top: '55%', 
               left: '-50%', 
               animationDelay: '1s',
-              background: 'linear-gradient(90deg, transparent, rgba(41,121,255,0.06), transparent)',
+              background: 'linear-gradient(90deg, transparent, rgba(29,191,115,0.06), transparent)',
             }}
           />
           <div 
@@ -108,7 +108,7 @@ const FloatingCoinsBackground = ({
               top: '75%', 
               left: '-50%', 
               animationDelay: '2s',
-              background: 'linear-gradient(90deg, transparent, rgba(0,176,255,0.06), transparent)',
+              background: 'linear-gradient(90deg, transparent, rgba(29,191,115,0.06), transparent)',
             }}
           />
         </>
@@ -130,8 +130,8 @@ const FloatingCoinsBackground = ({
           <div 
             className="w-full h-full rounded-lg flex items-center justify-center backdrop-blur-sm"
             style={{
-              background: 'linear-gradient(135deg, rgba(0,176,255,0.6), rgba(41,121,255,0.4))',
-              boxShadow: '0 4px 15px rgba(0,176,255,0.3)',
+              background: 'linear-gradient(135deg, rgba(29,191,115,0.6), rgba(23,165,102,0.4))',
+              boxShadow: '0 4px 15px rgba(29,191,115,0.3)',
             }}
           >
             <DollarSign className="w-3/4 h-3/4 text-white" />

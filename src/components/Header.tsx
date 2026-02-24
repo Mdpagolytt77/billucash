@@ -61,8 +61,8 @@ const Header = ({ onLoginClick }: HeaderProps) => {
           to="/signup"
           className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5 text-white"
           style={{ 
-            background: 'linear-gradient(135deg, #00B0FF, #2979FF)',
-            boxShadow: '0 5px 20px rgba(41,121,255,0.4)',
+            background: 'linear-gradient(135deg, #1DBF73, #17a566)',
+            boxShadow: '0 5px 20px rgba(29,191,115,0.4)',
           }}
         >
           <UserPlus className="w-4 h-4" />

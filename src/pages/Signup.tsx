@@ -163,7 +163,7 @@ const Signup = () => {
 
       <div 
         className={`min-h-screen transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        style={backgroundStyle}
+        style={{ background: '#0A0F1C' }}
       >
         {/* Header */}
         <header className="px-4 md:px-[5%] py-4 flex justify-between items-center bg-background/90 backdrop-blur-lg border-b border-border sticky top-0 z-50">

@@ -99,7 +99,7 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
         </div>
       </div>
       
-      <div ref={scrollRef} className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
         {partners.map((partner, index) => (
           <div
             key={partner.id}
@@ -111,10 +111,10 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
               popupHeight: partner.popupHeight,
               popupAnimation: partner.popupAnimation,
             })}
-            className="flex-shrink-0 cursor-pointer group transition-all duration-200 active:scale-[0.97]"
+            className="cursor-pointer group transition-all duration-200 active:scale-[0.97]"
           >
             <div 
-              className="relative w-[130px] h-[150px] rounded-2xl overflow-hidden flex flex-col items-center justify-center p-3"
+              className="relative w-full h-[180px] md:h-[200px] rounded-2xl overflow-hidden flex flex-col items-center justify-center p-3"
               style={{
                 background: getCardBackground(partner.color, index),
                 border: '1px solid rgba(255,255,255,0.08)',
@@ -133,16 +133,16 @@ const OfferPartnersSection = ({ title, partners, isPremium = false, onPartnerCli
                 <img 
                   src={partner.logoUrl} 
                   alt={partner.name}
-                  className="h-10 object-contain mb-2"
+                  className="h-12 object-contain mb-3"
                 />
               ) : (
-                <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center mb-2">
-                  <span className="text-sm font-black text-white/90">{partner.name.charAt(0)}</span>
+                <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center mb-3">
+                  <span className="text-lg font-black text-white/90">{partner.name.charAt(0)}</span>
                 </div>
               )}
 
               {/* Name */}
-              <h4 className="text-xs font-bold text-white text-center truncate w-full">{partner.name}</h4>
+              <h4 className="text-sm font-bold text-white text-center truncate w-full">{partner.name}</h4>
               
               {/* Rating */}
               {renderStars(partner.rating)}

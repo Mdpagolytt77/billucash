@@ -1,26 +1,25 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Wallet, Users, Gift, LayoutGrid, User } from 'lucide-react';
+import { Wallet, Home, Search, Award, MessageCircle } from 'lucide-react';
 
 const BottomNavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const navItems = [
+    { icon: Home, label: 'Home', path: '/dashboard' },
     { icon: Wallet, label: 'Cashout', path: '/withdraw' },
-    { icon: Users, label: 'Referrals', path: '/leaderboard' },
-    { icon: Gift, label: 'Earn', path: '/dashboard', isCenter: true },
-    { icon: LayoutGrid, label: 'Offers', path: '/completed-offers' },
-    { icon: User, label: 'Profile', path: '/profile' },
+    { icon: Search, label: 'Explore', path: '/leaderboard', isCenter: true },
+    { icon: Award, label: 'Rewards', path: '/my-offers' },
+    { icon: MessageCircle, label: 'Chat', path: '/profile' },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       <div 
-        className="relative flex items-end justify-around px-4 pb-2 pt-3 backdrop-blur-xl"
+        className="flex items-center justify-around px-2 pb-1 pt-1.5"
         style={{
-          height: '65px',
-          background: '#0F172A',
-          borderTop: '1px solid rgba(0,170,255,0.3)',
+          background: 'hsl(var(--card))',
+          borderTop: '1px solid hsl(var(--border) / 0.5)',
         }}
       >
         {navItems.map((item) => {
@@ -32,18 +31,18 @@ const BottomNavBar = () => {
               <button
                 key={item.label}
                 onClick={() => navigate(item.path)}
-                className="relative -mt-6 flex flex-col items-center"
+                className="relative -mt-5 flex flex-col items-center"
               >
                 <div 
-                  className="w-[60px] h-[60px] rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                  className="w-[52px] h-[52px] rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95"
                   style={{
-                    background: 'linear-gradient(135deg, #00C6FF, #0072FF)',
-                    boxShadow: '0 0 25px rgba(0,170,255,0.6)',
+                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))',
+                    boxShadow: '0 4px 15px hsl(var(--primary) / 0.4)',
                   }}
                 >
-                  <Icon className="w-6 h-6 text-white" />
+                  <Icon className="w-5 h-5 text-primary-foreground" />
                 </div>
-                <span className="text-[10px] font-semibold text-[#00C6FF] mt-1">{item.label}</span>
+                <span className="text-[10px] font-semibold text-primary mt-0.5">{item.label}</span>
               </button>
             );
           }
@@ -52,18 +51,15 @@ const BottomNavBar = () => {
             <button
               key={item.label}
               onClick={() => navigate(item.path)}
-              className="flex flex-col items-center gap-0.5 py-1"
+              className="flex flex-col items-center gap-0.5 py-1.5 px-3"
             >
               <Icon 
                 className="w-5 h-5 transition-colors"
-                style={{ 
-                  color: isActive ? '#00C6FF' : '#A1A1AA',
-                  filter: isActive ? '0 0 10px #00C6FF' : 'none',
-                }} 
+                style={{ color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))' }}
               />
               <span 
                 className="text-[10px] font-medium transition-colors"
-                style={{ color: isActive ? '#00C6FF' : '#A1A1AA' }}
+                style={{ color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))' }}
               >
                 {item.label}
               </span>

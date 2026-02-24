@@ -51,6 +51,7 @@ const AdminCompletedOffers = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOfferwall, setSelectedOfferwall] = useState('all');
+  const [selectedCountry, setSelectedCountry] = useState('all');
   const [offerwallList, setOfferwallList] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -147,6 +148,9 @@ const AdminCompletedOffers = () => {
     };
   }, []);
 
+  // Get unique countries
+  const uniqueCountries = [...new Set(offers.map(o => o.country || 'Unknown'))].sort();
+
   const filteredData = offers.filter(row => {
     const matchesSearch = row.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.offerwall.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -154,6 +158,9 @@ const AdminCompletedOffers = () => {
     
     const matchesOfferwall = selectedOfferwall === 'all' || 
       row.offerwall.toLowerCase() === selectedOfferwall.toLowerCase();
+
+    const matchesCountry = selectedCountry === 'all' ||
+      (row.country || 'Unknown').toLowerCase() === selectedCountry.toLowerCase();
     
     let matchesDate = true;
     if (row.created_at) {
@@ -167,14 +174,14 @@ const AdminCompletedOffers = () => {
       }
     }
     
-    return matchesSearch && matchesOfferwall && matchesDate;
+    return matchesSearch && matchesOfferwall && matchesCountry && matchesDate;
   });
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const pageData = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedOfferwall, dateFrom, dateTo, rowsPerPage]);
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedOfferwall, selectedCountry, dateFrom, dateTo, rowsPerPage]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -360,6 +367,16 @@ const AdminCompletedOffers = () => {
                     <option key={wall} value={wall}>{wall}</option>
                   ))}
                 </select>
+                <select 
+                  value={selectedCountry} 
+                  onChange={(e) => setSelectedCountry(e.target.value)} 
+                  className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] min-w-[100px]"
+                >
+                  <option value="all">All Countries</option>
+                  {uniqueCountries.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
                 <div className="flex items-center gap-1">
                   <span className="text-[10px] text-muted-foreground">From:</span>
                   <div className="relative">
@@ -384,9 +401,9 @@ const AdminCompletedOffers = () => {
                     />
                   </div>
                 </div>
-                {(dateFrom || dateTo) && (
+                {(dateFrom || dateTo || selectedCountry !== 'all') && (
                   <button 
-                    onClick={() => { setDateFrom(''); setDateTo(''); }} 
+                    onClick={() => { setDateFrom(''); setDateTo(''); setSelectedCountry('all'); }} 
                     className="px-2 py-1.5 bg-destructive/20 text-destructive rounded-lg text-[10px] hover:bg-destructive/30"
                   >
                     Clear

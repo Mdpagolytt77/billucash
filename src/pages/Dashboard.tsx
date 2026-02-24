@@ -4,20 +4,17 @@ import {
   Gift, X, ArrowLeft, Loader2, CheckCircle
 } from 'lucide-react';
 import pageBg from '@/assets/page-bg.jpg';
-import SnowEffect from '@/components/SnowEffect';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
-import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import LiveEarningsBar from '@/components/dashboard/LiveEarningsBar';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
-import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -50,7 +47,7 @@ const Dashboard = () => {
   const { user, profile, isAdmin, signOut, isLoading, onBalanceIncrease } = useAuth();
   const { backgrounds } = useSiteSettings();
   const { playBalanceSound } = useSoundContext();
-  const { snowEnabled, toggleSnow } = useSnowEffect();
+  
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
@@ -200,8 +197,6 @@ const Dashboard = () => {
 
   return (
     <>
-      {snowEnabled && <SnowEffect />}
-
       <div 
         className="min-h-screen dashboard-theme"
         style={{ background: 'linear-gradient(135deg, #0B1622 0%, #0E1C2B 50%, #0A1420 100%)' }}
@@ -308,17 +303,17 @@ const Dashboard = () => {
           );
         })()}
 
-        {/* Sidebar */}
+        {/* Mobile Sidebar */}
         <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Main content area - offset for desktop sidebar */}
-        <div className="md:ml-[230px]">
+        {/* Main content area - no sidebar offset */}
+        <div>
           {/* Header */}
           <DashboardHeader
             profile={profile}
             userEmail={user?.email}
-            snowEnabled={snowEnabled}
-            toggleSnow={toggleSnow}
+            snowEnabled={false}
+            toggleSnow={() => {}}
             onMenuClick={() => setSidebarOpen(!sidebarOpen)}
             onLogout={handleLogout}
             notifications={notifications}
@@ -343,9 +338,6 @@ const Dashboard = () => {
 
           {/* Live Earnings Bar */}
           <LiveEarningsBar />
-
-          {/* Live Earnings Tracker */}
-          <LiveEarningsTracker />
 
           {/* Main Content */}
           <main className="px-4 md:px-8 py-6" style={{ maxWidth: '1400px' }}>

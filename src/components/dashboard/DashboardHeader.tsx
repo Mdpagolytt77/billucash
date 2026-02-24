@@ -43,7 +43,7 @@ const DashboardHeader = ({
     >
       {/* Left - hamburger for mobile */}
       <div className="flex items-center gap-3">
-        <button onClick={onMenuClick} className="p-1.5 hover:bg-white/5 rounded-lg transition-colors md:hidden active:scale-95">
+        <button onClick={onMenuClick} className="p-1.5 hover:bg-white/5 rounded-lg transition-colors active:scale-95">
           <Menu className="w-5 h-5 text-[#9DB2C7]" />
         </button>
       </div>
@@ -61,7 +61,7 @@ const DashboardHeader = ({
           </span>
         </div>
 
-        <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
+        
         
         {/* Notifications */}
         <div className="relative">
@@ -110,10 +110,14 @@ const DashboardHeader = ({
         <div className="relative">
           <button 
             onClick={() => setShowUserMenu(!showUserMenu)} 
-            className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #1DBF73, #0fa85f)', border: '2px solid rgba(29,191,115,0.3)' }}
+            className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center"
+            style={{ border: '2px solid rgba(29,191,115,0.3)' }}
           >
-            <User className="w-4 h-4 text-white" />
+            <img 
+              src={`https://api.dicebear.com/7.x/avataaars/png?seed=${profile?.username || 'user'}`}
+              alt="Avatar"
+              className="w-full h-full object-cover"
+            />
           </button>
 
           {showUserMenu && (

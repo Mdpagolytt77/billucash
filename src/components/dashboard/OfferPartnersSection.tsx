@@ -96,85 +96,77 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
           <Layers className="w-5 h-5" style={{ color: '#1DBF73' }} />
           <h3 className="font-bold text-xl text-white">{title}</h3>
         </div>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            style={{ background: '#142739', border: '1px solid #1e3448' }}
-          >
-            <ChevronLeft className="w-4 h-4 text-[#9DB2C7]" />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            style={{ background: '#142739', border: '1px solid #1e3448' }}
-          >
-            <ChevronRight className="w-4 h-4 text-[#9DB2C7]" />
-          </button>
-        </div>
       </div>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
-        {partners.map((partner) => (
-          <div
-            key={partner.id}
-            onClick={() => onPartnerClick({ 
-              name: partner.name, 
-              color: partner.color, 
-              iframeUrl: partner.iframeUrl,
-              popupWidth: partner.popupWidth,
-              popupHeight: partner.popupHeight,
-              popupAnimation: partner.popupAnimation,
-            })}
-            className="cursor-pointer group transition-all duration-300"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.03)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-          >
-            <div 
-              className="relative w-full rounded-[18px] overflow-hidden flex flex-col items-center justify-center p-4"
-              style={{
-                height: '240px',
-                background: getCardBackground(partner.name, partner.color),
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+      {/* Wrap in a box container */}
+      <div 
+        className="rounded-2xl p-5"
+        style={{ background: '#0E1A27', border: '1px solid #162638' }}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 justify-items-center">
+          {partners.map((partner) => (
+            <div
+              key={partner.id}
+              onClick={() => onPartnerClick({ 
+                name: partner.name, 
+                color: partner.color, 
+                iframeUrl: partner.iframeUrl,
+                popupWidth: partner.popupWidth,
+                popupHeight: partner.popupHeight,
+                popupAnimation: partner.popupAnimation,
+              })}
+              className="cursor-pointer group transition-all duration-300"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.03)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
-              {/* Badge */}
-              {partner.badge && (
-                <div 
-                  className="absolute top-3 right-3 px-2.5 py-1 rounded-[10px] text-xs font-bold flex items-center gap-0.5"
-                  style={getBadgeStyle(partner.badge.type)}
-                >
-                  {partner.badge.type === 'hot' && <Flame className="w-3 h-3" />}
-                  {partner.badge.text}
-                </div>
-              )}
+              <div 
+                className="relative overflow-hidden flex flex-col items-center justify-center p-4"
+                style={{
+                  width: '210px',
+                  height: '270px',
+                  borderRadius: '18px',
+                  background: getCardBackground(partner.name, partner.color),
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+                }}
+              >
+                {/* Badge */}
+                {partner.badge && (
+                  <div 
+                    className="absolute top-3 right-3 px-2.5 py-1 rounded-[10px] text-xs font-bold flex items-center gap-0.5"
+                    style={getBadgeStyle(partner.badge.type)}
+                  >
+                    {partner.badge.type === 'hot' && <Flame className="w-3 h-3" />}
+                    {partner.badge.text}
+                  </div>
+                )}
 
-              {/* Logo */}
-              {partner.logoUrl ? (
-                <img 
-                  src={partner.logoUrl} 
-                  alt={partner.name}
-                  className="h-14 object-contain mb-3"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center mb-3">
-                  <span className="text-2xl font-black text-white/90">{partner.name.charAt(0)}</span>
-                </div>
-              )}
+                {/* Logo */}
+                {partner.logoUrl ? (
+                  <img 
+                    src={partner.logoUrl} 
+                    alt={partner.name}
+                    className="h-14 object-contain mb-3"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center mb-3">
+                    <span className="text-2xl font-black text-white/90">{partner.name.charAt(0)}</span>
+                  </div>
+                )}
 
-              {/* Name */}
-              <h4 className="text-sm font-bold text-white text-center truncate w-full">{partner.name}</h4>
-              
-              {/* Rating */}
-              {renderStars(partner.rating)}
+                {/* Name */}
+                <h4 className="text-sm font-bold text-white text-center truncate w-full">{partner.name}</h4>
+                
+                {/* Rating */}
+                {renderStars(partner.rating)}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

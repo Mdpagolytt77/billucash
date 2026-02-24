@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -13,7 +12,7 @@ const faqData: Record<string, { question: string; answer: string }[]> = {
   General: [
     {
       question: 'Are surveys reliable?',
-      answer: 'All surveys on WallsCash are secure. Any information you provide in the surveys is kept anonymous, and the survey providers implement numerous measures to guarantee the safety of the surveys. We do not have access to the details you enter, as only the survey administrators can view and manage this information.',
+      answer: 'All surveys on WallsCash are secure. Any information you provide in the surveys is kept anonymous, and the survey providers implement numerous measures to guarantee the safety of the surveys.',
     },
     {
       question: 'What steps do I need to take to begin?',
@@ -82,13 +81,15 @@ const FAQSection = () => {
   const [activeTab, setActiveTab] = useState('General');
 
   return (
-    <section className="py-10 px-4">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-2">
-          Your WallsCash questions answered
+    <section className="py-12 px-4">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-display font-bold mb-3">
+          <span className="text-foreground">Your </span>
+          <span className="text-gradient">WallsCash</span>
+          <span className="text-foreground"> questions answered</span>
         </h2>
         <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-          Here are some frequently asked questions to help you if you are unsure about something, or if you have any questions about how to earn money on WallsCash.
+          Here are some frequently asked questions to help you get started.
         </p>
       </div>
       
@@ -98,11 +99,15 @@ const FAQSection = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              activeTab === tab
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            }`}
+            className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all"
+            style={{
+              background: activeTab === tab 
+                ? 'linear-gradient(135deg, #00B0FF, #2979FF)' 
+                : '#111C2D',
+              color: activeTab === tab ? '#FFFFFF' : '#9AA6B2',
+              border: activeTab === tab ? 'none' : '1px solid rgba(255,255,255,0.05)',
+              boxShadow: activeTab === tab ? '0 5px 20px rgba(41,121,255,0.3)' : 'none',
+            }}
           >
             {tab}
           </button>
@@ -110,14 +115,17 @@ const FAQSection = () => {
       </div>
       
       {/* FAQ Accordion */}
-      <div className="max-w-2xl mx-auto bg-muted rounded-2xl overflow-hidden">
+      <div 
+        className="max-w-2xl mx-auto rounded-2xl overflow-hidden"
+        style={{ background: '#111C2D', border: '1px solid rgba(0,176,255,0.1)' }}
+      >
         <Accordion type="single" collapsible className="w-full">
           {faqData[activeTab]?.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border-b border-border last:border-0">
-              <AccordionTrigger className="px-4 py-4 text-left text-sm hover:no-underline hover:bg-muted/50">
+            <AccordionItem key={index} value={`item-${index}`} className="last:border-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <AccordionTrigger className="px-5 py-4 text-left text-sm hover:no-underline text-foreground">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 text-sm text-muted-foreground">
+              <AccordionContent className="px-5 pb-4 text-sm text-muted-foreground">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>

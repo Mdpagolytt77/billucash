@@ -28,25 +28,29 @@ const ProvidersSection = () => {
     fetchProviderLogos();
   }, []);
 
-  // If no logos uploaded, show placeholder text
   if (providerLogos.length === 0) {
     return (
-      <section className="py-10 px-4">
+      <section className="py-12 px-4">
         <div className="text-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-2">
-            Providers
+          <h2 className="text-2xl md:text-3xl font-display font-bold mb-3">
+            <span className="text-foreground">Our </span>
+            <span className="text-gradient">Providers</span>
           </h2>
           <p className="text-muted-foreground text-sm">
             We work with the best providers to ensure you have the best experience
           </p>
         </div>
         
-        <div className="bg-muted rounded-2xl p-6 max-w-3xl mx-auto">
+        <div 
+          className="rounded-2xl p-6 max-w-3xl mx-auto"
+          style={{ background: '#0E1625', border: '1px solid rgba(0,176,255,0.1)' }}
+        >
           <div className="flex flex-wrap justify-center items-center gap-8">
             {['PremReach', 'SUSHI ADS', 'AdWebMedia', 'PubScale'].map((provider, index) => (
               <div
                 key={index}
-                className="text-lg md:text-xl font-bold text-muted-foreground opacity-70 hover:opacity-100 hover:text-foreground transition-all cursor-pointer"
+                className="text-lg md:text-xl font-bold opacity-50 hover:opacity-100 transition-all cursor-pointer"
+                style={{ color: '#9AA6B2' }}
               >
                 {provider}
               </div>
@@ -57,21 +61,24 @@ const ProvidersSection = () => {
     );
   }
 
-  // Duplicate logos for infinite scroll effect
   const duplicatedLogos = [...providerLogos, ...providerLogos];
 
   return (
-    <section className="py-10 px-4">
+    <section className="py-12 px-4">
       <div className="text-center mb-6">
-        <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-2">
-          Providers
+        <h2 className="text-2xl md:text-3xl font-display font-bold mb-3">
+          <span className="text-foreground">Our </span>
+          <span className="text-gradient">Providers</span>
         </h2>
         <p className="text-muted-foreground text-sm">
           We work with the best providers to ensure you have the best experience
         </p>
       </div>
       
-      <div className="bg-muted rounded-2xl p-6 max-w-3xl mx-auto overflow-hidden">
+      <div 
+        className="rounded-2xl p-6 max-w-3xl mx-auto overflow-hidden"
+        style={{ background: '#0E1625', border: '1px solid rgba(0,176,255,0.1)' }}
+      >
         <div 
           className="flex items-center gap-12 animate-scroll-left"
           style={{ 
@@ -84,7 +91,7 @@ const ProvidersSection = () => {
               key={`${logo.id}-${index}`}
               src={logo.url}
               alt={logo.name}
-              className="h-10 md:h-12 object-contain opacity-80 hover:opacity-100 transition-opacity"
+              className="h-10 md:h-12 object-contain opacity-70 hover:opacity-100 transition-opacity"
             />
           ))}
         </div>

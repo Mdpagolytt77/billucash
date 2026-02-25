@@ -1,22 +1,35 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSoundContext } from '@/contexts/SoundContext';
 import { toast } from 'sonner';
 
 const SignUpFormSection = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signIn } = useAuth();
+  const { playLoginSound } = useSoundContext();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      toast.error('Please enter your email');
+    if (!email || !password) {
+      toast.error('Please enter email and password');
       return;
     }
-    navigate(`/signup?email=${encodeURIComponent(email)}`);
+    setIsLoading(true);
+    const { error } = await signIn(email, password);
+    if (error) {
+      toast.error(error.message || 'Login failed');
+      setIsLoading(false);
+      return;
+    }
+    playLoginSound();
+    toast.success('Login successful!');
+    setTimeout(() => navigate('/dashboard'), 500);
   };
 
   return (
@@ -44,6 +57,24 @@ const SignUpFormSection = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="form-input-custom h-[48px] pl-10"
             />
+          </div>
+
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="form-input-custom h-[48px] pl-10 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
 
           <p className="text-[11px] text-muted-foreground">

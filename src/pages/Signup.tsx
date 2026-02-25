@@ -114,7 +114,7 @@ const Signup = () => {
         </div>
 
         <div className="relative z-10">
-          <Header onLoginClick={() => setIsLoginOpen(true)} />
+          <Header onLoginClick={() => setIsLoginOpen(true)} hideSignup />
           <LandingSidebar onLoginClick={() => setIsLoginOpen(true)} />
 
           <main className="ml-[48px] md:ml-[180px]">

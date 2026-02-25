@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Menu, LogIn, UserPlus } from 'lucide-react';
+import { Menu, LogIn, UserPlus, Home } from 'lucide-react';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import {
   Sheet,
@@ -9,9 +9,10 @@ import {
 
 interface HeaderProps {
   onLoginClick: () => void;
+  hideSignup?: boolean;
 }
 
-const Header = ({ onLoginClick }: HeaderProps) => {
+const Header = ({ onLoginClick, hideSignup }: HeaderProps) => {
   return (
     <header 
       className="px-4 md:px-[5%] h-[60px] flex justify-between items-center sticky top-0 z-50 border-b"
@@ -58,15 +59,15 @@ const Header = ({ onLoginClick }: HeaderProps) => {
           <span>LOGIN</span>
         </button>
         <Link 
-          to="/signup"
+          to={hideSignup ? "/" : "/signup"}
           className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:-translate-y-0.5 text-white"
           style={{ 
             background: 'linear-gradient(135deg, #1DBF73, #17a566)',
             boxShadow: '0 4px 15px rgba(29,191,115,0.3)',
           }}
         >
-          <UserPlus className="w-3.5 h-3.5" />
-          <span>SIGN UP</span>
+          {hideSignup ? <Home className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
+          <span>{hideSignup ? 'HOME' : 'SIGN UP'}</span>
         </Link>
       </div>
     </header>

@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import LoadingScreen from '@/components/LoadingScreen';
 import Header from '@/components/Header';
+import LandingSidebar from '@/components/LandingSidebar';
 import HeroSection from '@/components/HeroSection';
-import LoginBox from '@/components/LoginBox';
-import FeaturedOffersSection from '@/components/FeaturedOffersSection';
+import SignUpFormSection from '@/components/SignUpFormSection';
 import StatsSection from '@/components/StatsSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import ProvidersSection from '@/components/ProvidersSection';
 import FAQSection from '@/components/FAQSection';
 import CTASection from '@/components/CTASection';
 import FloatingCoinsBackground from '@/components/FloatingCoinsBackground';
-
 import Footer from '@/components/Footer';
 import LoginPopup from '@/components/LoginPopup';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
@@ -20,95 +19,64 @@ const Index = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1800);
-
+    const timer = setTimeout(() => setIsLoading(false), 1800);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleOfferClick = () => {
-    setIsLoginOpen(true);
-  };
+  const handleOfferClick = () => setIsLoginOpen(true);
 
   return (
     <>
-      {/* SEO Meta Tags */}
       <title>WallsCash - Earn Money Online | Complete Tasks & Get Paid</title>
       <meta name="description" content="Join WallsCash and start earning real money online. Complete simple tasks, play games, watch videos, and refer friends. Instant withdrawals with 24/7 support." />
 
       <LoadingScreen isLoading={isLoading} />
-
-      {/* Login Popup */}
       <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
 
-      {/* Main Content */}
-      <div 
-        className={`min-h-screen transition-opacity duration-500 relative ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+      <div className={`min-h-screen transition-opacity duration-500 relative ${isLoading ? 'opacity-0' : 'opacity-100'}`}
         style={{ background: '#0A0F1C' }}
       >
-        {/* Global Background with neon glows */}
+        {/* Background effects */}
         <div className="fixed inset-0 z-0">
           <FloatingCoinsBackground density="high" showGlow={true} showBeams={true} />
         </div>
 
-        {/* Content wrapper */}
         <div className="relative z-10">
-          {/* Header */}
+          {/* Sticky Header */}
           <Header onLoginClick={() => setIsLoginOpen(true)} />
-          
-          {/* Live Earnings Tracker */}
-          <LiveEarningsTracker />
 
-          {/* Hero Section */}
-          <div className="animate-fade-in">
-            <HeroSection />
-          </div>
+          {/* Left Sidebar */}
+          <LandingSidebar onLoginClick={() => setIsLoginOpen(true)} />
 
-          {/* Featured Offers + Login Box side by side */}
-          <div className="animate-fade-in px-4 pb-8" style={{ animationDelay: '0.15s' }}>
-            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-10">
-              {/* Featured Offers - Left */}
-              <div className="flex-1 w-full flex justify-center">
-                <FeaturedOffersSection onOfferClick={handleOfferClick} />
-              </div>
+          {/* Main content - offset by sidebar width */}
+          <main className="ml-[48px] md:ml-[180px]">
+            {/* Activity Ticker */}
+            <LiveEarningsTracker />
 
-              {/* Login Box - Right */}
-              <div className="w-full lg:w-[380px] flex-shrink-0">
-                <LoginBox />
-              </div>
-            </div>
-          </div>
+            {/* Hero */}
+            <HeroSection onOfferClick={handleOfferClick} />
 
-          {/* Stats Section */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            {/* Sign Up Form */}
+            <SignUpFormSection />
+
+            {/* Stats */}
             <StatsSection />
-          </div>
 
-          {/* How It Works */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            {/* How to Earn */}
             <HowItWorksSection />
-          </div>
 
-          {/* Providers */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <ProvidersSection />
-          </div>
-
-          {/* FAQ */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            {/* FAQ */}
             <FAQSection />
-          </div>
 
-          {/* CTA Section */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
+            {/* Join CTA */}
             <CTASection />
-          </div>
 
-          {/* Footer */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            {/* Partners */}
+            <ProvidersSection />
+
+            {/* Footer */}
             <Footer />
-          </div>
+          </main>
         </div>
       </div>
     </>

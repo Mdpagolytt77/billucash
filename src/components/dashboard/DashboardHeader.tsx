@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Menu, X, User } from 'lucide-react';
-import { CoinIcon } from '@/contexts/SiteSettingsContext';
+import { CoinIcon, SiteLogo } from '@/contexts/SiteSettingsContext';
 import SnowToggle from '@/components/SnowToggle';
 
 interface Notification {
@@ -46,6 +46,7 @@ const DashboardHeader = ({
         <button onClick={onMenuClick} className="p-1.5 hover:bg-white/5 rounded-lg transition-colors active:scale-95">
           <Menu className="w-5 h-5 text-[#9DB2C7]" />
         </button>
+        <SiteLogo size="sm" className="max-h-8" />
       </div>
 
       {/* Right */}

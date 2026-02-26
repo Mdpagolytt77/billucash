@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
+import FloatingCoinsBackground from '@/components/FloatingCoinsBackground';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
@@ -198,9 +199,14 @@ const Dashboard = () => {
   return (
     <>
       <div 
-        className="min-h-screen dashboard-theme"
-        style={{ background: 'linear-gradient(135deg, #0B1622 0%, #0E1C2B 50%, #0A1420 100%)' }}
+        className="min-h-screen dashboard-theme relative"
+        style={{ background: '#0A0F1C' }}
       >
+        {/* Background effects */}
+        <div className="fixed inset-0 z-0">
+          <FloatingCoinsBackground density="high" showGlow={true} showBeams={true} />
+        </div>
+
         {/* Offerwall Popup */}
         {selectedOfferwall && (() => {
           const widthClasses: Record<string, string> = {
@@ -306,8 +312,8 @@ const Dashboard = () => {
         {/* Mobile Sidebar */}
         <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Main content area - no sidebar offset */}
-        <div>
+        {/* Main content area */}
+        <div className="relative z-10">
           {/* Header */}
           <DashboardHeader
             profile={profile}

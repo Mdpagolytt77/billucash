@@ -240,7 +240,7 @@ const LiveEarningsTracker = () => {
 
   const noOffersToday = earnings.length === 0;
 
-  const displayItems = earnings.length > 1 ? [...earnings, ...earnings, ...earnings, ...earnings] : earnings;
+  const displayItems = earnings;
 
   const getAvatarColor = (name: string) => {
     const colors = [

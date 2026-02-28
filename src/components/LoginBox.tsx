@@ -44,15 +44,14 @@ const LoginBox = () => {
   };
 
   return (
-    <div 
-      className="w-full max-w-[266px] mx-auto rounded-2xl p-4 md:p-5 transition-all duration-300"
-      style={{
-        background: '#111C2D',
-        backdropFilter: 'blur(15px)',
-        border: '1px solid rgba(29,191,115,0.15)',
-        boxShadow: '0 15px 40px rgba(0,0,0,0.5)',
-      }}
-    >
+    <div className="snake-glow-card w-full max-w-[266px] mx-auto rounded-2xl overflow-visible transition-all duration-300">
+      <div 
+        className="relative z-10 rounded-2xl p-4 md:p-5"
+        style={{
+          background: '#111C2D',
+          backdropFilter: 'blur(15px)',
+        }}
+      >
       {/* Title */}
       <div className="text-center mb-5">
         <h2 className="text-sm font-display font-bold text-foreground mb-0.5">Get Started!</h2>
@@ -158,6 +157,7 @@ const LoginBox = () => {
           <UserPlus className="w-4 h-4" />
           Create Account
         </Link>
+      </div>
       </div>
     </div>
   );

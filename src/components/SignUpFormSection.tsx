@@ -34,14 +34,13 @@ const SignUpFormSection = () => {
 
   return (
     <section className="py-12 px-4">
-      <div 
-        className="max-w-md mx-auto rounded-2xl p-6 md:p-8"
-        style={{
-          background: '#111C2D',
-          border: '1px solid rgba(29,191,115,0.15)',
-          boxShadow: '0 15px 40px rgba(0,0,0,0.5)',
-        }}
-      >
+      <div className="snake-glow-card max-w-md mx-auto rounded-2xl overflow-visible">
+        <div
+          className="relative z-10 rounded-2xl p-6 md:p-8"
+          style={{
+            background: '#111C2D',
+          }}
+        >
         <h2 className="text-xl font-display font-bold text-foreground text-center mb-1">Sign Up for Free</h2>
         <p className="text-sm text-muted-foreground text-center mb-6">
           Sign Up to start <span className="text-primary font-semibold">earning</span> today!
@@ -124,6 +123,7 @@ const SignUpFormSection = () => {
             Login with Google
           </button>
         </form>
+        </div>
       </div>
     </section>
   );

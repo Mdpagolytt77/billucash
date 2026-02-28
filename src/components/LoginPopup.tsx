@@ -95,10 +95,11 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
       }}
       onClick={onClose}
     >
-      <div 
-        className="bg-card border border-border rounded-2xl w-full max-w-md animate-scale-in relative shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="snake-glow-card w-full max-w-md animate-scale-in relative overflow-visible">
+        <div 
+          className="relative z-10 bg-card rounded-2xl shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div className="flex justify-between items-center p-4 pb-0">
           <h2 className="text-lg font-semibold text-foreground">Log In</h2>
@@ -227,6 +228,7 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
             </svg>
             Log In Via Google
           </button>
+        </div>
         </div>
       </div>
     </div>

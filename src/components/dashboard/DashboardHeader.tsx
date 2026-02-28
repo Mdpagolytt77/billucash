@@ -114,14 +114,21 @@ const DashboardHeader = ({
         <div className="relative">
           <button 
             onClick={() => setShowUserMenu(!showUserMenu)} 
-            className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center"
-            style={{ border: '2px solid rgba(29,191,115,0.3)' }}
+            className="flex items-center gap-1.5 px-1.5 py-1 rounded-full transition-colors hover:bg-white/5"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
-            <img 
-              src={`https://api.dicebear.com/7.x/avataaars/png?seed=${profile?.username || 'user'}`}
-              alt="Avatar"
-              className="w-full h-full object-cover"
-            />
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0" style={{ border: '2px solid rgba(29,191,115,0.4)' }}>
+              <img 
+                src={`https://api.dicebear.com/7.x/avataaars/png?seed=${profile?.username || 'user'}`}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="w-3 h-3 flex items-center justify-center">
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className={`transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`}>
+                <path d="M1 1L5 5L9 1" stroke="#9DB2C7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
           </button>
 
           {showUserMenu && (

@@ -138,8 +138,8 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
     <section className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Layers className="w-5 h-5" style={{ color: '#1DBF73' }} />
-          <h3 className="font-bold text-lg text-white">{title}</h3>
+          <Layers className="w-5 h-5 fire-icon" />
+          <h3 className="font-bold text-lg text-rainbow">{title}</h3>
         </div>
       </div>
       

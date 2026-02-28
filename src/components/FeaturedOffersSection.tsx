@@ -66,72 +66,13 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   return (
     <div className="flex items-end justify-center gap-4 md:gap-6">
-      <style>{`
-        @keyframes borderGlow {
-          0% { 
-            background-position: 0% 50%;
-            box-shadow: 0 0 20px rgba(29,191,115,0.5), 0 0 40px rgba(29,191,115,0.2);
-          }
-          15% { 
-            background-position: 50% 0%;
-            box-shadow: 0 0 25px rgba(0,200,255,0.5), 0 0 50px rgba(0,200,255,0.2);
-          }
-          30% { 
-            background-position: 100% 0%;
-            box-shadow: 0 0 30px rgba(168,85,247,0.5), 0 0 60px rgba(168,85,247,0.2);
-          }
-          45% { 
-            background-position: 100% 50%;
-            box-shadow: 0 0 25px rgba(255,107,53,0.5), 0 0 50px rgba(255,107,53,0.2);
-          }
-          60% { 
-            background-position: 100% 100%;
-            box-shadow: 0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2);
-          }
-          75% { 
-            background-position: 50% 100%;
-            box-shadow: 0 0 25px rgba(236,72,153,0.5), 0 0 50px rgba(236,72,153,0.2);
-          }
-          100% { 
-            background-position: 0% 50%;
-            box-shadow: 0 0 20px rgba(29,191,115,0.5), 0 0 40px rgba(29,191,115,0.2);
-          }
-        }
-        .featured-card-glow {
-          position: relative;
-        }
-        .featured-card-glow::before {
-          content: '';
-          position: absolute;
-          inset: -2px;
-          border-radius: 18px;
-          padding: 2px;
-          background: linear-gradient(
-            270deg,
-            #1DBF73,
-            #00C8FF,
-            #A855F7,
-            #FF6B35,
-            #FFD700,
-            #EC4899,
-            #1DBF73
-          );
-          background-size: 600% 600%;
-          animation: borderGlow 3s linear infinite;
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          z-index: 0;
-        }
-      `}</style>
       {displayOffers.map((offer, index) => {
         const isCenter = index === 1 || displayOffers.length === 1;
 
         return (
           <div
             key={offer.id}
-            className="featured-card-glow flex-shrink-0 rounded-2xl overflow-visible cursor-pointer transition-all duration-300 group"
+            className="snake-glow-card flex-shrink-0 rounded-2xl overflow-visible cursor-pointer transition-all duration-300 group"
             onClick={onOfferClick}
             style={{
               width: isCenter ? '154px' : '126px',

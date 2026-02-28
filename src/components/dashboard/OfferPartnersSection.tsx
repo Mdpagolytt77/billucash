@@ -91,19 +91,17 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
         popupHeight: partner.popupHeight,
         popupAnimation: partner.popupAnimation,
       })}
-      className="flex-shrink-0 cursor-pointer group transition-all duration-300"
+      className="snake-glow-card flex-shrink-0 cursor-pointer group transition-all duration-300 overflow-visible"
       onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; }}
       onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
     >
       <div 
-        className="relative overflow-hidden flex flex-col items-center justify-center p-2"
+        className="relative z-10 overflow-hidden flex flex-col items-center justify-center p-2"
         style={{
           width: '108px',
           height: '160px',
           borderRadius: '16px',
           background: getCardBackground(partner.name, partner.color),
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
         }}
       >
         {partner.badge && (

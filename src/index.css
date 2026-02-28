@@ -324,3 +324,64 @@
     scrollbar-color: #1DBF73 #0E1A27;
   }
 }
+
+/* Snake Glow Border Animation */
+@property --snake-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes snakeRotate {
+  to { --snake-angle: 360deg; }
+}
+
+.snake-glow-card {
+  position: relative;
+}
+
+.snake-glow-card::before,
+.snake-glow-card::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  z-index: 0;
+}
+
+.snake-glow-card::before {
+  background: conic-gradient(
+    from var(--snake-angle, 0deg),
+    #1DBF73 0deg,
+    #00C8FF 40deg,
+    #A855F7 80deg,
+    #FF6B35 100deg,
+    transparent 140deg,
+    transparent 300deg,
+    #EC4899 330deg,
+    #FFD700 350deg,
+    #1DBF73 360deg
+  );
+  animation: snakeRotate 2.5s linear infinite;
+  padding: 2px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.snake-glow-card::after {
+  background: conic-gradient(
+    from var(--snake-angle, 0deg),
+    #1DBF73 0deg,
+    #00C8FF 40deg,
+    #A855F7 80deg,
+    transparent 120deg,
+    transparent 320deg,
+    #FFD700 350deg,
+    #1DBF73 360deg
+  );
+  animation: snakeRotate 2.5s linear infinite;
+  filter: blur(12px);
+  opacity: 0.6;
+}

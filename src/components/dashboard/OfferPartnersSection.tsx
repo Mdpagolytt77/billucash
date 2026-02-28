@@ -75,11 +75,11 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
   };
 
   const renderStars = (rating: number) => (
-    <div className="flex gap-0.5 justify-center mt-2">
+    <div className="flex gap-0.5 justify-center mt-1">
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className="w-3.5 h-3.5"
+          className="w-2.5 h-2.5"
           style={{
             fill: star <= rating ? '#FFD700' : star - 0.5 <= rating ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.15)',
             color: star <= rating ? '#FFD700' : 'rgba(255,255,255,0.2)',
@@ -124,10 +124,10 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
               }}
             >
               <div 
-                className="relative overflow-hidden flex flex-col items-center justify-center p-3"
+                className="relative overflow-hidden flex flex-col items-center justify-center p-2"
                 style={{
-                  width: '160px',
-                  height: '200px',
+                  width: '103px',
+                  height: '115px',
                   borderRadius: '16px',
                   background: getCardBackground(partner.name, partner.color),
                   border: '1px solid rgba(255,255,255,0.08)',
@@ -137,7 +137,7 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
                 {/* Badge */}
                 {partner.badge && (
                   <div 
-                    className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold flex items-center gap-0.5"
+                    className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[8px] font-bold flex items-center gap-0.5"
                     style={getBadgeStyle(partner.badge.type)}
                   >
                     {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
@@ -150,16 +150,16 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
                   <img 
                     src={partner.logoUrl} 
                     alt={partner.name}
-                    className="h-10 object-contain mb-2"
+                    className="h-8 object-contain mb-1"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-lg bg-white/10 flex items-center justify-center mb-2">
-                    <span className="text-xl font-black text-white/90">{partner.name.charAt(0)}</span>
+                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mb-1">
+                    <span className="text-sm font-black text-white/90">{partner.name.charAt(0)}</span>
                   </div>
                 )}
 
                 {/* Name */}
-                <h4 className="text-xs font-bold text-white text-center truncate w-full">{partner.name}</h4>
+                <h4 className="text-[9px] font-bold text-white text-center truncate w-full">{partner.name}</h4>
                 
                 {/* Rating */}
                 {renderStars(partner.rating)}

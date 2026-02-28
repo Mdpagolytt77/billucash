@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bell, Menu, X, User } from 'lucide-react';
 import { CoinIcon, SiteLogo } from '@/contexts/SiteSettingsContext';
 import SnowToggle from '@/components/SnowToggle';
+import BalanceHistoryPopup from '@/components/dashboard/BalanceHistoryPopup';
 
 interface Notification {
   id: string;
@@ -31,6 +32,7 @@ const DashboardHeader = ({
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showBalanceHistory, setShowBalanceHistory] = useState(false);
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
@@ -52,15 +54,16 @@ const DashboardHeader = ({
       {/* Right */}
       <div className="flex items-center gap-2 ml-auto">
         {/* Balance pill */}
-        <div 
-          className="flex items-center gap-2 px-4 py-1.5 rounded-full"
+        <button 
+          onClick={() => setShowBalanceHistory(true)}
+          className="flex items-center gap-2 px-4 py-1.5 rounded-full cursor-pointer hover:brightness-110 transition-all active:scale-95"
           style={{ background: '#142739', border: '1px solid #1e3448' }}
         >
           <CoinIcon className="w-4 h-4" />
           <span className="font-bold text-sm text-white">
             {profile?.balance?.toFixed(0) || '0'}
           </span>
-        </div>
+        </button>
 
         
         
@@ -137,6 +140,7 @@ const DashboardHeader = ({
           )}
         </div>
       </div>
+      <BalanceHistoryPopup open={showBalanceHistory} onClose={() => setShowBalanceHistory(false)} />
     </header>
   );
 };

@@ -21,6 +21,7 @@ interface FeaturedOffer {
   link_url: string | null;
   is_active: boolean;
   sort_order: number;
+  row_number: number;
 }
 
 const AdminFeaturedOffers = () => {
@@ -31,6 +32,7 @@ const AdminFeaturedOffers = () => {
   const [saving, setSaving] = useState(false);
   const [editingOffer, setEditingOffer] = useState<FeaturedOffer | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeRow, setActiveRow] = useState<1 | 2>(1);
 
   useEffect(() => {
     loadOffers();
@@ -59,6 +61,7 @@ const AdminFeaturedOffers = () => {
       color: '#1a1a2e',
       is_active: true,
       sort_order: offers.length,
+      row_number: activeRow,
     };
 
     const { data, error } = await supabase
@@ -92,6 +95,7 @@ const AdminFeaturedOffers = () => {
         link_url: editingOffer.link_url,
         is_active: editingOffer.is_active,
         sort_order: editingOffer.sort_order,
+        row_number: editingOffer.row_number,
       })
       .eq('id', editingOffer.id);
 
@@ -184,21 +188,37 @@ const AdminFeaturedOffers = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Offers List */}
           <div className="space-y-3">
+            {/* Row Tabs */}
+            <div className="flex gap-2 mb-3">
+              <button
+                onClick={() => { setActiveRow(1); setEditingOffer(null); }}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeRow === 1 ? 'bg-primary text-white' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}
+              >
+                Row 1 (Top)
+              </button>
+              <button
+                onClick={() => { setActiveRow(2); setEditingOffer(null); }}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeRow === 2 ? 'bg-primary text-white' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}
+              >
+                Row 2 (Bottom)
+              </button>
+            </div>
+
             <h2 className="text-sm font-semibold text-muted-foreground mb-2">
-              All Offers ({offers.length})
+              Row {activeRow} Offers ({offers.filter(o => o.row_number === activeRow).length})
             </h2>
             
             {loading ? (
               <div className="text-center py-8 text-muted-foreground">Loading...</div>
-            ) : offers.length === 0 ? (
+            ) : offers.filter(o => o.row_number === activeRow).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-xl">
-                <p>No featured offers yet</p>
+                <p>No offers in Row {activeRow} yet</p>
                 <Button onClick={handleAddOffer} variant="outline" size="sm" className="mt-2">
-                  <Plus className="w-4 h-4 mr-1" /> Add First Offer
+                  <Plus className="w-4 h-4 mr-1" /> Add Offer to Row {activeRow}
                 </Button>
               </div>
             ) : (
-              offers.map((offer) => (
+              offers.filter(o => o.row_number === activeRow).map((offer) => (
                 <div
                   key={offer.id}
                   onClick={() => setEditingOffer(offer)}
@@ -289,6 +309,24 @@ const AdminFeaturedOffers = () => {
                         value={editingOffer.sort_order}
                         onChange={(e) => setEditingOffer({ ...editingOffer, sort_order: parseInt(e.target.value) || 0 })}
                       />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Display Row</Label>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditingOffer({ ...editingOffer, row_number: 1 })}
+                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${editingOffer.row_number === 1 ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
+                      >
+                        Row 1 (Top)
+                      </button>
+                      <button
+                        onClick={() => setEditingOffer({ ...editingOffer, row_number: 2 })}
+                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${editingOffer.row_number === 2 ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
+                      >
+                        Row 2 (Bottom)
+                      </button>
                     </div>
                   </div>
                   

@@ -11,11 +11,60 @@ interface FeaturedOffer {
   image_url: string | null;
   color: string | null;
   link_url: string | null;
+  row_number: number;
 }
 
 interface FeaturedOffersSectionProps {
   onOfferClick: (offer: { name: string; color: string; iframeUrl: string }) => void;
 }
+
+const OfferCard = ({ offer, onClick }: { offer: FeaturedOffer; onClick: () => void }) => (
+  <div
+    onClick={onClick}
+    className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
+    style={{ 
+      width: '98px',
+      borderRadius: '16px',
+      background: '#122333',
+      border: '1px solid rgba(29,191,115,0.15)',
+      boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-5px)';
+      e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(29,191,115,0.4)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
+    }}
+  >
+    <div className="relative h-[59px] overflow-hidden rounded-t-[16px]">
+      {offer.image_url ? (
+        <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${offer.color || '#122333'}, ${offer.color || '#122333'}88)` }}>
+          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+            <span className="text-xl">🎮</span>
+          </div>
+        </div>
+      )}
+    </div>
+    <div className="p-2">
+      <h4 className="text-[9px] font-bold text-white truncate">{offer.name}</h4>
+      <p className="text-[8px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
+        {offer.description || 'Complete this offer'}
+      </p>
+      <div className="flex items-center justify-between mt-1">
+        <span className="font-semibold text-[10px]" style={{ color: '#1DBF73' }}>
+          ${(offer.coins / 100).toFixed(2)}
+        </span>
+        <span className="text-[7px] font-bold px-1 py-0.5 rounded-md text-white" style={{ background: '#6C4BFF' }}>
+          APP
+        </span>
+      </div>
+    </div>
+  </div>
+);
 
 const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => {
   const [offers, setOffers] = useState<FeaturedOffer[]>([]);
@@ -25,7 +74,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     const loadOffers = async () => {
       const { data, error } = await supabase
         .from('featured_offers')
-        .select('id, name, description, coins, image_url, color, link_url')
+        .select('id, name, description, coins, image_url, color, link_url, row_number')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
@@ -52,14 +101,16 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
   };
 
   const fallbackOffers: FeaturedOffer[] = [
-    { id: '1', name: 'JustPlay', description: 'Cashout every 3 hours', coins: 240, color: '#122333', image_url: null, link_url: null },
-    { id: '2', name: 'Radientwall', description: 'Radientwall', coins: 110, color: '#122333', image_url: null, link_url: null },
-    { id: '3', name: 'AARP Rewards', description: 'Offery', coins: 50, color: '#122333', image_url: null, link_url: null },
-    { id: '4', name: 'Cash Alarm', description: 'Play & Earn', coins: 320, color: '#122333', image_url: null, link_url: null },
-    { id: '5', name: 'Wild Fish', description: 'Install the app', coins: 180, color: '#122333', image_url: null, link_url: null },
+    { id: '1', name: 'JustPlay', description: 'Cashout every 3 hours', coins: 240, color: '#122333', image_url: null, link_url: null, row_number: 1 },
+    { id: '2', name: 'Radientwall', description: 'Radientwall', coins: 110, color: '#122333', image_url: null, link_url: null, row_number: 1 },
+    { id: '3', name: 'AARP Rewards', description: 'Offery', coins: 50, color: '#122333', image_url: null, link_url: null, row_number: 1 },
+    { id: '4', name: 'Cash Alarm', description: 'Play & Earn', coins: 320, color: '#122333', image_url: null, link_url: null, row_number: 2 },
+    { id: '5', name: 'Wild Fish', description: 'Install the app', coins: 180, color: '#122333', image_url: null, link_url: null, row_number: 2 },
   ];
 
-  const displayOffers = offers.length > 0 ? offers : fallbackOffers;
+  const allOffers = offers.length > 0 ? offers : fallbackOffers;
+  const row1Offers = allOffers.filter(o => o.row_number === 1);
+  const row2Offers = allOffers.filter(o => o.row_number === 2);
 
   if (loading) {
     return (
@@ -94,106 +145,20 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
         className="rounded-2xl p-4"
         style={{ background: '#0E1A27', border: '1px solid #162638' }}
       >
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
-          {displayOffers.map((offer) => (
-            <div
-              key={offer.id}
-              onClick={() => handleOfferClick(offer)}
-              className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
-              style={{ 
-                width: '98px',
-                borderRadius: '16px',
-                background: '#122333',
-                border: '1px solid rgba(29,191,115,0.15)',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(29,191,115,0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
-              }}
-            >
-              <div className="relative h-[59px] overflow-hidden rounded-t-[16px]">
-                {offer.image_url ? (
-                  <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${offer.color || '#122333'}, ${offer.color || '#122333'}88)` }}>
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                      <span className="text-xl">🎮</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-2">
-                <h4 className="text-[9px] font-bold text-white truncate">{offer.name}</h4>
-                <p className="text-[8px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
-                  {offer.description || 'Complete this offer'}
-                </p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="font-semibold text-[10px]" style={{ color: '#1DBF73' }}>
-                    ${(offer.coins / 100).toFixed(2)}
-                  </span>
-                  <span className="text-[7px] font-bold px-1 py-0.5 rounded-md text-white" style={{ background: '#6C4BFF' }}>
-                    APP
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 mt-3">
-          {displayOffers.map((offer) => (
-            <div
-              key={`row2-${offer.id}`}
-              onClick={() => handleOfferClick(offer)}
-              className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
-              style={{ 
-                width: '98px',
-                borderRadius: '16px',
-                background: '#122333',
-                border: '1px solid rgba(29,191,115,0.15)',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(29,191,115,0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
-              }}
-            >
-              <div className="relative h-[59px] overflow-hidden rounded-t-[16px]">
-                {offer.image_url ? (
-                  <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${offer.color || '#122333'}, ${offer.color || '#122333'}88)` }}>
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                      <span className="text-xl">🎮</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-2">
-                <h4 className="text-[9px] font-bold text-white truncate">{offer.name}</h4>
-                <p className="text-[8px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
-                  {offer.description || 'Complete this offer'}
-                </p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="font-semibold text-[10px]" style={{ color: '#1DBF73' }}>
-                    ${(offer.coins / 100).toFixed(2)}
-                  </span>
-                  <span className="text-[7px] font-bold px-1 py-0.5 rounded-md text-white" style={{ background: '#6C4BFF' }}>
-                    APP
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {row1Offers.length > 0 && (
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+            {row1Offers.map((offer) => (
+              <OfferCard key={offer.id} offer={offer} onClick={() => handleOfferClick(offer)} />
+            ))}
+          </div>
+        )}
+        {row2Offers.length > 0 && (
+          <div className={`flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 ${row1Offers.length > 0 ? 'mt-3' : ''}`}>
+            {row2Offers.map((offer) => (
+              <OfferCard key={`row2-${offer.id}`} offer={offer} onClick={() => handleOfferClick(offer)} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -88,7 +88,11 @@ const LoginPopup = ({ isOpen, onClose }: LoginPopupProps) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[1000] animate-fade-in p-4"
+      className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-[1000] animate-fade-in p-4"
+      style={{
+        background: 'radial-gradient(ellipse at center, rgba(29,191,115,0.12) 0%, rgba(0,0,0,0.85) 70%)',
+        boxShadow: 'inset 0 0 200px 60px rgba(29,191,115,0.08)',
+      }}
       onClick={onClose}
     >
       <div 

@@ -22,6 +22,10 @@ const DialogOverlay = React.forwardRef<
       "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
+    style={{
+      boxShadow: 'inset 0 0 200px 60px rgba(29,191,115,0.08)',
+      background: 'radial-gradient(ellipse at center, rgba(29,191,115,0.12) 0%, rgba(0,0,0,0.85) 70%)',
+    }}
     {...props}
   />
 ));

@@ -94,65 +94,106 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
         className="rounded-2xl p-4"
         style={{ background: '#0E1A27', border: '1px solid #162638' }}
       >
-        {[0, 1].map((rowIndex) => {
-          const rowOffers = displayOffers.slice(rowIndex * Math.ceil(displayOffers.length / 2), (rowIndex + 1) * Math.ceil(displayOffers.length / 2));
-          if (rowOffers.length === 0) return null;
-          return (
-            <div key={rowIndex} className={`flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 ${rowIndex > 0 ? 'mt-3' : ''}`}>
-              {rowOffers.map((offer) => (
-                <div
-                  key={offer.id}
-                  onClick={() => handleOfferClick(offer)}
-                  className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
-                  style={{ 
-                    width: '98px',
-                    borderRadius: '16px',
-                    background: '#122333',
-                    border: '1px solid rgba(29,191,115,0.15)',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-5px)';
-                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(29,191,115,0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
-                  }}
-                >
-                  <div className="relative h-[59px] overflow-hidden rounded-t-[16px]">
-                    {offer.image_url ? (
-                      <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${offer.color || '#122333'}, ${offer.color || '#122333'}88)` }}>
-                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                          <span className="text-xl">🎮</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-2">
-                    <h4 className="text-[9px] font-bold text-white truncate">{offer.name}</h4>
-                    <p className="text-[8px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
-                      {offer.description || 'Complete this offer'}
-                    </p>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="font-semibold text-[10px]" style={{ color: '#1DBF73' }}>
-                        ${(offer.coins / 100).toFixed(2)}
-                      </span>
-                      <span 
-                        className="text-[7px] font-bold px-1 py-0.5 rounded-md text-white"
-                        style={{ background: '#6C4BFF' }}
-                      >
-                        APP
-                      </span>
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+          {displayOffers.map((offer) => (
+            <div
+              key={offer.id}
+              onClick={() => handleOfferClick(offer)}
+              className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
+              style={{ 
+                width: '98px',
+                borderRadius: '16px',
+                background: '#122333',
+                border: '1px solid rgba(29,191,115,0.15)',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(29,191,115,0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
+              }}
+            >
+              <div className="relative h-[59px] overflow-hidden rounded-t-[16px]">
+                {offer.image_url ? (
+                  <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${offer.color || '#122333'}, ${offer.color || '#122333'}88)` }}>
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      <span className="text-xl">🎮</span>
                     </div>
                   </div>
+                )}
+              </div>
+              <div className="p-2">
+                <h4 className="text-[9px] font-bold text-white truncate">{offer.name}</h4>
+                <p className="text-[8px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
+                  {offer.description || 'Complete this offer'}
+                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="font-semibold text-[10px]" style={{ color: '#1DBF73' }}>
+                    ${(offer.coins / 100).toFixed(2)}
+                  </span>
+                  <span className="text-[7px] font-bold px-1 py-0.5 rounded-md text-white" style={{ background: '#6C4BFF' }}>
+                    APP
+                  </span>
                 </div>
-              ))}
+              </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 mt-3">
+          {displayOffers.map((offer) => (
+            <div
+              key={`row2-${offer.id}`}
+              onClick={() => handleOfferClick(offer)}
+              className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
+              style={{ 
+                width: '98px',
+                borderRadius: '16px',
+                background: '#122333',
+                border: '1px solid rgba(29,191,115,0.15)',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(29,191,115,0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
+              }}
+            >
+              <div className="relative h-[59px] overflow-hidden rounded-t-[16px]">
+                {offer.image_url ? (
+                  <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${offer.color || '#122333'}, ${offer.color || '#122333'}88)` }}>
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      <span className="text-xl">🎮</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="p-2">
+                <h4 className="text-[9px] font-bold text-white truncate">{offer.name}</h4>
+                <p className="text-[8px] truncate mt-0.5" style={{ color: '#9DB2C7' }}>
+                  {offer.description || 'Complete this offer'}
+                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="font-semibold text-[10px]" style={{ color: '#1DBF73' }}>
+                    ${(offer.coins / 100).toFixed(2)}
+                  </span>
+                  <span className="text-[7px] font-bold px-1 py-0.5 rounded-md text-white" style={{ background: '#6C4BFF' }}>
+                    APP
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

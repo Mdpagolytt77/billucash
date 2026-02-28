@@ -45,7 +45,7 @@ const LoginBox = () => {
 
   return (
     <div 
-      className="w-full max-w-[380px] mx-auto rounded-2xl p-6 md:p-7 transition-all duration-300"
+      className="w-full max-w-[266px] mx-auto rounded-2xl p-4 md:p-5 transition-all duration-300"
       style={{
         background: '#111C2D',
         backdropFilter: 'blur(15px)',
@@ -55,29 +55,29 @@ const LoginBox = () => {
     >
       {/* Title */}
       <div className="text-center mb-5">
-        <h2 className="text-lg font-display font-bold text-foreground mb-1">Get Started!</h2>
-        <p className="text-xs text-muted-foreground">
+        <h2 className="text-sm font-display font-bold text-foreground mb-0.5">Get Started!</h2>
+        <p className="text-[10px] text-muted-foreground">
           It's free! Sign up and start to earn money!
         </p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="text-sm font-medium mb-1.5 block text-muted-foreground">Email</label>
+          <label className="text-xs font-medium mb-1 block text-muted-foreground">Email</label>
           <input
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-input-custom h-[50px]"
+            className="form-input-custom h-[35px] text-xs"
           />
         </div>
         
         <div>
-          <div className="flex justify-between items-center mb-1.5">
-            <label className="text-sm font-medium text-muted-foreground">Password</label>
-            <button type="button" className="text-xs hover:underline" style={{ color: '#1DBF73' }}>
+          <div className="flex justify-between items-center mb-1">
+            <label className="text-xs font-medium text-muted-foreground">Password</label>
+            <button type="button" className="text-[10px] hover:underline" style={{ color: '#1DBF73' }}>
               Forgot Password?
             </button>
           </div>
@@ -87,7 +87,7 @@ const LoginBox = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="form-input-custom h-[50px] pr-10"
+              className="form-input-custom h-[35px] text-xs pr-8"
             />
             <button
               type="button"
@@ -105,7 +105,7 @@ const LoginBox = () => {
             checked={rememberMe}
             onCheckedChange={(checked) => setRememberMe(checked as boolean)}
           />
-          <label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
+          <label htmlFor="remember" className="text-xs text-muted-foreground cursor-pointer">
             Remember Me
           </label>
         </div>
@@ -113,7 +113,7 @@ const LoginBox = () => {
         <button 
           type="submit" 
           disabled={isLoading}
-          className="w-full h-[50px] rounded-lg font-semibold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed text-white animate-neon-pulse"
+          className="w-full h-[35px] rounded-lg font-semibold text-xs transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed text-white animate-neon-pulse"
           style={{
             background: 'linear-gradient(135deg, #1DBF73, #17a566)',
             boxShadow: '0 10px 25px rgba(29,191,115,0.4)',
@@ -128,7 +128,7 @@ const LoginBox = () => {
           )}
         </button>
         
-        <div className="relative flex items-center justify-center my-4">
+        <div className="relative flex items-center justify-center my-3">
           <div className="flex-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }} />
           <span className="px-3 text-xs text-muted-foreground">or</span>
           <div className="flex-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }} />
@@ -136,7 +136,7 @@ const LoginBox = () => {
         
         <button 
           type="button"
-          className="w-full h-[50px] rounded-lg text-sm font-medium transition-all hover:bg-muted flex items-center justify-center gap-2 text-foreground"
+          className="w-full h-[35px] rounded-lg text-xs font-medium transition-all hover:bg-muted flex items-center justify-center gap-2 text-foreground"
           style={{
             background: '#0E1625',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -153,8 +153,8 @@ const LoginBox = () => {
       </form>
 
       {/* Link */}
-      <div className="flex justify-center mt-5">
-        <Link to="/signup" className="text-sm flex items-center gap-2 hover:underline transition-transform hover:translate-x-1" style={{ color: '#1DBF73' }}>
+      <div className="flex justify-center mt-3">
+        <Link to="/signup" className="text-xs flex items-center gap-1.5 hover:underline transition-transform hover:translate-x-1" style={{ color: '#1DBF73' }}>
           <UserPlus className="w-4 h-4" />
           Create Account
         </Link>

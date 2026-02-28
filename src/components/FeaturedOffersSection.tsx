@@ -70,23 +70,31 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
         @keyframes borderGlow {
           0% { 
             background-position: 0% 50%;
-            box-shadow: 0 0 15px rgba(29,191,115,0.3), inset 0 0 15px rgba(29,191,115,0.05);
+            box-shadow: 0 0 20px rgba(29,191,115,0.5), 0 0 40px rgba(29,191,115,0.2);
           }
-          25% { 
+          15% { 
+            background-position: 50% 0%;
+            box-shadow: 0 0 25px rgba(0,200,255,0.5), 0 0 50px rgba(0,200,255,0.2);
+          }
+          30% { 
             background-position: 100% 0%;
-            box-shadow: 0 0 25px rgba(29,191,115,0.5), inset 0 0 20px rgba(29,191,115,0.08);
+            box-shadow: 0 0 30px rgba(168,85,247,0.5), 0 0 60px rgba(168,85,247,0.2);
           }
-          50% { 
+          45% { 
+            background-position: 100% 50%;
+            box-shadow: 0 0 25px rgba(255,107,53,0.5), 0 0 50px rgba(255,107,53,0.2);
+          }
+          60% { 
             background-position: 100% 100%;
-            box-shadow: 0 0 20px rgba(29,191,115,0.4), inset 0 0 15px rgba(29,191,115,0.05);
+            box-shadow: 0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2);
           }
           75% { 
-            background-position: 0% 100%;
-            box-shadow: 0 0 30px rgba(29,191,115,0.6), inset 0 0 25px rgba(29,191,115,0.1);
+            background-position: 50% 100%;
+            box-shadow: 0 0 25px rgba(236,72,153,0.5), 0 0 50px rgba(236,72,153,0.2);
           }
           100% { 
             background-position: 0% 50%;
-            box-shadow: 0 0 15px rgba(29,191,115,0.3), inset 0 0 15px rgba(29,191,115,0.05);
+            box-shadow: 0 0 20px rgba(29,191,115,0.5), 0 0 40px rgba(29,191,115,0.2);
           }
         }
         .featured-card-glow {
@@ -100,14 +108,16 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
           padding: 2px;
           background: linear-gradient(
             270deg,
-            rgba(29,191,115,0.6),
-            rgba(29,191,115,0.1),
-            rgba(100,220,160,0.5),
-            rgba(29,191,115,0.1),
-            rgba(29,191,115,0.6)
+            #1DBF73,
+            #00C8FF,
+            #A855F7,
+            #FF6B35,
+            #FFD700,
+            #EC4899,
+            #1DBF73
           );
-          background-size: 400% 400%;
-          animation: borderGlow 4s ease-in-out infinite;
+          background-size: 600% 600%;
+          animation: borderGlow 3s linear infinite;
           -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor;

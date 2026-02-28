@@ -101,7 +101,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
               onClick={() => handleOfferClick(offer)}
               className="flex-shrink-0 cursor-pointer group overflow-hidden transition-all duration-300"
               style={{ 
-                width: '150px',
+                width: '98px',
                 borderRadius: '16px',
                 background: '#122333',
                 border: '1px solid rgba(29,191,115,0.15)',
@@ -117,7 +117,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
               }}
             >
               {/* Image area */}
-              <div className="relative h-[90px] overflow-hidden rounded-t-[16px]">
+              <div className="relative h-[59px] overflow-hidden rounded-t-[16px]">
                 {offer.image_url ? (
                   <img src={offer.image_url} alt={offer.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 ) : (

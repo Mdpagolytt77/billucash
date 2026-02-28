@@ -1,0 +1,1 @@
+ALTER TABLE public.featured_offers ADD COLUMN row_number integer NOT NULL DEFAULT 1;

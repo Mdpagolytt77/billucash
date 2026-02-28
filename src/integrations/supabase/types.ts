@@ -97,6 +97,7 @@ export type Database = {
           is_active: boolean | null
           link_url: string | null
           name: string
+          row_number: number
           sort_order: number | null
           updated_at: string
         }
@@ -110,6 +111,7 @@ export type Database = {
           is_active?: boolean | null
           link_url?: string | null
           name: string
+          row_number?: number
           sort_order?: number | null
           updated_at?: string
         }
@@ -123,6 +125,7 @@ export type Database = {
           is_active?: boolean | null
           link_url?: string | null
           name?: string
+          row_number?: number
           sort_order?: number | null
           updated_at?: string
         }

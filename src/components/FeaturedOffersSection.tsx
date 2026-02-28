@@ -72,13 +72,10 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
         return (
           <div
             key={offer.id}
+            className="flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group"
             onClick={onOfferClick}
-            className={`flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group flex flex-col ${
-              isCenter 
-                ? 'w-[140px] md:w-[154px] h-[182px] md:h-[196px]' 
-                : 'w-[112px] md:w-[126px] h-[154px] md:h-[168px]'
-            }`}
             style={{
+              width: isCenter ? '154px' : '126px',
               background: '#111C2D',
               border: '1px solid rgba(29,191,115,0.2)',
               boxShadow: '0 15px 40px rgba(0,0,0,0.6)',
@@ -93,7 +90,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
             }}
           >
             {/* Image */}
-            <div className={`relative overflow-hidden flex-shrink-0 ${isCenter ? 'h-[112px] md:h-[126px]' : 'h-[91px] md:h-[105px]'}`}>
+            <div className={`relative overflow-hidden flex-shrink-0 ${isCenter ? 'h-[100px]' : 'h-[85px]'}`}>
               {offer.image_url ? (
                 <img
                   src={offer.image_url}
@@ -106,27 +103,25 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
                 />
               ) : (
                 <div className={`w-full h-full bg-gradient-to-br ${offer.color || 'from-primary/80 to-secondary/60'} flex items-center justify-center`}>
-                  <span className={`${isCenter ? 'text-5xl' : 'text-4xl'}`}>🎮</span>
+                  <span className="text-3xl">🎮</span>
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#111C2D] via-transparent to-transparent" />
             </div>
 
             {/* Info */}
-            <div className="p-3 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 className={`${isCenter ? 'text-sm' : 'text-xs'} font-bold truncate text-foreground`}>{offer.name}</h3>
-                <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                  {offer.description || 'Complete this offer'}
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <p className={`font-bold ${isCenter ? 'text-sm' : 'text-xs'}`} style={{ color: '#1DBF73' }}>
+            <div className="p-2">
+              <h3 className="text-[10px] font-bold text-foreground truncate">{offer.name}</h3>
+              <p className="text-[8px] text-muted-foreground truncate mt-0.5">
+                {offer.description || 'Complete this offer'}
+              </p>
+              <div className="flex items-center justify-between mt-1.5">
+                <p className="font-bold text-[10px]" style={{ color: '#1DBF73' }}>
                   ${(offer.coins / 100).toFixed(2)}
                 </p>
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-2.5 h-2.5" style={{ fill: '#FFD54F', color: '#FFD54F' }} />
+                    <Star key={i} className="w-2 h-2" style={{ fill: '#FFD54F', color: '#FFD54F' }} />
                   ))}
                 </div>
               </div>

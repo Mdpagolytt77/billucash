@@ -353,17 +353,18 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #1DBF73 0deg,
-    #00C8FF 40deg,
-    #A855F7 80deg,
-    #FF6B35 100deg,
-    transparent 140deg,
-    transparent 300deg,
-    #EC4899 330deg,
-    #FFD700 350deg,
+    #00FFCC 20deg,
+    #00C8FF 50deg,
+    #A855F7 90deg,
+    #FF6B35 120deg,
+    #FFD700 140deg,
+    transparent 160deg,
+    transparent 340deg,
+    #EC4899 350deg,
     #1DBF73 360deg
   );
-  animation: snakeRotate 2.5s linear infinite;
-  padding: 2px;
+  animation: snakeRotate 4s linear infinite;
+  padding: 2.5px;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -374,14 +375,15 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #1DBF73 0deg,
-    #00C8FF 40deg,
-    #A855F7 80deg,
-    transparent 120deg,
-    transparent 320deg,
-    #FFD700 350deg,
+    #00FFCC 20deg,
+    #00C8FF 50deg,
+    #A855F7 90deg,
+    #FF6B35 120deg,
+    transparent 150deg,
+    transparent 345deg,
     #1DBF73 360deg
   );
-  animation: snakeRotate 2.5s linear infinite;
-  filter: blur(12px);
-  opacity: 0.6;
+  animation: snakeRotate 4s linear infinite;
+  filter: blur(18px);
+  opacity: 0.7;
 }

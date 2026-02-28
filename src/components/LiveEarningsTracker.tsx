@@ -121,19 +121,19 @@ const LiveEarningsTracker = () => {
     return `${Math.floor(seconds / 86400)}d ago`;
   };
 
-  const handleOfferClick = async (earning: EarningEvent) => {
-    if (!user) return;
-    setLoadingDetails(true);
-    try {
-      const { data } = await supabase.rpc('get_offer_details', { offer_id: earning.id });
-      if (data && data.length > 0) {
-        setSelectedOffer(data[0] as OfferDetails);
-      }
-    } catch (error) {
-      console.error('Failed to load offer details:', error);
-    } finally {
-      setLoadingDetails(false);
-    }
+  const handleOfferClick = (earning: EarningEvent) => {
+    // Show popup immediately with available data, no RPC needed
+    setSelectedOffer({
+      id: earning.id,
+      username: earning.username,
+      coin: earning.coins,
+      offerwall: earning.offerwall,
+      offer_name: earning.offerwall,
+      ip: null,
+      country: earning.country,
+      transaction_id: null,
+      created_at: earning.created_at.toISOString(),
+    });
   };
 
   useEffect(() => {

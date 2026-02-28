@@ -48,7 +48,7 @@ const AdminLogoCustomize = () => {
   // Allowed file types for security (no SVG to prevent XSS)
   const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
   const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,7 +56,7 @@ const AdminLogoCustomize = () => {
     
     // Security: Validate file size
     if (file.size > MAX_FILE_SIZE) { 
-      toast.error('Max file size is 2MB'); 
+      toast.error('Max file size is 5MB'); 
       return; 
     }
     

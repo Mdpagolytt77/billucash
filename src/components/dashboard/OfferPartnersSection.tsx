@@ -1,5 +1,4 @@
-import { useRef } from 'react';
-import { Star, Flame, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
+import { Star, Flame, Layers } from 'lucide-react';
 
 interface OfferPartner {
   id: string;
@@ -53,14 +52,6 @@ const offerwallGradients: Record<string, string> = {
 };
 
 const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartnersSectionProps) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: 'left' | 'right') => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
-    }
-  };
-
   const getBadgeStyle = (type: 'hot' | 'new' | 'bonus') => {
     switch (type) {
       case 'hot': return { background: '#FF6B35', color: '#FFFFFF' };
@@ -89,6 +80,62 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
     </div>
   );
 
+  const renderCard = (partner: OfferPartner) => (
+    <div
+      key={partner.id}
+      onClick={() => onPartnerClick({ 
+        name: partner.name, 
+        color: partner.color, 
+        iframeUrl: partner.iframeUrl,
+        popupWidth: partner.popupWidth,
+        popupHeight: partner.popupHeight,
+        popupAnimation: partner.popupAnimation,
+      })}
+      className="flex-shrink-0 cursor-pointer group transition-all duration-300"
+      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+    >
+      <div 
+        className="relative overflow-hidden flex flex-col items-center justify-center p-2"
+        style={{
+          width: '103px',
+          height: '115px',
+          borderRadius: '16px',
+          background: getCardBackground(partner.name, partner.color),
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
+        }}
+      >
+        {partner.badge && (
+          <div 
+            className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[8px] font-bold flex items-center gap-0.5"
+            style={getBadgeStyle(partner.badge.type)}
+          >
+            {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
+            {partner.badge.text}
+          </div>
+        )}
+        {partner.logoUrl ? (
+          <img src={partner.logoUrl} alt={partner.name} className="h-8 object-contain mb-1" />
+        ) : (
+          <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mb-1">
+            <span className="text-sm font-black text-white/90">{partner.name.charAt(0)}</span>
+          </div>
+        )}
+        <h4 className="text-[9px] font-bold text-white text-center truncate w-full">{partner.name}</h4>
+        {renderStars(partner.rating)}
+      </div>
+    </div>
+  );
+
+  // Split partners into 3 rows
+  const perRow = Math.ceil(partners.length / 3);
+  const row1 = partners.slice(0, perRow);
+  const row2 = partners.slice(perRow, perRow * 2);
+  const row3 = partners.slice(perRow * 2);
+
+  const rows = [row1, row2, row3].filter(r => r.length > 0);
+
   return (
     <section className="mb-6">
       <div className="flex items-center justify-between mb-4">
@@ -98,75 +145,18 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
         </div>
       </div>
       
-      {/* Wrap in a box container */}
-      <div 
-        className="rounded-2xl p-4"
-        style={{ background: '#0E1A27', border: '1px solid #162638' }}
-      >
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 justify-items-center">
-          {partners.map((partner) => (
-            <div
-              key={partner.id}
-              onClick={() => onPartnerClick({ 
-                name: partner.name, 
-                color: partner.color, 
-                iframeUrl: partner.iframeUrl,
-                popupWidth: partner.popupWidth,
-                popupHeight: partner.popupHeight,
-                popupAnimation: partner.popupAnimation,
-              })}
-              className="cursor-pointer group transition-all duration-300"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.03)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-            >
-              <div 
-                className="relative overflow-hidden flex flex-col items-center justify-center p-2"
-                style={{
-                  width: '103px',
-                  height: '115px',
-                  borderRadius: '16px',
-                  background: getCardBackground(partner.name, partner.color),
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
-                }}
-              >
-                {/* Badge */}
-                {partner.badge && (
-                  <div 
-                    className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[8px] font-bold flex items-center gap-0.5"
-                    style={getBadgeStyle(partner.badge.type)}
-                  >
-                    {partner.badge.type === 'hot' && <Flame className="w-2.5 h-2.5" />}
-                    {partner.badge.text}
-                  </div>
-                )}
-
-                {/* Logo */}
-                {partner.logoUrl ? (
-                  <img 
-                    src={partner.logoUrl} 
-                    alt={partner.name}
-                    className="h-8 object-contain mb-1"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mb-1">
-                    <span className="text-sm font-black text-white/90">{partner.name.charAt(0)}</span>
-                  </div>
-                )}
-
-                {/* Name */}
-                <h4 className="text-[9px] font-bold text-white text-center truncate w-full">{partner.name}</h4>
-                
-                {/* Rating */}
-                {renderStars(partner.rating)}
-              </div>
+      <div className="flex flex-col gap-3">
+        {rows.map((row, idx) => (
+          <div 
+            key={idx}
+            className="rounded-2xl p-3"
+            style={{ background: '#0E1A27', border: '1px solid #162638' }}
+          >
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+              {row.map(renderCard)}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );

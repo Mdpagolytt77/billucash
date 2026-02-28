@@ -26,8 +26,8 @@ const OfferCard = ({ offer, onClick }: { offer: FeaturedOffer; onClick: () => vo
       width: '98px',
       borderRadius: '16px',
       background: '#122333',
-      border: '1px solid rgba(29,191,115,0.15)',
-      boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+      border: '1.5px solid rgba(29,191,115,0.3)',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.transform = 'translateY(-5px)';
@@ -140,26 +140,33 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
         </button>
       </div>
       
-      {/* Wrap in a box container */}
-      <div 
-        className="rounded-2xl p-4"
-        style={{ background: '#0E1A27', border: '1px solid #162638' }}
-      >
-        {row1Offers.length > 0 && (
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+      {/* Row 1 - Separate container */}
+      {row1Offers.length > 0 && (
+        <div 
+          className="rounded-2xl p-3 mb-3"
+          style={{ background: '#0E1A27', border: '1px solid #162638' }}
+        >
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
             {row1Offers.map((offer) => (
               <OfferCard key={offer.id} offer={offer} onClick={() => handleOfferClick(offer)} />
             ))}
           </div>
-        )}
-        {row2Offers.length > 0 && (
-          <div className={`flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 ${row1Offers.length > 0 ? 'mt-3' : ''}`}>
+        </div>
+      )}
+
+      {/* Row 2 - Separate container */}
+      {row2Offers.length > 0 && (
+        <div 
+          className="rounded-2xl p-3"
+          style={{ background: '#0E1A27', border: '1px solid #162638' }}
+        >
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
             {row2Offers.map((offer) => (
               <OfferCard key={`row2-${offer.id}`} offer={offer} onClick={() => handleOfferClick(offer)} />
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 };

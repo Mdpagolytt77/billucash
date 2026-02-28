@@ -66,63 +66,109 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
 
   return (
     <div className="flex items-end justify-center gap-4 md:gap-6">
+      <style>{`
+        @keyframes borderGlow {
+          0% { 
+            background-position: 0% 50%;
+            box-shadow: 0 0 15px rgba(29,191,115,0.3), inset 0 0 15px rgba(29,191,115,0.05);
+          }
+          25% { 
+            background-position: 100% 0%;
+            box-shadow: 0 0 25px rgba(29,191,115,0.5), inset 0 0 20px rgba(29,191,115,0.08);
+          }
+          50% { 
+            background-position: 100% 100%;
+            box-shadow: 0 0 20px rgba(29,191,115,0.4), inset 0 0 15px rgba(29,191,115,0.05);
+          }
+          75% { 
+            background-position: 0% 100%;
+            box-shadow: 0 0 30px rgba(29,191,115,0.6), inset 0 0 25px rgba(29,191,115,0.1);
+          }
+          100% { 
+            background-position: 0% 50%;
+            box-shadow: 0 0 15px rgba(29,191,115,0.3), inset 0 0 15px rgba(29,191,115,0.05);
+          }
+        }
+        .featured-card-glow {
+          position: relative;
+        }
+        .featured-card-glow::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          border-radius: 18px;
+          padding: 2px;
+          background: linear-gradient(
+            270deg,
+            rgba(29,191,115,0.6),
+            rgba(29,191,115,0.1),
+            rgba(100,220,160,0.5),
+            rgba(29,191,115,0.1),
+            rgba(29,191,115,0.6)
+          );
+          background-size: 400% 400%;
+          animation: borderGlow 4s ease-in-out infinite;
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          z-index: 0;
+        }
+      `}</style>
       {displayOffers.map((offer, index) => {
         const isCenter = index === 1 || displayOffers.length === 1;
 
         return (
           <div
             key={offer.id}
-            className="flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group"
+            className="featured-card-glow flex-shrink-0 rounded-2xl overflow-visible cursor-pointer transition-all duration-300 group"
             onClick={onOfferClick}
             style={{
               width: isCenter ? '154px' : '126px',
-              background: '#111C2D',
-              border: '1px solid rgba(29,191,115,0.2)',
-              boxShadow: '0 15px 40px rgba(0,0,0,0.6)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-8px)';
-              e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(29,191,115,0.4)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.6)';
             }}
           >
-            {/* Image */}
-            <div className={`relative overflow-hidden flex-shrink-0 ${isCenter ? 'h-[100px]' : 'h-[85px]'}`}>
-              {offer.image_url ? (
-                <img
-                  src={offer.image_url}
-                  alt={offer.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className={`w-full h-full bg-gradient-to-br ${offer.color || 'from-primary/80 to-secondary/60'} flex items-center justify-center`}>
-                  <span className="text-3xl">🎮</span>
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#111C2D] via-transparent to-transparent" />
-            </div>
+            <div className="relative z-10 rounded-2xl overflow-hidden h-full" style={{ background: '#111C2D' }}>
+              {/* Image */}
+              <div className={`relative overflow-hidden flex-shrink-0 ${isCenter ? 'h-[100px]' : 'h-[85px]'}`}>
+                {offer.image_url ? (
+                  <img
+                    src={offer.image_url}
+                    alt={offer.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${offer.color || 'from-primary/80 to-secondary/60'} flex items-center justify-center`}>
+                    <span className="text-3xl">🎮</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111C2D] via-transparent to-transparent" />
+              </div>
 
-            {/* Info */}
-            <div className="p-2">
-              <h3 className="text-[10px] font-bold text-foreground truncate">{offer.name}</h3>
-              <p className="text-[8px] text-muted-foreground truncate mt-0.5">
-                {offer.description || 'Complete this offer'}
-              </p>
-              <div className="flex items-center justify-between mt-1.5">
-                <p className="font-bold text-[10px]" style={{ color: '#1DBF73' }}>
-                  ${(offer.coins / 100).toFixed(2)}
+              {/* Info */}
+              <div className="p-2">
+                <h3 className="text-[10px] font-bold text-foreground truncate">{offer.name}</h3>
+                <p className="text-[8px] text-muted-foreground truncate mt-0.5">
+                  {offer.description || 'Complete this offer'}
                 </p>
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-2 h-2" style={{ fill: '#FFD54F', color: '#FFD54F' }} />
-                  ))}
+                <div className="flex items-center justify-between mt-1.5">
+                  <p className="font-bold text-[10px]" style={{ color: '#1DBF73' }}>
+                    ${(offer.coins / 100).toFixed(2)}
+                  </p>
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-2 h-2" style={{ fill: '#FFD54F', color: '#FFD54F' }} />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

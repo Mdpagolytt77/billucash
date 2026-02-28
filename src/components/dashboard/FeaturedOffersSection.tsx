@@ -110,8 +110,8 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     return (
       <section className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <Flame className="w-5 h-5" style={{ color: '#1DBF73' }} />
-          <h3 className="font-bold text-xl text-white">Hot Offers</h3>
+          <Flame className="w-5 h-5 fire-icon" />
+          <h3 className="font-bold text-xl text-rainbow">Hot Offers</h3>
         </div>
         <div className="flex gap-5 overflow-hidden">
           {[1, 2, 3].map((i) => (
@@ -126,8 +126,8 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     <section className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Flame className="w-5 h-5" style={{ color: '#1DBF73' }} />
-          <h3 className="font-bold text-lg text-white">Hot Offers</h3>
+          <Flame className="w-5 h-5 fire-icon" />
+          <h3 className="font-bold text-lg text-rainbow">Hot Offers</h3>
         </div>
         <button className="text-xs font-medium flex items-center gap-0.5 transition-colors" style={{ color: '#9DB2C7' }}>
           View All <ChevronRight className="w-3.5 h-3.5" />

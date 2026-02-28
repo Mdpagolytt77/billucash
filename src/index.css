@@ -197,6 +197,37 @@
   .animate-neon-pulse {
     animation: neon-pulse 2s ease-in-out infinite;
   }
+
+  /* Rainbow cycling text */
+  @keyframes rainbow-text {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .text-rainbow {
+    background: linear-gradient(90deg, #1DBF73, #00FFCC, #00C8FF, #A855F7, #FF6B35, #FFD700, #EC4899, #1DBF73);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow-text 3s ease-in-out infinite;
+  }
+
+  /* Realistic fire flicker */
+  @keyframes fire-flicker {
+    0% { transform: scale(1); filter: brightness(1); color: #FF6B35; }
+    20% { transform: scale(1.15) rotate(-3deg); filter: brightness(1.3); color: #FF4500; }
+    40% { transform: scale(0.95) rotate(2deg); filter: brightness(0.9); color: #FFD700; }
+    60% { transform: scale(1.1) rotate(-1deg); filter: brightness(1.2); color: #FF0000; }
+    80% { transform: scale(1.05) rotate(1deg); filter: brightness(1.1); color: #FFA500; }
+    100% { transform: scale(1); filter: brightness(1); color: #FF6B35; }
+  }
+
+  .fire-icon {
+    animation: fire-flicker 0.8s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(255,107,53,0.7));
+  }
 }
 
 @layer utilities {

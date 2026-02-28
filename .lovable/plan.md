@@ -1,15 +1,21 @@
 
 
-## Problem
-`LiveEarningsTracker.tsx` এ `displayItems` তৈরি করার সময় earnings array কে 4 বার duplicate করা হচ্ছে (line ~193):
-```
-const displayItems = earnings.length > 1 ? [...earnings, ...earnings, ...earnings, ...earnings] : earnings;
-```
-এটা scrolling animation এর জন্য করা হয়েছিল, কিন্তু এর ফলে প্রতিটা offer 4 বার দেখা যাচ্ছে।
+## Plan: Animated Rainbow "Hot Offers" Text + Realistic Fire Icon
 
-## Plan
-1. **`src/components/LiveEarningsTracker.tsx`**: `displayItems` line পরিবর্তন করে শুধু `earnings` ব্যবহার করা — duplicate সরিয়ে দেওয়া।
-2. CSS animation (`animate-scroll-left`) ঠিকমতো কাজ করতে infinite scroll effect এর জন্য শুধু 2x duplicate করা যেতে পারে (1 copy scrolls out, next copy scrolls in), অথবা সম্পূর্ণ duplicate বাদ দেওয়া যেতে পারে যদি user চায় offer গুলো একবারই দেখাক।
+### Changes
 
-**Approach**: Duplicate সম্পূর্ণ বাদ দিয়ে `displayItems = earnings` করা। এতে প্রতিটা offer একবারই দেখাবে।
+**1. `src/index.css` — Add two new animations:**
+- **Rainbow text animation**: A `@keyframes rainbow-text` that cycles through multiple colors (green, cyan, purple, orange, gold, pink) matching the snake glow palette. Applied via a `.text-rainbow` class using `background-clip: text` with an animated gradient.
+- **Fire flicker animation**: A `@keyframes fire-flicker` that makes the fire icon pulse in size, opacity, and color (orange → red → yellow) to simulate realistic flickering flames. Applied via `.fire-icon` class.
+
+**2. `src/components/dashboard/FeaturedOffersSection.tsx` — Update the title and icon:**
+- Replace the static `<Flame>` icon with a styled version wrapped in the `.fire-icon` class with orange/red colors and the flicker animation.
+- Replace the static white "Hot Offers" text with a `<span>` using the `.text-rainbow` class for the cycling color effect.
+- Apply to both the loading state header (line 113-114) and the main render header (line 129-130).
+
+### Technical Details
+
+Rainbow text: Uses `background: linear-gradient(90deg, ...)` with `background-size: 300%` and `background-clip: text`, animated via `background-position` keyframes at ~3s cycle.
+
+Fire flicker: Combines `transform: scale()`, `filter: brightness()`, and color changes with irregular timing steps (0%, 20%, 40%, 60%, 80%, 100%) for a realistic non-uniform flicker at ~0.8s cycle.
 

@@ -51,7 +51,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
           <div
             key={i}
             className={`rounded-2xl animate-pulse ${
-              i === 1 ? 'w-[200px] md:w-[220px] h-[260px] md:h-[280px]' : 'w-[160px] md:w-[180px] h-[220px] md:h-[240px]'
+              i === 1 ? 'w-[140px] md:w-[154px] h-[182px] md:h-[196px]' : 'w-[112px] md:w-[126px] h-[154px] md:h-[168px]'
             }`}
             style={{ background: '#111C2D', border: '1px solid rgba(29,191,115,0.2)' }}
           />
@@ -75,8 +75,8 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
             onClick={onOfferClick}
             className={`flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group flex flex-col ${
               isCenter 
-                ? 'w-[200px] md:w-[220px] h-[260px] md:h-[280px]' 
-                : 'w-[160px] md:w-[180px] h-[220px] md:h-[240px]'
+                ? 'w-[140px] md:w-[154px] h-[182px] md:h-[196px]' 
+                : 'w-[112px] md:w-[126px] h-[154px] md:h-[168px]'
             }`}
             style={{
               background: '#111C2D',
@@ -93,7 +93,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
             }}
           >
             {/* Image */}
-            <div className={`relative overflow-hidden flex-shrink-0 ${isCenter ? 'h-[160px] md:h-[180px]' : 'h-[130px] md:h-[150px]'}`}>
+            <div className={`relative overflow-hidden flex-shrink-0 ${isCenter ? 'h-[112px] md:h-[126px]' : 'h-[91px] md:h-[105px]'}`}>
               {offer.image_url ? (
                 <img
                   src={offer.image_url}

@@ -99,7 +99,7 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
         className="relative overflow-hidden flex flex-col items-center justify-center p-2"
         style={{
           width: '108px',
-          height: '120px',
+          height: '160px',
           borderRadius: '16px',
           background: getCardBackground(partner.name, partner.color),
           border: '1px solid rgba(255,255,255,0.08)',

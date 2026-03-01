@@ -147,9 +147,10 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
       <div className="flex flex-col gap-4">
         {rows.map((row, idx) => (
           <div key={idx}>
-            <p className="text-sm font-semibold mb-2 ml-1" style={{ color: '#9DB2C7', fontFamily: "'Playfair Display', serif" }}>
+            <p className="text-sm font-semibold mb-1 ml-1" style={{ color: '#9DB2C7', fontFamily: "'Playfair Display', serif" }}>
               {rowLabels[idx]}
             </p>
+            <div className="h-[1px] mb-2" style={{ background: 'linear-gradient(90deg, #00C8FF, #00C8FF88, transparent)' }} />
             <div 
               className="rounded-2xl p-3"
               style={{ background: '#0E1A27', border: '1px solid #162638' }}

@@ -71,12 +71,12 @@ const HeroSection = ({ onOfferClick }: HeroSectionProps) => {
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         {/* Headline */}
-        <h1 className="font-display font-extrabold leading-tight mb-3 flex items-center justify-center flex-wrap gap-x-2">
-          <span className="text-foreground text-lg md:text-2xl lg:text-3xl shrink-0">WELCOME :</span>
-          <span className="text-2xl md:text-4xl lg:text-5xl">
+        <div className="font-display font-extrabold leading-tight mb-3 flex flex-col items-center">
+          <span className="text-primary text-[10px] md:text-xs lg:text-sm font-bold tracking-wider uppercase mb-1">
             <HeroTypingText />
           </span>
-        </h1>
+          <h1 className="text-foreground text-lg md:text-2xl lg:text-3xl">WELCOME</h1>
+        </div>
         <p className="text-sm text-muted-foreground mb-8">
           Earn up to <span className="font-bold text-foreground">$50.00</span> per offer
         </p>

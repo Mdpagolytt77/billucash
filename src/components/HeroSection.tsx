@@ -4,27 +4,44 @@ import { Star } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import FeaturedOffersSection from '@/components/FeaturedOffersSection';
 
-const heroPhrase = "Get Paid For Testing Apps, Games & Surveys";
+const heroPhrases = [
+  "Get Paid For Testing Apps & Games",
+  "Earn Money Watching Videos",
+  "Complete Surveys & Get Rewarded",
+  "Refer Friends & Earn Together",
+  "Withdraw Instantly To Your Wallet",
+];
 
 const HeroTypingText = () => {
+  const [phraseIndex, setPhraseIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
-  const [done, setDone] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (currentText.length < heroPhrase.length) {
-      const timeout = setTimeout(() => {
-        setCurrentText(heroPhrase.slice(0, currentText.length + 1));
-      }, 60);
-      return () => clearTimeout(timeout);
-    } else {
-      setDone(true);
-    }
-  }, [currentText]);
+    const phrase = heroPhrases[phraseIndex];
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (currentText.length < phrase.length) {
+          setCurrentText(phrase.slice(0, currentText.length + 1));
+        } else {
+          setTimeout(() => setIsDeleting(true), 1500);
+        }
+      } else {
+        if (currentText.length > 0) {
+          setCurrentText(currentText.slice(0, -1));
+        } else {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % heroPhrases.length);
+        }
+      }
+    }, isDeleting ? 40 : 70);
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, phraseIndex]);
 
   return (
     <>
       <span className="text-rainbow">{currentText}</span>
-      {!done && <span className="inline-block w-1 h-[1em] bg-primary ml-1 animate-blink align-middle" />}
+      <span className="inline-block w-1 h-[1em] bg-primary ml-1 animate-blink align-middle" />
     </>
   );
 };

@@ -15,13 +15,13 @@ const StatsSection = () => {
   return (
     <section className="py-10 px-4">
       <div className="relative max-w-4xl mx-auto">
-        {/* Overlapping image - 60% above, 40% behind the box */}
+        {/* Overlapping image - 60% above box, 40% behind/below box */}
         {statsImage && (
-          <div className="flex justify-center" style={{ marginBottom: '-40%' }}>
+          <div className="flex justify-center relative z-0" style={{ marginBottom: '-80px' }}>
             <img
               src={statsImage}
               alt="Stats illustration"
-              className="max-h-[220px] md:max-h-[280px] object-contain relative z-10"
+              className="max-h-[200px] md:max-h-[260px] object-contain"
               style={{ filter: 'drop-shadow(0 10px 30px rgba(29,191,115,0.2))' }}
             />
           </div>
@@ -29,7 +29,7 @@ const StatsSection = () => {
 
         {/* Stats box */}
         <div 
-          className="rounded-2xl p-6 md:p-8 relative"
+          className="rounded-2xl p-6 md:p-8 relative z-[1]"
           style={{ background: '#0E1625', border: '1px solid rgba(29,191,115,0.1)' }}
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">

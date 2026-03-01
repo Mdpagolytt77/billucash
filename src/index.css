@@ -399,14 +399,13 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #1DBF73 0deg,
-    #00FFCC 20deg,
-    #00C8FF 50deg,
-    #A855F7 90deg,
-    #FF6B35 120deg,
-    #FFD700 140deg,
+    #00FFCC 30deg,
+    #00C8FF 70deg,
+    #A855F7 120deg,
     transparent 160deg,
-    transparent 340deg,
-    #EC4899 350deg,
+    transparent 320deg,
+    #A855F7 340deg,
+    #00C8FF 350deg,
     #1DBF73 360deg
   );
   animation: snakeRotate 6s linear infinite;
@@ -421,15 +420,63 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #1DBF73 0deg,
-    #00FFCC 20deg,
-    #00C8FF 50deg,
-    #A855F7 90deg,
-    #FF6B35 120deg,
-    transparent 150deg,
-    transparent 345deg,
+    #00FFCC 30deg,
+    #00C8FF 70deg,
+    #A855F7 120deg,
+    transparent 160deg,
+    transparent 320deg,
     #1DBF73 360deg
   );
   animation: snakeRotate 6s linear infinite;
   filter: blur(18px);
   opacity: 0.7;
+}
+
+/* White/deep white snake glow variant for live tracker */
+.snake-glow-white {
+  position: relative;
+}
+
+.snake-glow-white::before,
+.snake-glow-white::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  z-index: 0;
+}
+
+.snake-glow-white::before {
+  background: conic-gradient(
+    from var(--snake-angle, 0deg),
+    #FFFFFF 0deg,
+    #E0E0E0 30deg,
+    #C0C0C0 60deg,
+    #FFFFFF 100deg,
+    transparent 140deg,
+    transparent 320deg,
+    #C0C0C0 340deg,
+    #FFFFFF 360deg
+  );
+  animation: snakeRotate 6s linear infinite;
+  padding: 2px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.snake-glow-white::after {
+  background: conic-gradient(
+    from var(--snake-angle, 0deg),
+    #FFFFFF 0deg,
+    #E0E0E0 30deg,
+    #C0C0C0 60deg,
+    transparent 120deg,
+    transparent 320deg,
+    #FFFFFF 360deg
+  );
+  animation: snakeRotate 6s linear infinite;
+  filter: blur(14px);
+  opacity: 0.4;
 }

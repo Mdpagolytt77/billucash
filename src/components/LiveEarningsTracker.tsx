@@ -325,8 +325,8 @@ const LiveEarningsTracker = () => {
       )}
 
       {/* Tracker */}
-      <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
-        <div className="flex items-center h-12 px-3 gap-3">
+      <div className="snake-glow-white w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden rounded-xl relative">
+        <div className="relative z-10 flex items-center h-12 px-3 gap-3">
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
             <FlagImage country={userCountry} className="w-5 h-4" />
           </div>

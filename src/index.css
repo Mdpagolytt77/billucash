@@ -228,6 +228,21 @@
     animation: fire-flicker 0.8s ease-in-out infinite;
     filter: drop-shadow(0 0 6px rgba(255,107,53,0.7));
   }
+
+  /* Rainbow glow icon */
+  @keyframes icon-rainbow-glow {
+    0% { color: #1DBF73; filter: drop-shadow(0 0 8px rgba(29,191,115,0.6)); }
+    16% { color: #00FFCC; filter: drop-shadow(0 0 10px rgba(0,255,204,0.6)); }
+    33% { color: #00C8FF; filter: drop-shadow(0 0 10px rgba(0,200,255,0.6)); }
+    50% { color: #A855F7; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); }
+    66% { color: #FF6B35; filter: drop-shadow(0 0 10px rgba(255,107,53,0.6)); }
+    83% { color: #FFD700; filter: drop-shadow(0 0 10px rgba(255,215,0,0.6)); }
+    100% { color: #1DBF73; filter: drop-shadow(0 0 8px rgba(29,191,115,0.6)); }
+  }
+
+  .icon-rainbow-glow {
+    animation: icon-rainbow-glow 3s ease-in-out infinite;
+  }
 }
 
 @layer utilities {

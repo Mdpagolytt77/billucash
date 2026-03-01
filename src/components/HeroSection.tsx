@@ -1,7 +1,33 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import FeaturedOffersSection from '@/components/FeaturedOffersSection';
+
+const heroPhrase = "Get Paid For Testing Apps, Games & Surveys";
+
+const HeroTypingText = () => {
+  const [currentText, setCurrentText] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (currentText.length < heroPhrase.length) {
+      const timeout = setTimeout(() => {
+        setCurrentText(heroPhrase.slice(0, currentText.length + 1));
+      }, 60);
+      return () => clearTimeout(timeout);
+    } else {
+      setDone(true);
+    }
+  }, [currentText]);
+
+  return (
+    <>
+      <span className="text-rainbow">{currentText}</span>
+      {!done && <span className="inline-block w-1 h-[1em] bg-primary ml-1 animate-blink align-middle" />}
+    </>
+  );
+};
 
 interface HeroSectionProps {
   onOfferClick?: () => void;
@@ -28,11 +54,9 @@ const HeroSection = ({ onOfferClick }: HeroSectionProps) => {
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         {/* Headline */}
-        <p className="text-sm md:text-base font-semibold tracking-wide mb-2 text-primary uppercase">
-          Get paid for
-        </p>
-        <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold leading-tight mb-3 text-foreground">
-          Testing Apps, Games and Surveys
+        <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold leading-tight mb-3">
+          <span className="text-foreground">WELCOME : </span>
+          <HeroTypingText />
         </h1>
         <p className="text-sm text-muted-foreground mb-8">
           Earn up to <span className="font-bold text-foreground">$50.00</span> per offer

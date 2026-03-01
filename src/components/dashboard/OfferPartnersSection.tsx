@@ -132,6 +132,7 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
   const row2 = partners.slice(perRow, perRow * 2);
   const row3 = partners.slice(perRow * 2);
 
+  const rowLabels = ['🎯 Offer Partners', '💎 Premium Partners', '📋 Survey Partners'];
   const rows = [row1, row2, row3].filter(r => r.length > 0);
 
   return (
@@ -143,15 +144,19 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
         </div>
       </div>
       
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         {rows.map((row, idx) => (
-          <div 
-            key={idx}
-            className="rounded-2xl p-3"
-            style={{ background: '#0E1A27', border: '1px solid #162638' }}
-          >
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
-              {row.map(renderCard)}
+          <div key={idx}>
+            <p className="text-xs font-semibold mb-2 ml-1" style={{ color: '#9DB2C7' }}>
+              {rowLabels[idx]}
+            </p>
+            <div 
+              className="rounded-2xl p-3"
+              style={{ background: '#0E1A27', border: '1px solid #162638' }}
+            >
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+                {row.map(renderCard)}
+              </div>
             </div>
           </div>
         ))}

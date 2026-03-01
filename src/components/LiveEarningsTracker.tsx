@@ -325,8 +325,8 @@ const LiveEarningsTracker = () => {
       )}
 
       {/* Tracker */}
-      <div className="snake-glow-white w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden rounded-xl relative">
-        <div className="relative z-10 flex items-center h-12 px-3 gap-3">
+      <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
+        <div className="flex items-center h-12 px-3 gap-3">
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
             <FlagImage country={userCountry} className="w-5 h-4" />
           </div>
@@ -357,7 +357,7 @@ const LiveEarningsTracker = () => {
                   <div 
                     key={`${earning.id}-${index}`}
                     onClick={() => handleOfferClick(earning)}
-                    className="flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all"
+                    className="snake-glow-white flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all overflow-visible relative"
                   >
                     {/* Coin Icon */}
                     <CoinIcon className="w-5 h-5 flex-shrink-0" />

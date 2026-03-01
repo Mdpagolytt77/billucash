@@ -43,20 +43,21 @@ const HowItWorksSection = () => {
         {steps.map((step, index) => (
           <div
             key={index}
-            className="rounded-2xl p-5 text-center transition-all duration-300 hover:-translate-y-2 group"
-            style={{
-              background: '#111C2D',
-              border: '1px solid rgba(29,191,115,0.12)',
-            }}
+            className="snake-glow-green rounded-2xl overflow-visible transition-all duration-300 hover:-translate-y-2 group"
           >
-            <div 
-              className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3"
-              style={{ background: 'rgba(29,191,115,0.12)' }}
+            <div
+              className="relative z-10 rounded-2xl p-5 text-center h-full"
+              style={{ background: '#111C2D' }}
             >
-              <step.icon className="w-6 h-6" style={{ color: step.color }} />
+              <div 
+                className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3"
+                style={{ background: 'rgba(29,191,115,0.12)' }}
+              >
+                <step.icon className="w-6 h-6" style={{ color: step.color }} />
+              </div>
+              <h3 className="text-sm font-bold text-foreground mb-1">{step.title}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{step.description}</p>
             </div>
-            <h3 className="text-sm font-bold text-foreground mb-1">{step.title}</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">{step.description}</p>
           </div>
         ))}
       </div>

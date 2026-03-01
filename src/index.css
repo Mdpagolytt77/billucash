@@ -399,13 +399,14 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #1DBF73 0deg,
-    #00FFCC 30deg,
-    #00C8FF 70deg,
-    #A855F7 120deg,
+    #00FFCC 20deg,
+    #00C8FF 50deg,
+    #A855F7 90deg,
+    #FF6B35 120deg,
+    #FFD700 140deg,
     transparent 160deg,
-    transparent 320deg,
-    #A855F7 340deg,
-    #00C8FF 350deg,
+    transparent 340deg,
+    #EC4899 350deg,
     #1DBF73 360deg
   );
   animation: snakeRotate 6s linear infinite;
@@ -420,11 +421,12 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #1DBF73 0deg,
-    #00FFCC 30deg,
-    #00C8FF 70deg,
-    #A855F7 120deg,
-    transparent 160deg,
-    transparent 320deg,
+    #00FFCC 20deg,
+    #00C8FF 50deg,
+    #A855F7 90deg,
+    #FF6B35 120deg,
+    transparent 150deg,
+    transparent 345deg,
     #1DBF73 360deg
   );
   animation: snakeRotate 6s linear infinite;
@@ -432,7 +434,58 @@
   opacity: 0.7;
 }
 
-/* White/deep white snake glow variant for live tracker */
+/* Green + Cyan + Purple snake glow for section boxes */
+.snake-glow-green {
+  position: relative;
+}
+
+.snake-glow-green::before,
+.snake-glow-green::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  z-index: 0;
+}
+
+.snake-glow-green::before {
+  background: conic-gradient(
+    from var(--snake-angle, 0deg),
+    #1DBF73 0deg,
+    #00FFCC 40deg,
+    #00C8FF 80deg,
+    #A855F7 130deg,
+    transparent 170deg,
+    transparent 310deg,
+    #A855F7 330deg,
+    #00C8FF 345deg,
+    #1DBF73 360deg
+  );
+  animation: snakeRotate 6s linear infinite;
+  padding: 2px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.snake-glow-green::after {
+  background: conic-gradient(
+    from var(--snake-angle, 0deg),
+    #1DBF73 0deg,
+    #00FFCC 40deg,
+    #00C8FF 80deg,
+    #A855F7 130deg,
+    transparent 170deg,
+    transparent 310deg,
+    #1DBF73 360deg
+  );
+  animation: snakeRotate 6s linear infinite;
+  filter: blur(16px);
+  opacity: 0.5;
+}
+
+/* White/deep snake glow for live tracker items */
 .snake-glow-white {
   position: relative;
 }
@@ -441,7 +494,7 @@
 .snake-glow-white::after {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -1.5px;
   border-radius: 14px;
   z-index: 0;
 }
@@ -450,16 +503,16 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #FFFFFF 0deg,
-    #E0E0E0 30deg,
-    #C0C0C0 60deg,
+    #D0D0D0 30deg,
+    #B0B0B0 60deg,
     #FFFFFF 100deg,
     transparent 140deg,
     transparent 320deg,
-    #C0C0C0 340deg,
+    #B0B0B0 340deg,
     #FFFFFF 360deg
   );
-  animation: snakeRotate 6s linear infinite;
-  padding: 2px;
+  animation: snakeRotate 4s linear infinite;
+  padding: 1.5px;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -470,13 +523,12 @@
   background: conic-gradient(
     from var(--snake-angle, 0deg),
     #FFFFFF 0deg,
-    #E0E0E0 30deg,
-    #C0C0C0 60deg,
-    transparent 120deg,
+    #D0D0D0 30deg,
+    transparent 100deg,
     transparent 320deg,
     #FFFFFF 360deg
   );
-  animation: snakeRotate 6s linear infinite;
-  filter: blur(14px);
-  opacity: 0.4;
+  animation: snakeRotate 4s linear infinite;
+  filter: blur(10px);
+  opacity: 0.3;
 }

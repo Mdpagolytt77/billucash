@@ -15,7 +15,6 @@ const StatsSection = () => {
   return (
     <section className="py-10 px-4">
       <div className="relative max-w-4xl mx-auto">
-        {/* Overlapping image - 60% above box, 40% behind/below box */}
         {statsImage && (
           <div className="flex justify-center relative z-0" style={{ marginBottom: '-80px' }}>
             <img
@@ -27,21 +26,22 @@ const StatsSection = () => {
           </div>
         )}
 
-        {/* Stats box */}
-        <div 
-          className="rounded-2xl p-6 md:p-8 relative z-[1]"
-          style={{ background: '#0E1625', border: '1px solid rgba(29,191,115,0.1)' }}
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <stat.icon className="w-6 h-6 icon-rainbow-glow" />
-                <div className="text-xl md:text-2xl font-display font-bold text-rainbow">
-                  {stat.value}
+        <div className="snake-glow-green rounded-2xl overflow-visible relative">
+          <div
+            className="relative z-10 rounded-2xl p-6 md:p-8"
+            style={{ background: '#0E1625' }}
+          >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              {stats.map((stat, i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <stat.icon className="w-6 h-6 icon-rainbow-glow" />
+                  <div className="text-xl md:text-2xl font-display font-bold text-rainbow">
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-tight">{stat.label}</p>
                 </div>
-                <p className="text-xs text-muted-foreground leading-tight">{stat.label}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

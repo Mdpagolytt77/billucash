@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface LoadingScreenProps {
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-const LoadingScreen = ({ isLoading }: LoadingScreenProps) => {
+const LoadingScreen = ({ isLoading = true }: LoadingScreenProps) => {
   const [logoType, setLogoType] = useState<'text' | 'image'>('text');
   const [logoText, setLogoText] = useState('');
   const [logoImageUrl, setLogoImageUrl] = useState<string | null>(null);

@@ -26,6 +26,7 @@ interface UserProfile {
   last_login_ip: string | null;
   device_info: string | null;
   status: string;
+  can_view_tracker: boolean;
 }
 
 interface CompletedOffer {
@@ -58,6 +59,7 @@ const AdminAllUsers = () => {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [editBalance, setEditBalance] = useState('');
   const [editStatus, setEditStatus] = useState('');
+  const [editCanViewTracker, setEditCanViewTracker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [userActivity, setUserActivity] = useState<CompletedOffer[]>([]);
   const [loadingActivity, setLoadingActivity] = useState(false);
@@ -74,7 +76,7 @@ const AdminAllUsers = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username, email, balance, created_at, last_login_ip, device_info, status')
+        .select('id, username, email, balance, created_at, last_login_ip, device_info, status, can_view_tracker')
         .order('created_at', { ascending: false });
       if (error) throw error;
       setUsers(data || []);
@@ -144,6 +146,7 @@ const AdminAllUsers = () => {
     setSelectedUser(user);
     setEditBalance(String(user.balance || 0));
     setEditStatus(user.status || 'active');
+    setEditCanViewTracker(user.can_view_tracker || false);
     setUserActivity([]);
     setEditModalOpen(true);
     fetchUserActivity(user.id);
@@ -173,13 +176,17 @@ const AdminAllUsers = () => {
         }
       }
       
-      // Update status separately (balance already updated via RPC)
-      if (editStatus !== selectedUser.status) {
-        const { error: statusError } = await supabase
+      // Update status and tracker permission separately
+      const updates: Record<string, any> = {};
+      if (editStatus !== selectedUser.status) updates.status = editStatus;
+      if (editCanViewTracker !== (selectedUser.can_view_tracker || false)) updates.can_view_tracker = editCanViewTracker;
+      
+      if (Object.keys(updates).length > 0) {
+        const { error: updateError } = await supabase
           .from('profiles')
-          .update({ status: editStatus })
+          .update(updates)
           .eq('id', selectedUser.id);
-        if (statusError) throw statusError;
+        if (updateError) throw updateError;
       }
       
       toast.success(`Updated ${selectedUser.username}`);
@@ -391,6 +398,21 @@ const AdminAllUsers = () => {
                   <option value="banned">Banned</option>
                 </select>
               </div>
+              
+              {/* Tracker Permission Toggle */}
+              <div className="flex items-center justify-between bg-muted/50 p-2.5 rounded-lg">
+                <div>
+                  <label className="text-xs font-medium block">Live Tracker & My Offers</label>
+                  <p className="text-[10px] text-muted-foreground">Allow this user to see Live Tracker and Offers page</p>
+                </div>
+                <button
+                  onClick={() => setEditCanViewTracker(!editCanViewTracker)}
+                  className={`w-10 h-5 rounded-full transition-colors relative ${editCanViewTracker ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                >
+                  <div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform ${editCanViewTracker ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
+              </div>
+
               <div className="grid grid-cols-2 gap-2 text-[10px] text-muted-foreground bg-muted/50 p-2 rounded-lg">
                 <div><strong>Last IP:</strong> {selectedUser?.last_login_ip || 'N/A'}</div>
                 <div><strong>Device:</strong> {selectedUser?.device_info || 'N/A'}</div>

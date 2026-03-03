@@ -7,6 +7,7 @@ interface Profile {
   username: string;
   email: string | null;
   balance: number;
+  can_view_tracker: boolean;
 }
 
 interface AuthContextType {

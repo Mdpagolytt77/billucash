@@ -45,7 +45,7 @@ interface Notification {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, profile, isAdmin, signOut, isLoading, onBalanceIncrease } = useAuth();
+  const { user, profile, isAdmin, isModerator, signOut, isLoading, onBalanceIncrease } = useAuth();
   const { backgrounds } = useSiteSettings();
   const { playBalanceSound } = useSoundContext();
   
@@ -342,8 +342,8 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Live Earnings Tracker */}
-          <LiveEarningsTracker />
+          {/* Live Earnings Tracker - only for admin or permitted users */}
+          {(isAdmin || isModerator || profile?.can_view_tracker) && <LiveEarningsTracker />}
 
           {/* Main Content */}
           <main className="px-3 md:px-6 py-4" style={{ maxWidth: '1400px', margin: '0 auto' }}>

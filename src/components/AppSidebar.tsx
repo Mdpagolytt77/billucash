@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Gift, Wallet, Trophy, Award, Users, HeadphonesIcon, Shield, LogOut, X, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface AppSidebarProps {
@@ -13,21 +11,8 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
   const location = useLocation();
-  const { isAdmin, isModerator, signOut } = useAuth();
-  const [myOffersEnabled, setMyOffersEnabled] = useState(true);
-  
-  useEffect(() => {
-    const loadSettings = async () => {
-      const { data } = await supabase.rpc('get_public_site_settings');
-      if (data && data.length > 0 && data[0].offerwall_settings) {
-        const settings = data[0].offerwall_settings as { trackerSettings?: { myOffersEnabled?: boolean } };
-        if (settings.trackerSettings?.myOffersEnabled !== undefined) {
-          setMyOffersEnabled(settings.trackerSettings.myOffersEnabled);
-        }
-      }
-    };
-    loadSettings();
-  }, []);
+  const { isAdmin, isModerator, profile, signOut } = useAuth();
+  const canViewTracker = isAdmin || isModerator || profile?.can_view_tracker;
   
   const isActive = (path: string) => location.pathname === path;
 
@@ -38,7 +23,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
 
   const navItems = [
     { icon: Home, label: 'Earn', path: '/dashboard' },
-    ...(myOffersEnabled ? [{ icon: CheckCircle, label: 'Offers', path: '/my-offers' }] : []),
+    ...(canViewTracker ? [{ icon: CheckCircle, label: 'Offers', path: '/my-offers' }] : []),
     { icon: Wallet, label: 'Cashout', path: '/withdraw' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
     { icon: Award, label: 'Rewards', path: '/profile' },

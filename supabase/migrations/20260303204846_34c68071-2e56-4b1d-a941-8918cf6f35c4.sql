@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN can_view_tracker boolean NOT NULL DEFAULT false;

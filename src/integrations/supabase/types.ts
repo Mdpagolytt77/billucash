@@ -173,6 +173,7 @@ export type Database = {
       profiles: {
         Row: {
           balance: number | null
+          can_view_tracker: boolean
           created_at: string | null
           device_info: string | null
           email: string | null
@@ -184,6 +185,7 @@ export type Database = {
         }
         Insert: {
           balance?: number | null
+          can_view_tracker?: boolean
           created_at?: string | null
           device_info?: string | null
           email?: string | null
@@ -195,6 +197,7 @@ export type Database = {
         }
         Update: {
           balance?: number | null
+          can_view_tracker?: boolean
           created_at?: string | null
           device_info?: string | null
           email?: string | null

@@ -307,7 +307,7 @@ const UserCompletedOffers = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] text-muted-foreground">Total Revenue (USD)</p>
-                <p className="text-xl font-bold text-green-400">${(totalCoins / 1000).toFixed(2)}</p>
+                <p className="text-xl font-bold text-green-400">${(totalCoins / 500).toFixed(2)}</p>
               </div>
               <div className="text-right">
                 <p className="text-[10px] text-muted-foreground">Total Coins</p>

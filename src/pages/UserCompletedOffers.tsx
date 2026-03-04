@@ -152,7 +152,7 @@ const UserCompletedOffers = () => {
           </div>
         </header>
 
-        <main className="p-3 md:px-[3%]">
+        <main className="p-2 sm:p-3 md:px-[3%]">
           {/* Stats Card */}
           <div className="glass-card p-3 mb-3">
             <div className="flex items-center justify-between">
@@ -175,49 +175,47 @@ const UserCompletedOffers = () => {
               <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4" /> All Completed Offers <span className="text-[10px] text-muted-foreground">({filteredData.length})</span>
               </h2>
-              <div className="flex gap-2 items-center flex-wrap">
+              <div className="flex gap-1.5 items-center flex-wrap">
                 <div className="relative">
                   <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
                   <input 
                     type="text" 
                     value={searchTerm} 
                     onChange={(e) => setSearchTerm(e.target.value)} 
-                    placeholder="Search name/offer..." 
-                    className="w-40 pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" 
+                    placeholder="Search..." 
+                    className="w-28 sm:w-40 pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" 
                   />
                 </div>
                 <div className="flex items-center gap-1">
-                  <Globe className="w-3 h-3 text-muted-foreground" />
+                  <Globe className="w-3 h-3 text-muted-foreground hidden sm:block" />
                   <select 
                     value={countryFilter} 
                     onChange={(e) => setCountryFilter(e.target.value)} 
-                    className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]"
+                    className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px] max-w-[90px] sm:max-w-none"
                   >
                     <option value="">All Countries</option>
                     {uniqueCountries.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground">From:</span>
+                  <span className="text-[10px] text-muted-foreground hidden sm:inline">From:</span>
                   <div className="relative">
-                    <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
                     <input 
                       type="date" 
                       value={dateFrom} 
                       onChange={(e) => setDateFrom(e.target.value)} 
-                      className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-32"
+                      className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-[110px] sm:w-32"
                     />
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground">To:</span>
+                  <span className="text-[10px] text-muted-foreground hidden sm:inline">To:</span>
                   <div className="relative">
-                    <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
                     <input 
                       type="date" 
                       value={dateTo} 
                       onChange={(e) => setDateTo(e.target.value)} 
-                      className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-32"
+                      className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-[110px] sm:w-32"
                     />
                   </div>
                 </div>
@@ -229,7 +227,7 @@ const UserCompletedOffers = () => {
                     Clear
                   </button>
                 )}
-                <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]">
+                <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px]">
                   {[10, 15, 25, 50].map(n => <option key={n} value={n}>{n} rows</option>)}
                 </select>
               </div>
@@ -251,39 +249,39 @@ const UserCompletedOffers = () => {
                   <table className="w-full text-[10px]">
                     <thead className="sticky top-0 bg-muted/90">
                       <tr>
-                        <th className="text-left p-2 text-muted-foreground">#</th>
-                        <th className="text-left p-2 text-muted-foreground">Username</th>
-                        <th className="text-left p-2 text-muted-foreground">Offerwall</th>
-                        <th className="text-left p-2 text-muted-foreground">Offer Name</th>
-                         <th className="text-center p-2 text-muted-foreground">Coins</th>
-                        <th className="text-left p-2 text-muted-foreground">Country</th>
-                        <th className="text-left p-2 text-muted-foreground">Date & Time</th>
+                        <th className="text-left p-1.5 sm:p-2 text-muted-foreground">#</th>
+                        <th className="text-left p-1.5 sm:p-2 text-muted-foreground">Username</th>
+                        <th className="text-left p-1.5 sm:p-2 text-muted-foreground hidden sm:table-cell">Offerwall</th>
+                        <th className="text-left p-1.5 sm:p-2 text-muted-foreground">Offer</th>
+                        <th className="text-center p-1.5 sm:p-2 text-muted-foreground">Coins</th>
+                        <th className="text-left p-1.5 sm:p-2 text-muted-foreground hidden sm:table-cell">Country</th>
+                        <th className="text-left p-1.5 sm:p-2 text-muted-foreground hidden md:table-cell">Date</th>
                       </tr>
                     </thead>
                     <tbody>
                       {pageData.map((row, index) => (
                         <tr key={row.id} className={`border-t border-border/50 ${row.coin < 0 ? 'bg-red-500/10 hover:bg-red-500/15' : 'hover:bg-primary/5'}`}>
-                          <td className="p-2 text-muted-foreground">{startIndex + index + 1}</td>
-                          <td className="p-2 font-medium text-primary">{row.username}</td>
-                          <td className="p-2">
+                          <td className="p-1.5 sm:p-2 text-muted-foreground">{startIndex + index + 1}</td>
+                          <td className="p-1.5 sm:p-2 font-medium text-primary text-[9px] sm:text-[10px]">{row.username}</td>
+                          <td className="p-1.5 sm:p-2 hidden sm:table-cell">
                             <span className="px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[9px] font-medium">
                               {row.offerwall}
                             </span>
                           </td>
-                          <td className="p-2 max-w-[200px] truncate" title={row.offer_name}>
-                            {row.coin < 0 && <span className="text-red-400 font-semibold mr-1">[Chargeback]</span>}
+                          <td className="p-1.5 sm:p-2 max-w-[100px] sm:max-w-[200px] truncate text-[9px] sm:text-[10px]" title={row.offer_name}>
+                            {row.coin < 0 && <span className="text-red-400 font-semibold mr-1">[CB]</span>}
                             {row.offer_name}
                           </td>
-                          <td className="p-2 text-center">
-                            <div className={`flex items-center justify-center gap-1 font-semibold ${row.coin < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                          <td className="p-1.5 sm:p-2 text-center">
+                            <div className={`flex items-center justify-center gap-0.5 font-semibold text-[9px] sm:text-[10px] ${row.coin < 0 ? 'text-red-400' : 'text-green-400'}`}>
                               <CoinIcon className="w-3 h-3" />
                               {row.coin < 0 ? '' : '+'}{row.coin.toLocaleString()}
                             </div>
                           </td>
-                          <td className="p-2 text-muted-foreground text-[9px]">
+                          <td className="p-1.5 sm:p-2 text-muted-foreground text-[9px] hidden sm:table-cell">
                             <span className="px-1.5 py-0.5 rounded bg-muted text-[9px]">{row.country || 'Unknown'}</span>
                           </td>
-                          <td className="p-2 text-muted-foreground whitespace-nowrap">{formatDate(row.created_at)}</td>
+                          <td className="p-1.5 sm:p-2 text-muted-foreground whitespace-nowrap hidden md:table-cell">{formatDate(row.created_at)}</td>
                         </tr>
                       ))}
                     </tbody>

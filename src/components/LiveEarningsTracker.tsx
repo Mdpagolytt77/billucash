@@ -74,7 +74,8 @@ const FlagImage = ({ country, className = 'w-5 h-4' }: { country: string | null;
 };
 
 const LiveEarningsTracker = ({ forceShow = false }: { forceShow?: boolean }) => {
-  const { user } = useAuth();
+  const { user, isAdmin, isModerator } = useAuth();
+  const canSeeTracker = isAdmin || isModerator;
   const [earnings, setEarnings] = useState<EarningEvent[]>([]);
   const [userCountry, setUserCountry] = useState<string | null>(null);
   const [settings, setSettings] = useState<TrackerSettings>({
@@ -327,56 +328,64 @@ const LiveEarningsTracker = ({ forceShow = false }: { forceShow?: boolean }) => 
       {/* Tracker */}
       <div className="w-full bg-background/80 backdrop-blur-sm border-b border-border/20 overflow-hidden">
         <div className="flex items-center h-12 px-3 gap-3">
+          {/* Country Flag - visible to everyone */}
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
             <FlagImage country={userCountry} className="w-5 h-4" />
           </div>
-          {noOffersToday ? (
-            <div className="flex-1 flex items-center gap-2 text-muted-foreground">
-              <span className="text-xs">No completed offers today</span>
-            </div>
-          ) : (
-            <div 
-              ref={scrollRef}
-              className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleMouseUp}
-            >
-              <div 
-                className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging && earnings.length > 1 ? 'animate-scroll-left' : ''}`}
-                style={{
-                  animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
-                  animationPlayState: isDragging ? 'paused' : 'running',
-                }}
-              >
-                {displayItems.map((earning, index) => (
+
+          {/* Tracker items - only for Admin/Moderator */}
+          {canSeeTracker ? (
+            <>
+              {noOffersToday ? (
+                <div className="flex-1 flex items-center gap-2 text-muted-foreground">
+                  <span className="text-xs">No completed offers today</span>
+                </div>
+              ) : (
+                <div 
+                  ref={scrollRef}
+                  className={`flex-1 overflow-hidden ${settings.manualScrollEnabled ? 'cursor-grab active:cursor-grabbing overflow-x-auto scrollbar-hide' : ''}`}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleMouseUp}
+                >
                   <div 
-                    key={`${earning.id}-${index}`}
-                    onClick={() => handleOfferClick(earning)}
-                    className="snake-glow-white flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all overflow-visible relative"
+                    className={`flex items-center gap-2 whitespace-nowrap ${settings.enabled && !isDragging && earnings.length > 1 ? 'animate-scroll-left' : ''}`}
+                    style={{
+                      animationDuration: settings.enabled ? `${settings.speed}s` : '0s',
+                      animationPlayState: isDragging ? 'paused' : 'running',
+                    }}
                   >
-                    {/* Coin Icon */}
-                    <CoinIcon className="w-5 h-5 flex-shrink-0" />
-                    {/* Info */}
-                    <div className="flex flex-col leading-none">
-                      <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
-                        {earning.username}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground capitalize">
-                        {earning.offerwall}
-                      </span>
-                    </div>
-                    {/* Coins */}
-                    <span className="text-[11px] font-bold text-primary">
-                      {earning.coins.toLocaleString()}
-                    </span>
+                    {displayItems.map((earning, index) => (
+                      <div 
+                        key={`${earning.id}-${index}`}
+                        onClick={() => handleOfferClick(earning)}
+                        className="snake-glow-white flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all overflow-visible relative"
+                      >
+                        <CoinIcon className="w-5 h-5 flex-shrink-0" />
+                        <div className="flex flex-col leading-none">
+                          <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
+                            {earning.username}
+                          </span>
+                          <span className="text-[9px] text-muted-foreground capitalize">
+                            {earning.offerwall}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-bold text-primary">
+                          {earning.coins.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex-1 flex items-center gap-2 text-muted-foreground">
+              <span className="text-xs">🌐 Your region</span>
             </div>
           )}
         </div>

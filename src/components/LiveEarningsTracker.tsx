@@ -255,8 +255,7 @@ const LiveEarningsTracker = ({ forceShow = false }: { forceShow?: boolean }) => 
     return colors[name.charCodeAt(0) % colors.length];
   };
 
-  // If tracker is hidden via admin settings AND caller didn't force show, render nothing
-  if (settings.trackerVisible === false && !forceShow) return null;
+  // Tracker always renders - visibility controlled by role check inside the component
 
   return (
     <>

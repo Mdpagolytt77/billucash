@@ -344,7 +344,7 @@ const AdminCompletedOffers = () => {
                 <CheckCircle className="w-4 h-4" /> Completed Offers <span className="text-[10px] text-muted-foreground">({filteredData.length})</span>
               </h2>
               <div className="flex gap-2 items-center">
-                {selectedIds.size > 0 && (
+                {isAdmin && selectedIds.size > 0 && (
                   <button
                     onClick={() => setShowDeleteDialog(true)}
                     className="px-2 py-1.5 bg-destructive/20 text-destructive rounded-lg text-[10px] flex items-center gap-1 hover:bg-destructive/30"
@@ -430,59 +430,65 @@ const AdminCompletedOffers = () => {
                   <table className="w-full text-[9px] min-w-[1200px]">
                     <thead className="sticky top-0 bg-muted/90">
                       <tr>
-                        <th className="p-1.5 w-8">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.size === pageData.length && pageData.length > 0}
-                            onChange={toggleSelectAll}
-                            className="w-3 h-3 rounded border-border"
-                          />
-                        </th>
+                        {isAdmin && (
+                          <th className="p-1.5 w-8">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.size === pageData.length && pageData.length > 0}
+                              onChange={toggleSelectAll}
+                              className="w-3 h-3 rounded border-border"
+                            />
+                          </th>
+                        )}
                         <th className="text-center p-1.5 text-muted-foreground w-10">#</th>
                         <th className="text-left p-1.5 text-muted-foreground">User ID</th>
                         <th className="text-left p-1.5 text-muted-foreground">Username</th>
                         <th className="text-left p-1.5 text-muted-foreground">Offerwall</th>
                         <th className="text-left p-1.5 text-muted-foreground">Offer Name</th>
                         <th className="text-center p-1.5 text-muted-foreground">Coin</th>
-                        <th className="text-center p-1.5 text-muted-foreground">Amount</th>
-                        <th className="text-center p-1.5 text-muted-foreground">Revenue</th>
+                        {isAdmin && <th className="text-center p-1.5 text-muted-foreground">Amount</th>}
+                        {isAdmin && <th className="text-center p-1.5 text-muted-foreground">Revenue</th>}
                         <th className="text-left p-1.5 text-muted-foreground">Transaction ID</th>
                         <th className="text-left p-1.5 text-muted-foreground">Country</th>
                         <th className="text-left p-1.5 text-muted-foreground">Date Time</th>
-                        <th className="text-center p-1.5 text-muted-foreground">Action</th>
+                        {isAdmin && <th className="text-center p-1.5 text-muted-foreground">Action</th>}
                       </tr>
                     </thead>
                     <tbody>
                       {pageData.map((row, index) => (
                         <tr key={row.id} className={`border-t border-border/50 hover:bg-primary/5 ${selectedIds.has(row.id) ? 'bg-primary/10' : ''}`}>
-                          <td className="p-1.5">
-                            <input
-                              type="checkbox"
-                              checked={selectedIds.has(row.id)}
-                              onChange={() => toggleSelect(row.id)}
-                              className="w-3 h-3 rounded border-border"
-                            />
-                          </td>
+                          {isAdmin && (
+                            <td className="p-1.5">
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(row.id)}
+                                onChange={() => toggleSelect(row.id)}
+                                className="w-3 h-3 rounded border-border"
+                              />
+                            </td>
+                          )}
                           <td className="p-1.5 text-center text-muted-foreground font-medium">{startIndex + index + 1}</td>
                           <td className="p-1.5 text-muted-foreground text-[8px] max-w-[80px] truncate" title={row.user_id}>{row.user_id.slice(0, 8)}...</td>
                           <td className="p-1.5 font-medium">{row.username}</td>
                           <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>
                           <td className="p-1.5 max-w-[150px] truncate" title={row.offer_name}>{row.offer_name}</td>
                           <td className="p-1.5 text-center">{row.coin}</td>
-                          <td className="p-1.5 text-center text-green-400">${calculateAmount(row.coin)}</td>
-                          <td className="p-1.5 text-center text-primary">${calculateRevenue(row.coin)}</td>
+                          {isAdmin && <td className="p-1.5 text-center text-green-400">${calculateAmount(row.coin)}</td>}
+                          {isAdmin && <td className="p-1.5 text-center text-primary">${calculateRevenue(row.coin)}</td>}
                           <td className="p-1.5 text-muted-foreground text-[8px] max-w-[120px] truncate" title={row.transaction_id || ''}>{row.transaction_id || '-'}</td>
                           <td className="p-1.5 text-muted-foreground">{row.country || 'Unknown'}</td>
                           <td className="p-1.5 text-muted-foreground whitespace-nowrap">{formatDate(row.created_at)}</td>
-                          <td className="p-1.5 text-center">
-                            <button
-                              onClick={() => openEditDialog(row)}
-                              className="p-1 rounded hover:bg-primary/20 text-primary"
-                              title="Edit"
-                            >
-                              <Pencil className="w-3 h-3" />
-                            </button>
-                          </td>
+                          {isAdmin && (
+                            <td className="p-1.5 text-center">
+                              <button
+                                onClick={() => openEditDialog(row)}
+                                className="p-1 rounded hover:bg-primary/20 text-primary"
+                                title="Edit"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

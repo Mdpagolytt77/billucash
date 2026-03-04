@@ -513,6 +513,26 @@ const AdminCompletedOffers = () => {
             )}
           </div>
 
+          {/* Total Summary */}
+          <div className="glass-card p-3 mt-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] text-muted-foreground">Total Offers</p>
+                <p className="text-lg font-bold text-primary">{filteredData.length}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-[10px] text-muted-foreground">Total Coins</p>
+                <p className="text-lg font-bold text-primary">{filteredData.reduce((sum, o) => sum + o.coin, 0).toLocaleString()}</p>
+              </div>
+              {isAdmin && (
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground">Total Revenue (USD)</p>
+                  <p className="text-lg font-bold text-green-400">${(filteredData.reduce((sum, o) => sum + o.coin, 0) / 500).toFixed(2)}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Edit Dialog */}
           <Dialog open={!!editOffer} onOpenChange={(open) => !open && setEditOffer(null)}>
             <DialogContent className="max-w-md">

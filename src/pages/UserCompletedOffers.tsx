@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Menu, Search, Loader2, Calendar, Globe } from 'lucide-react';
+import { CheckCircle, Menu, Search, Loader2, Calendar, Globe, Eye, EyeOff } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -24,6 +24,7 @@ const UserCompletedOffers = () => {
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showBalance, setShowBalance] = useState(false);
   const [countryFilter, setCountryFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -133,10 +134,20 @@ const UserCompletedOffers = () => {
             <span className="text-xs text-muted-foreground">/ Completed Offers</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold flex items-center gap-1">
-              <CoinIcon className="w-3.5 h-3.5" />
-              {profile?.balance?.toFixed(2) || '0.00'}
-            </div>
+            <button 
+              onClick={() => setShowBalance(!showBalance)}
+              className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold flex items-center gap-1"
+            >
+              {showBalance ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              {showBalance ? (
+                <>
+                  <CoinIcon className="w-3.5 h-3.5" />
+                  {profile?.balance?.toFixed(2) || '0.00'}
+                </>
+              ) : (
+                <span>••••</span>
+              )}
+            </button>
             <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
           </div>
         </header>
@@ -289,6 +300,23 @@ const UserCompletedOffers = () => {
                 </div>
               </>
             )}
+          </div>
+
+          {/* Total Dollar Value */}
+          <div className="glass-card p-3 mt-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] text-muted-foreground">Total Revenue (USD)</p>
+                <p className="text-xl font-bold text-green-400">${(totalCoins / 1000).toFixed(2)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] text-muted-foreground">Total Coins</p>
+                <div className="flex items-center gap-1 justify-end">
+                  <CoinIcon className="w-4 h-4" />
+                  <p className="text-lg font-bold text-primary">{totalCoins.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </main>
       </div>

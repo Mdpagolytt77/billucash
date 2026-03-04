@@ -103,7 +103,7 @@ const AdminPanel = () => {
       // Total revenue from completed offers (coin sum * rate)
       const { data: offersData } = await supabase.from('completed_offers').select('coin');
       const totalCoins = offersData?.reduce((sum, o) => sum + (o.coin || 0), 0) || 0;
-      const totalRevenue = totalCoins / 1000; // Convert coins to dollars
+      const totalRevenue = totalCoins / 500; // 500 coins = $1
 
       // Pending withdrawals
       const { data: pendingData, count: pendingCount } = await supabase

@@ -343,7 +343,7 @@ const Dashboard = () => {
           )}
 
           {/* Live Earnings Tracker - only for admin or permitted users */}
-          {(isAdmin || isModerator || profile?.can_view_tracker) && <LiveEarningsTracker />}
+          {(isAdmin || isModerator || profile?.can_view_tracker) && <LiveEarningsTracker forceShow={isAdmin || isModerator} />}
 
           {/* Main Content */}
           <main className="px-3 md:px-6 py-4" style={{ maxWidth: '1400px', margin: '0 auto' }}>

@@ -73,7 +73,7 @@ const FlagImage = ({ country, className = 'w-5 h-4' }: { country: string | null;
   );
 };
 
-const LiveEarningsTracker = () => {
+const LiveEarningsTracker = ({ forceShow = false }: { forceShow?: boolean }) => {
   const { user } = useAuth();
   const [earnings, setEarnings] = useState<EarningEvent[]>([]);
   const [userCountry, setUserCountry] = useState<string | null>(null);
@@ -254,8 +254,8 @@ const LiveEarningsTracker = () => {
     return colors[name.charCodeAt(0) % colors.length];
   };
 
-  // If tracker is hidden via admin settings, render nothing
-  if (settings.trackerVisible === false) return null;
+  // If tracker is hidden via admin settings AND caller didn't force show, render nothing
+  if (settings.trackerVisible === false && !forceShow) return null;
 
   return (
     <>

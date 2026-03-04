@@ -328,9 +328,11 @@ const AdminAllUsers = () => {
                           <button onClick={() => openDetailsModal(user)} className="p-1 bg-blue-500/20 rounded hover:bg-blue-500/30" title="View Details">
                             <Eye className="w-3 h-3 text-blue-400" />
                           </button>
-                          <button onClick={() => openEditModal(user)} className="p-1 bg-primary/20 rounded hover:bg-primary/30" title="Edit User">
-                            <Edit className="w-3 h-3 text-primary" />
-                          </button>
+                          {isAdmin && (
+                            <button onClick={() => openEditModal(user)} className="p-1 bg-primary/20 rounded hover:bg-primary/30" title="Edit User">
+                              <Edit className="w-3 h-3 text-primary" />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))

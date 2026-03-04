@@ -20,7 +20,7 @@ interface CompletedOffer {
 }
 
 const UserCompletedOffers = () => {
-  const { profile } = useAuth();
+  const { profile, isAdmin, isModerator } = useAuth();
   const { snowEnabled, toggleSnow } = useSnowEffect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -303,11 +303,13 @@ const UserCompletedOffers = () => {
           {/* Total Dollar Value */}
           <div className="glass-card p-3 mt-3">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] text-muted-foreground">Total Revenue (USD)</p>
-                <p className="text-xl font-bold text-green-400">${(totalCoins / 500).toFixed(2)}</p>
-              </div>
-              <div className="text-right">
+              {isAdmin && (
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Total Revenue (USD)</p>
+                  <p className="text-xl font-bold text-green-400">${(totalCoins / 500).toFixed(2)}</p>
+                </div>
+              )}
+              <div className={isAdmin ? "text-right" : ""}>
                 <p className="text-[10px] text-muted-foreground">Total Coins</p>
                 <div className="flex items-center gap-1 justify-end">
                   <CoinIcon className="w-4 h-4" />

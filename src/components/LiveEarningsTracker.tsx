@@ -359,8 +359,8 @@ const LiveEarningsTracker = ({ forceShow = false }: { forceShow?: boolean }) => 
                     onClick={() => handleOfferClick(earning)}
                     className="snake-glow-white flex-shrink-0 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:border-primary/30 transition-all overflow-visible relative"
                   >
-                    {/* Country Flag */}
-                    <FlagImage country={earning.country} className="w-5 h-4" />
+                    {/* Coin Icon */}
+                    <CoinIcon className="w-5 h-5 flex-shrink-0" />
                     {/* Info */}
                     <div className="flex flex-col leading-none">
                       <span className="text-[11px] font-semibold text-foreground truncate max-w-[60px]">
@@ -371,12 +371,9 @@ const LiveEarningsTracker = ({ forceShow = false }: { forceShow?: boolean }) => 
                       </span>
                     </div>
                     {/* Coins */}
-                    <div className="flex items-center gap-1">
-                      <CoinIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="text-[11px] font-bold text-primary">
-                        {earning.coins.toLocaleString()}
-                      </span>
-                    </div>
+                    <span className="text-[11px] font-bold text-primary">
+                      {earning.coins.toLocaleString()}
+                    </span>
                   </div>
                 ))}
               </div>

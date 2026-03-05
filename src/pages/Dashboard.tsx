@@ -164,7 +164,7 @@ const Dashboard = () => {
     { id: '7', name: 'AdToWall', color: '#1e3a5f', iframeUrl: '', enabled: true, apiKey: '' },
     { id: '8', name: 'Lootably', color: '#3d2d4a', iframeUrl: '', enabled: true, apiKey: '' },
     { id: '9', name: 'Adswed', color: '#0d4a4a', iframeUrl: '', enabled: true, apiKey: '' },
-    { id: '10', name: 'Pubscale', color: '#4a2d0d', iframeUrl: '', enabled: true, apiKey: '' },
+    { id: '10', name: 'Pubscale', color: '#4a2d0d', iframeUrl: 'https://wow.pubscale.com?app_id=87232712&user_id={user_id}', enabled: true, apiKey: '' },
     { id: '11', name: 'Adgatemedia', color: '#2d4a0d', iframeUrl: '', enabled: true, apiKey: '' },
     { id: '12', name: 'Pixylabs', color: '#0d2d4a', iframeUrl: '', enabled: true, apiKey: '' },
   ];

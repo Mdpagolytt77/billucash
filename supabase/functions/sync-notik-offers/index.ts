@@ -44,10 +44,25 @@ serve(async (req) => {
       pageCount++;
       console.log(`Fetching page ${pageCount}: ${nextPageUrl}`);
 
-      const res = await fetch(nextPageUrl);
+      let res;
+      try {
+        res = await fetch(nextPageUrl);
+      } catch (fetchErr) {
+        console.error('Fetch error:', fetchErr);
+        return new Response(JSON.stringify({ error: 'Fetch failed', detail: String(fetchErr), url: nextPageUrl }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      console.log(`Response status: ${res.status}`);
       if (!res.ok) {
-        console.error(`Notik API error: ${res.status} ${await res.text()}`);
-        break;
+        const errText = await res.text();
+        console.error(`Notik API error: ${res.status} ${errText}`);
+        return new Response(JSON.stringify({ error: 'API error', status: res.status, body: errText.substring(0, 500) }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       const rawText = await res.text();

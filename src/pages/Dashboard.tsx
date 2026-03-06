@@ -274,6 +274,9 @@ const Dashboard = () => {
                       const hrefMatch = rawUrl.match(/href=["']([^"']+)["']/);
                       if (hrefMatch) rawUrl = hrefMatch[1];
                       
+                      const isPubscale = selectedOfferwall.name.toLowerCase().includes('pubscale');
+                      const defaultPubscaleAppId = '87232712';
+
                       const iframeUrl = rawUrl
                         .replace(/{uid}/g, user?.id || '')
                         .replace(/{user_id}/g, user?.id || '')
@@ -282,7 +285,8 @@ const Dashboard = () => {
                         .replace(/\[USER_ID\]/g, user?.id || '')
                         .replace(/XXX/g, user?.id || '')
                         .replace(/{api_key}/g, '')
-                        .replace(/{app_id}/g, '');
+                        .replace(/{app_id}/g, isPubscale ? defaultPubscaleAppId : '')
+                        .trim();
                       
                       return iframeUrl ? (
                         <iframe 

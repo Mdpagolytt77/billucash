@@ -42,9 +42,83 @@ serve(async (req) => {
     console.log('=== Syncing Notik Offers ===');
 
     let allOffers: any[] = [];
-    let nextPageUrl: string | null = `https://notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`;
-    let pageCount = 0;
-    const maxPages = 10; // Safety limit
+    let workingUrl: string | null = null;
+
+    // Try each API URL until one works
+    for (const tryUrl of apiUrls) {
+      const testRes = await fetch(tryUrl);
+      const testText = await testRes.text();
+      
+      try {
+        const testData = JSON.parse(testText);
+        if (testData.status === 'error') {
+          console.log(`URL failed: ${testData.message}`);
+          continue;
+        }
+        workingUrl = tryUrl;
+        
+        // Parse the first page
+        if (testData.offers && Array.isArray(testData.offers)) {
+          allOffers = testData.offers;
+        } else if (testData.data && Array.isArray(testData.data)) {
+          allOffers = testData.data;
+        } else if (Array.isArray(testData)) {
+          allOffers = testData;
+        } else {
+          for (const key of Object.keys(testData)) {
+            if (Array.isArray(testData[key]) && testData[key].length > 0) {
+              allOffers = testData[key];
+              break;
+            }
+          }
+        }
+
+        // Handle pagination
+        let nextPageUrl = testData.next_page_url || null;
+        let pageCount = 1;
+        while (nextPageUrl && pageCount < 10) {
+          pageCount++;
+          const pageRes = await fetch(nextPageUrl);
+          if (!pageRes.ok) break;
+          const pageData = await pageRes.json();
+          
+          if (pageData.offers && Array.isArray(pageData.offers)) {
+            allOffers = allOffers.concat(pageData.offers);
+          } else if (pageData.data && Array.isArray(pageData.data)) {
+            allOffers = allOffers.concat(pageData.data);
+          } else {
+            for (const key of Object.keys(pageData)) {
+              if (Array.isArray(pageData[key]) && pageData[key].length > 0) {
+                allOffers = allOffers.concat(pageData[key]);
+                break;
+              }
+            }
+          }
+          nextPageUrl = pageData.next_page_url || null;
+        }
+
+        break; // Found working URL
+      } catch (e) {
+        // If first page has offers in raw format
+        if (allOffers.length === 0) {
+          return new Response(JSON.stringify({ error: 'Parse failed', raw: testText.substring(0, 2000) }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    }
+
+    if (!workingUrl && allOffers.length === 0) {
+      return new Response(JSON.stringify({ 
+        error: 'All API URLs failed - invalid credentials',
+        tried: apiUrls.length,
+        hint: 'Check api_key, pub_id, app_id in Notik App Details',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    let pageCount = 1;
 
     // Paginate through all offers
     while (nextPageUrl && pageCount < maxPages) {

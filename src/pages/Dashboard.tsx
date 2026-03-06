@@ -285,6 +285,7 @@ const Dashboard = () => {
                         .replace(/\[USER_ID\]/g, user?.id || '')
                         .replace(/XXX/g, user?.id || '')
                         .replace(/{api_key}/g, '')
+                        .replace(/{app_id}/g, isPubscale ? defaultPubscaleAppId : '')
                         .trim();
                       
                       return iframeUrl ? (

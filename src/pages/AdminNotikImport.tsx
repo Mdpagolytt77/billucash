@@ -54,17 +54,22 @@ const AdminNotikImport = () => {
       for (let i = 0; i < offers.length; i += 50) {
         const batch = offers.slice(i, i + 50).map((o: any) => {
           const payoutUsd = parseFloat(o.payout || o.amount || '0') || 0;
+          const desc = o.description1 || o.offer_desc || o.description || '';
+          const platforms = Array.isArray(o.devices) ? o.devices.join(',') : (o.platform || o.os || null);
+          const os = Array.isArray(o.os) ? o.os.join(',') : null;
+          const categories = Array.isArray(o.categories) ? o.categories.join(',') : (o.category || o.offer_type || null);
+          const countryCode = o.country_code || o.country || o.countries || null;
           return {
             id: String(o.offer_id || o.id || `notik_${Date.now()}_${Math.random()}`),
-            name: o.offer_name || o.name || 'Notik Offer',
-            description: o.offer_desc || o.description || '',
+            name: o.name || o.offer_name || 'Notik Offer',
+            description: desc,
             image_url: o.image_url || o.icon_url || o.thumbnail || null,
             click_url: o.click_url || o.tracking_url || o.link || null,
             payout: payoutUsd,
             coins: Math.round(payoutUsd * 500),
-            country: o.country || o.countries || null,
-            platform: o.platform || o.os || o.device || null,
-            category: o.category || o.offer_type || null,
+            country: countryCode,
+            platform: platforms || os,
+            category: categories,
             is_active: true,
             updated_at: new Date().toISOString(),
           };

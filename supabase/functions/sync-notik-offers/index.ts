@@ -69,27 +69,22 @@ serve(async (req) => {
         }
 
         // Handle pagination
-        let nextPageUrl = testData.next_page_url || null;
+        let nextPageUrl = testData.offers?.next_page_url || testData.next_page_url || null;
         let pageCount = 1;
-        while (nextPageUrl && pageCount < 10) {
+        while (nextPageUrl && pageCount < 20) {
           pageCount++;
           const pageRes = await fetch(nextPageUrl);
           if (!pageRes.ok) break;
           const pageData = await pageRes.json();
           
-          if (pageData.offers && Array.isArray(pageData.offers)) {
+          if (pageData.offers?.data && Array.isArray(pageData.offers.data)) {
+            allOffers = allOffers.concat(pageData.offers.data);
+          } else if (pageData.offers && Array.isArray(pageData.offers)) {
             allOffers = allOffers.concat(pageData.offers);
           } else if (pageData.data && Array.isArray(pageData.data)) {
             allOffers = allOffers.concat(pageData.data);
-          } else {
-            for (const key of Object.keys(pageData)) {
-              if (Array.isArray(pageData[key]) && pageData[key].length > 0) {
-                allOffers = allOffers.concat(pageData[key]);
-                break;
-              }
-            }
           }
-          nextPageUrl = pageData.next_page_url || null;
+          nextPageUrl = pageData.offers?.next_page_url || pageData.next_page_url || null;
         }
 
         break; // Found working URL

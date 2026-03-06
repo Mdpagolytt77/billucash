@@ -46,7 +46,12 @@ serve(async (req) => {
 
     // Try each API URL until one works
     for (const tryUrl of apiUrls) {
-      const testRes = await fetch(tryUrl);
+      const testRes = await fetch(tryUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      });
       const testText = await testRes.text();
       
       try {

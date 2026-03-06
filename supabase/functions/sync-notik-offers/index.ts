@@ -14,6 +14,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const apiKey = Deno.env.get('NOTIK_API_KEY');
+    const apiSecret = Deno.env.get('NOTIK_SECRET_KEY');
     
     if (!apiKey) {
       console.error('NOTIK_API_KEY not configured');
@@ -25,6 +26,12 @@ serve(async (req) => {
 
     const pubId = 'R8Yo4E';
     const appId = '3VgSKty9T9';
+
+    // Try with api_key first, if 401 try with app_secret
+    const apiUrls = [
+      `https://notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
+      apiSecret ? `https://notik.me/api/v2/get-offers/all?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
+    ].filter(Boolean) as string[];
 
     const headers = {
       'Content-Type': 'application/json',

@@ -27,12 +27,10 @@ serve(async (req) => {
     const pubId = 'R8Yo4E';
     const appId = '3VgSKty9T9';
 
-    // Try multiple URL formats and key combinations
+    // Correct API URL format: /get-offers (not /get-offers/all)
     const apiUrls = [
-      `https://notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
-      apiSecret ? `https://notik.me/api/v2/get-offers/all?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
-      `https://publisher.notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
-      apiSecret ? `https://publisher.notik.me/api/v2/get-offers/all?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
+      `https://notik.me/api/v2/get-offers?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
+      apiSecret ? `https://notik.me/api/v2/get-offers?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
     ].filter(Boolean) as string[];
 
     const headers = {
@@ -48,7 +46,12 @@ serve(async (req) => {
 
     // Try each API URL until one works
     for (const tryUrl of apiUrls) {
-      const testRes = await fetch(tryUrl);
+      const testRes = await fetch(tryUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      });
       const testText = await testRes.text();
       
       try {
@@ -59,44 +62,34 @@ serve(async (req) => {
         }
         workingUrl = tryUrl;
         
-        // Parse the first page
-        if (testData.offers && Array.isArray(testData.offers)) {
+        // Parse offers - API returns { offers: { data: [...] } }
+        if (testData.offers?.data && Array.isArray(testData.offers.data)) {
+          allOffers = testData.offers.data;
+        } else if (testData.offers && Array.isArray(testData.offers)) {
           allOffers = testData.offers;
         } else if (testData.data && Array.isArray(testData.data)) {
           allOffers = testData.data;
         } else if (Array.isArray(testData)) {
           allOffers = testData;
-        } else {
-          for (const key of Object.keys(testData)) {
-            if (Array.isArray(testData[key]) && testData[key].length > 0) {
-              allOffers = testData[key];
-              break;
-            }
-          }
         }
 
         // Handle pagination
-        let nextPageUrl = testData.next_page_url || null;
+        let nextPageUrl = testData.offers?.next_page_url || testData.next_page_url || null;
         let pageCount = 1;
-        while (nextPageUrl && pageCount < 10) {
+        while (nextPageUrl && pageCount < 20) {
           pageCount++;
           const pageRes = await fetch(nextPageUrl);
           if (!pageRes.ok) break;
           const pageData = await pageRes.json();
           
-          if (pageData.offers && Array.isArray(pageData.offers)) {
+          if (pageData.offers?.data && Array.isArray(pageData.offers.data)) {
+            allOffers = allOffers.concat(pageData.offers.data);
+          } else if (pageData.offers && Array.isArray(pageData.offers)) {
             allOffers = allOffers.concat(pageData.offers);
           } else if (pageData.data && Array.isArray(pageData.data)) {
             allOffers = allOffers.concat(pageData.data);
-          } else {
-            for (const key of Object.keys(pageData)) {
-              if (Array.isArray(pageData[key]) && pageData[key].length > 0) {
-                allOffers = allOffers.concat(pageData[key]);
-                break;
-              }
-            }
           }
-          nextPageUrl = pageData.next_page_url || null;
+          nextPageUrl = pageData.offers?.next_page_url || pageData.next_page_url || null;
         }
 
         break; // Found working URL

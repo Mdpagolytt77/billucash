@@ -110,7 +110,7 @@ const AdminNotikImport = () => {
           </button>
           <h1 className="text-lg font-bold text-primary mb-1">Notik Offers Import</h1>
           <p className="text-xs text-muted-foreground mb-4">
-            Browser এ <code className="bg-muted px-1 rounded">notik.me/api/v2/get-offers</code> open করো, পুরো JSON copy করে নিচে paste করো।
+            Browser এ <code className="bg-muted px-1 rounded text-[10px] break-all">https://notik.me/api/v2/get-offers?api_key=UHG9XwxbMCe80St1fjdiFRZRh8fAqJhX&pub_id=R8Yo4E&app_id=3VgSKty9T9</code> open করো, পুরো JSON copy করে নিচে paste করো।
           </p>
 
           <div className="glass-card p-4 rounded-xl mb-4">

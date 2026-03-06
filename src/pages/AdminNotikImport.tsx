@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Upload, ArrowLeft, Menu, Trash2, RefreshCw } from 'lucide-react';
+import { Upload, ArrowLeft, Menu, Trash2, RefreshCw, Download } from 'lucide-react';
 import pageBg from '@/assets/page-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';

@@ -57,20 +57,15 @@ serve(async (req) => {
         }
         workingUrl = tryUrl;
         
-        // Parse the first page
-        if (testData.offers && Array.isArray(testData.offers)) {
+        // Parse offers - API returns { offers: { data: [...] } }
+        if (testData.offers?.data && Array.isArray(testData.offers.data)) {
+          allOffers = testData.offers.data;
+        } else if (testData.offers && Array.isArray(testData.offers)) {
           allOffers = testData.offers;
         } else if (testData.data && Array.isArray(testData.data)) {
           allOffers = testData.data;
         } else if (Array.isArray(testData)) {
           allOffers = testData;
-        } else {
-          for (const key of Object.keys(testData)) {
-            if (Array.isArray(testData[key]) && testData[key].length > 0) {
-              allOffers = testData[key];
-              break;
-            }
-          }
         }
 
         // Handle pagination

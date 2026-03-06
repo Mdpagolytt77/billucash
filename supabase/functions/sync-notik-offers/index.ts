@@ -27,12 +27,10 @@ serve(async (req) => {
     const pubId = 'R8Yo4E';
     const appId = '3VgSKty9T9';
 
-    // Try multiple URL formats and key combinations
+    // Correct API URL format: /get-offers (not /get-offers/all)
     const apiUrls = [
-      `https://notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
-      apiSecret ? `https://notik.me/api/v2/get-offers/all?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
-      `https://publisher.notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
-      apiSecret ? `https://publisher.notik.me/api/v2/get-offers/all?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
+      `https://notik.me/api/v2/get-offers?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
+      apiSecret ? `https://notik.me/api/v2/get-offers?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
     ].filter(Boolean) as string[];
 
     const headers = {

@@ -22,23 +22,28 @@ serve(async (req) => {
     console.log('=== PubScale Postback ===');
     console.log('Params:', Object.fromEntries(params.entries()));
 
-    // PubScale params: sub_id (user_id), revenue (payout), offer_name, click_id (txn), user_ip, country
-    const userId = params.get('sub_id') || params.get('user_id') || '';
-    const txnId = params.get('click_id') || params.get('transaction_id') || '';
-    let offerName = params.get('offer_name') || 'PubScale Offer';
-    const payoutStr = params.get('revenue') || params.get('payout') || '0';
+    // Detect if this is a chargeback (has 'value' + 'token' params from chargeback URL)
+    // Chargeback params: value, user_id, token, signature
+    // Regular postback params: sub_id/user_id, revenue, offer_name, click_id, country, ip
+    const isChargeback = params.has('token') && params.has('value') && !params.has('click_id') && !params.has('sub_id');
+
+    const userId = params.get('user_id') || params.get('sub_id') || '';
+    const txnId = params.get('token') || params.get('click_id') || params.get('transaction_id') || '';
+    let offerName = params.get('offer_name') || (isChargeback ? 'PubScale Chargeback' : 'PubScale Offer');
+    const payoutStr = params.get('value') || params.get('revenue') || params.get('payout') || '0';
     const userIp = params.get('user_ip') || params.get('ip') || '';
     const countryParam = params.get('country') || '';
-
     const signatureParam = params.get('signature') || '';
+
+    console.log('Is Chargeback:', isChargeback);
 
     // Validate required
     if (!userId) {
-      console.error('Missing sub_id/user_id');
+      console.error('Missing user_id');
       return new Response('0', { status: 200, headers: textHeaders });
     }
     if (!txnId) {
-      console.error('Missing click_id/transaction_id');
+      console.error('Missing token/click_id');
       return new Response('0', { status: 200, headers: textHeaders });
     }
 
@@ -55,16 +60,15 @@ serve(async (req) => {
       const expectedSig = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
       if (signatureParam !== expectedSig) {
         console.error('Signature mismatch:', signatureParam, 'expected:', expectedSig);
-        // Log but don't block - PubScale signature format may vary
         console.warn('Proceeding despite signature mismatch for now');
       } else {
         console.log('Signature verified successfully');
       }
     }
 
-    // Parse payout - PubScale sends revenue in USD, convert to coins (cents)
+    // Parse payout
     const payoutUsd = parseFloat(payoutStr) || 0;
-    let coinAmount = Math.round(payoutUsd * 100);
+    let coinAmount = Math.round(payoutUsd * 500); // 500 coins = 1 USD
 
     if (coinAmount <= 0) {
       console.error('Zero or negative payout:', payoutStr);
@@ -87,6 +91,87 @@ serve(async (req) => {
       'apikey': supabaseServiceKey,
       'Authorization': `Bearer ${supabaseServiceKey}`,
     };
+
+    // ===== CHARGEBACK FLOW =====
+    if (isChargeback) {
+      console.log('Processing chargeback for token:', txnId);
+
+      // Find the original offer by transaction_id
+      const origRes = await fetch(
+        `${supabaseUrl}/rest/v1/completed_offers?transaction_id=eq.${encodeURIComponent(txnId)}&offerwall=eq.PubScale&select=id,user_id,coin,username&limit=1`,
+        { headers }
+      );
+      const origData = await origRes.json();
+
+      if (!origData?.length) {
+        console.error('Original offer not found for chargeback token:', txnId);
+        return new Response('0', { status: 200, headers: textHeaders });
+      }
+
+      const originalOffer = origData[0];
+      const chargebackCoins = originalOffer.coin; // Deduct the same amount that was credited
+
+      // Check if chargeback already processed (look for existing chargeback record)
+      const chargebackTxnId = `chargeback_${txnId}`;
+      const dupRes = await fetch(
+        `${supabaseUrl}/rest/v1/completed_offers?transaction_id=eq.${encodeURIComponent(chargebackTxnId)}&select=id&limit=1`,
+        { headers }
+      );
+      const dupData = await dupRes.json();
+      if (dupData?.length > 0) {
+        console.log('Duplicate chargeback already processed:', txnId);
+        return new Response('1', { status: 200, headers: textHeaders });
+      }
+
+      // Deduct balance (use negative amount)
+      const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/increment_balance`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ user_id_input: originalOffer.user_id, amount_input: -chargebackCoins }),
+      });
+      if (!rpcRes.ok) {
+        const errText = await rpcRes.text();
+        console.error('Chargeback balance deduction failed:', errText);
+        // If insufficient balance, still record the chargeback
+        if (!errText.includes('Insufficient balance')) {
+          return new Response('0', { status: 200, headers: textHeaders });
+        }
+        // If insufficient, set balance to 0
+        await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(originalOffer.user_id)}`, {
+          method: 'PATCH',
+          headers: { ...headers, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ balance: 0, updated_at: new Date().toISOString() }),
+        });
+        console.warn('Set balance to 0 due to insufficient funds for full chargeback');
+      } else {
+        await rpcRes.text();
+      }
+
+      // Insert chargeback record with negative coin value
+      const insertRes = await fetch(`${supabaseUrl}/rest/v1/completed_offers`, {
+        method: 'POST',
+        headers: { ...headers, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          user_id: originalOffer.user_id,
+          username: originalOffer.username,
+          offer_name: `[CHARGEBACK] ${offerName}`,
+          offerwall: 'PubScale',
+          coin: -chargebackCoins,
+          transaction_id: chargebackTxnId,
+          ip: userIp || null,
+          country: 'Unknown',
+        }),
+      });
+      if (!insertRes.ok) {
+        console.error('Chargeback record insert failed:', await insertRes.text());
+      } else {
+        await insertRes.text();
+      }
+
+      console.log(`Chargeback success: ${originalOffer.username} lost ${chargebackCoins} coins via PubScale chargeback`);
+      return new Response('1', { status: 200, headers: textHeaders });
+    }
+
+    // ===== REGULAR POSTBACK FLOW =====
 
     // Duplicate check
     const dupRes = await fetch(

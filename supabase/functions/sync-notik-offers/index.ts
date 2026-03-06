@@ -27,10 +27,12 @@ serve(async (req) => {
     const pubId = 'R8Yo4E';
     const appId = '3VgSKty9T9';
 
-    // Try with api_key first, if 401 try with app_secret
+    // Try multiple URL formats and key combinations
     const apiUrls = [
       `https://notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
       apiSecret ? `https://notik.me/api/v2/get-offers/all?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
+      `https://publisher.notik.me/api/v2/get-offers/all?api_key=${apiKey}&pub_id=${pubId}&app_id=${appId}`,
+      apiSecret ? `https://publisher.notik.me/api/v2/get-offers/all?api_key=${apiSecret}&pub_id=${pubId}&app_id=${appId}` : null,
     ].filter(Boolean) as string[];
 
     const headers = {

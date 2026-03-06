@@ -131,6 +131,54 @@ export type Database = {
         }
         Relationships: []
       }
+      notik_offers: {
+        Row: {
+          category: string | null
+          click_url: string | null
+          coins: number
+          country: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          payout: number
+          platform: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          click_url?: string | null
+          coins?: number
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          payout?: number
+          platform?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          click_url?: string | null
+          coins?: number
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          payout?: number
+          platform?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_methods: {
         Row: {
           category: string

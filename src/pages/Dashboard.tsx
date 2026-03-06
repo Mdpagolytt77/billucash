@@ -355,6 +355,9 @@ const Dashboard = () => {
             {/* Featured Offers */}
             <FeaturedOffersSection onOfferClick={handleOfferClick} />
 
+            {/* Notik Offers - Auto Synced */}
+            <NotikOffersSection />
+
             {/* Offer Partners */}
              <OfferPartnersSection
                title="Offerwalls"

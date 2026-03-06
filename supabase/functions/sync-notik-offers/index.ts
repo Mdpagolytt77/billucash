@@ -14,7 +14,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const apiKey = Deno.env.get('NOTIK_API_KEY');
-    const apiSecret = Deno.env.get('NOTIK_SECRET_KEY');
+    const apiSecret = Deno.env.get('NOTIK_APP_SECRET');
     
     if (!apiKey) {
       console.error('NOTIK_API_KEY not configured');

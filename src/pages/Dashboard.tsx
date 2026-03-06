@@ -12,6 +12,7 @@ import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
 import FloatingCoinsBackground from '@/components/FloatingCoinsBackground';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
+import NotikOffersSection from '@/components/dashboard/NotikOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';

@@ -131,14 +131,19 @@ const AdminNotikImport = () => {
           </button>
           <h1 className="text-lg font-bold text-primary mb-1">Notik Offers Import</h1>
           <p className="text-xs text-muted-foreground mb-4">
-            Browser এ <code className="bg-muted px-1 rounded text-[10px] break-all">https://notik.me/api/v2/get-offers?api_key=UHG9XwxbMCe80St1fjdiFRZRh8fAqJhX&pub_id=R8Yo4E&app_id=3VgSKty9T9</code> open করো, পুরো JSON copy করে নিচে paste করো।
+            নিচের "Fetch from API" বাটন চাপো — অটো JSON নিয়ে আসবে। যদি কাজ না করে, browser এ URL open করে manually paste করো।
           </p>
 
           <div className="glass-card p-4 rounded-xl mb-4">
+            <button onClick={handleFetchFromAPI} disabled={fetching}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent hover:bg-accent/80 text-accent-foreground text-xs font-semibold disabled:opacity-50 transition-colors mb-3 w-full justify-center">
+              {fetching ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+              {fetching ? 'Fetching...' : '⚡ Fetch from API (Auto)'}
+            </button>
             <textarea
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
-              placeholder='{"status":"success","code":"200","offers":{"data":[...]}}'
+              placeholder='Auto fetch করো অথবা manually JSON paste করো...'
               className="w-full h-48 bg-background/50 border border-border rounded-lg p-3 text-xs font-mono text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <div className="flex gap-2 mt-3">

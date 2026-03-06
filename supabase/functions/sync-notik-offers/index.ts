@@ -50,12 +50,36 @@ serve(async (req) => {
         break;
       }
 
-      const data = await res.json();
+      const rawText = await res.text();
+      console.log(`Raw response length: ${rawText.length}`);
+      console.log(`Raw response preview: ${rawText.substring(0, 500)}`);
+      
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (e) {
+        console.error('Failed to parse JSON:', e);
+        break;
+      }
+
+      // Log all top-level keys to understand the structure
+      console.log('Response keys:', Object.keys(data));
       
       if (data.offers && Array.isArray(data.offers)) {
         allOffers = allOffers.concat(data.offers);
+      } else if (data.data && Array.isArray(data.data)) {
+        allOffers = allOffers.concat(data.data);
       } else if (Array.isArray(data)) {
         allOffers = allOffers.concat(data);
+      } else {
+        // Try to find any array in the response
+        for (const key of Object.keys(data)) {
+          if (Array.isArray(data[key]) && data[key].length > 0) {
+            console.log(`Found offer array in key: ${key}, count: ${data[key].length}`);
+            allOffers = allOffers.concat(data[key]);
+            break;
+          }
+        }
       }
 
       nextPageUrl = data.next_page_url || null;

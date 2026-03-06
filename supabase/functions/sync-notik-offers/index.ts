@@ -66,35 +66,56 @@ serve(async (req) => {
       }
 
       const rawText = await res.text();
-      console.log(`Raw response length: ${rawText.length}`);
-      console.log(`Raw response preview: ${rawText.substring(0, 500)}`);
       
       let data;
       try {
         data = JSON.parse(rawText);
       } catch (e) {
-        console.error('Failed to parse JSON:', e);
-        break;
+        return new Response(JSON.stringify({ error: 'JSON parse failed', raw: rawText.substring(0, 1000) }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
-      // Log all top-level keys to understand the structure
-      console.log('Response keys:', Object.keys(data));
-      
-      if (data.offers && Array.isArray(data.offers)) {
-        allOffers = allOffers.concat(data.offers);
-      } else if (data.data && Array.isArray(data.data)) {
-        allOffers = allOffers.concat(data.data);
-      } else if (Array.isArray(data)) {
-        allOffers = allOffers.concat(data);
-      } else {
-        // Try to find any array in the response
-        for (const key of Object.keys(data)) {
+      // Return raw structure for debugging
+      const topKeys = Object.keys(data);
+      const sampleValues: Record<string, any> = {};
+      for (const key of topKeys) {
+        if (Array.isArray(data[key])) {
+          sampleValues[key] = `Array(${data[key].length})`;
+          if (data[key].length > 0) {
+            sampleValues[key + '_sample'] = data[key][0];
+          }
+        } else {
+          sampleValues[key] = typeof data[key] === 'object' ? JSON.stringify(data[key]).substring(0, 200) : data[key];
+        }
+      }
+
+      // Return debug info on first run
+      if (allOffers.length === 0 && pageCount === 1) {
+        // Check all possible array keys
+        for (const key of topKeys) {
           if (Array.isArray(data[key]) && data[key].length > 0) {
-            console.log(`Found offer array in key: ${key}, count: ${data[key].length}`);
             allOffers = allOffers.concat(data[key]);
             break;
           }
         }
+        
+        if (allOffers.length === 0) {
+          return new Response(JSON.stringify({ 
+            debug: true,
+            keys: topKeys, 
+            sample: sampleValues,
+            raw_preview: rawText.substring(0, 2000),
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
+      if (data.offers && Array.isArray(data.offers)) {
+        allOffers = allOffers.concat(data.offers);
+      } else if (data.data && Array.isArray(data.data)) {
+        allOffers = allOffers.concat(data.data);
       }
 
       nextPageUrl = data.next_page_url || null;

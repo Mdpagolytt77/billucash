@@ -20,7 +20,23 @@ const AdminNotikImport = () => {
   const [jsonInput, setJsonInput] = useState('');
   const [importing, setImporting] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [lastResult, setLastResult] = useState<{ synced: number; errors: number } | null>(null);
+
+  const NOTIK_API_URL = 'https://notik.me/api/v2/get-offers?api_key=UHG9XwxbMCe80St1fjdiFRZRh8fAqJhX&pub_id=R8Yo4E&app_id=3VgSKty9T9';
+
+  const handleFetchFromAPI = async () => {
+    setFetching(true);
+    try {
+      const res = await fetch(NOTIK_API_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      setJsonInput(text);
+      toast.success('JSON fetched! এখন Import Offers চাপো');
+    } catch (e: any) {
+      toast.error('Fetch failed (CORS block হতে পারে) — browser এ URL open করে manually copy করো');
+    } finally { setFetching(false); }
+  };
 
   if (!isAdmin) {
     return (

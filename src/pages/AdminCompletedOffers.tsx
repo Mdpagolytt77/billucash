@@ -436,14 +436,14 @@ const AdminCompletedOffers = () => {
                             />
                           </th>
                         )}
-                        <th className="text-center p-1.5 text-muted-foreground w-10 hidden sm:table-cell">#</th>
+                        <th className="text-center p-1.5 text-muted-foreground w-10">#</th>
                         <th className="text-left p-1.5 text-muted-foreground hidden lg:table-cell">User ID</th>
                         <th className="text-left p-1.5 text-muted-foreground">Username</th>
                         <th className="text-left p-1.5 text-muted-foreground hidden sm:table-cell">Offerwall</th>
                         <th className="text-left p-1.5 text-muted-foreground hidden md:table-cell">Offer Name</th>
                         <th className="text-center p-1.5 text-muted-foreground">Coin</th>
-                        {isAdmin && <th className="text-center p-1.5 text-muted-foreground">Revenue</th>}
                         <th className="text-left p-1.5 text-muted-foreground hidden lg:table-cell">Transaction ID</th>
+                        <th className="text-left p-1.5 text-muted-foreground hidden sm:table-cell">IP</th>
                         <th className="text-left p-1.5 text-muted-foreground hidden sm:table-cell">Country</th>
                         <th className="text-left p-1.5 text-muted-foreground hidden md:table-cell">Date</th>
                         {isAdmin && <th className="text-center p-1.5 text-muted-foreground w-8">Act</th>}
@@ -462,14 +462,14 @@ const AdminCompletedOffers = () => {
                               />
                             </td>
                           )}
-                          <td className="p-1.5 text-center text-muted-foreground font-medium hidden sm:table-cell">{startIndex + index + 1}</td>
+                          <td className="p-1.5 text-center text-muted-foreground font-medium">{startIndex + index + 1}</td>
                           <td className="p-1.5 text-muted-foreground text-[8px] max-w-[80px] truncate hidden lg:table-cell" title={row.user_id}>{row.user_id.slice(0, 8)}...</td>
-                          <td className="p-1.5 font-medium text-[9px] sm:text-[9px]">{row.username}</td>
+                          <td className="p-1.5 font-medium text-[9px]">{row.username}</td>
                           <td className="p-1.5 text-muted-foreground hidden sm:table-cell">{row.offerwall}</td>
                           <td className="p-1.5 max-w-[150px] truncate hidden md:table-cell" title={row.offer_name}>{row.offer_name}</td>
                           <td className="p-1.5 text-center">{row.coin}</td>
-                          {isAdmin && <td className="p-1.5 text-center text-green-400">${calculateRevenue(row.coin)}</td>}
                           <td className="p-1.5 text-muted-foreground text-[8px] max-w-[120px] truncate hidden lg:table-cell" title={row.transaction_id || ''}>{row.transaction_id || '-'}</td>
+                          <td className="p-1.5 text-muted-foreground text-[8px] hidden sm:table-cell">{row.ip || '-'}</td>
                           <td className="p-1.5 text-muted-foreground hidden sm:table-cell">{row.country || 'Unknown'}</td>
                           <td className="p-1.5 text-muted-foreground whitespace-nowrap hidden md:table-cell">{formatDate(row.created_at)}</td>
                           {isAdmin && (
@@ -514,16 +514,10 @@ const AdminCompletedOffers = () => {
                 <p className="text-[10px] text-muted-foreground">Total Offers</p>
                 <p className="text-lg font-bold text-primary">{filteredData.length}</p>
               </div>
-              <div className="text-center">
+              <div className="text-right">
                 <p className="text-[10px] text-muted-foreground">Total Coins</p>
                 <p className="text-lg font-bold text-primary">{filteredData.reduce((sum, o) => sum + o.coin, 0).toLocaleString()}</p>
               </div>
-              {isAdmin && (
-                <div className="text-right">
-                  <p className="text-[10px] text-muted-foreground">Total Revenue (USD)</p>
-                  <p className="text-lg font-bold text-green-400">${(filteredData.reduce((sum, o) => sum + o.coin, 0) / 500).toFixed(2)}</p>
-                </div>
-              )}
             </div>
           </div>
 

@@ -139,14 +139,14 @@ const AdminChargeback = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {chargebacks.length === 0 ? (
+                  {filteredChargebacks.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-muted-foreground">
-                        {loading ? 'Loading...' : 'No chargebacks found'}
+                        {loading ? 'Loading...' : searchQuery ? 'No results found' : 'No chargebacks found'}
                       </td>
                     </tr>
                   ) : (
-                    chargebacks.map((cb, i) => (
+                    filteredChargebacks.map((cb, i) => (
                       <tr key={cb.id} style={{ borderBottom: '1px solid #1a1a1a' }} className="hover:bg-white/5">
                         <td className="py-1.5 px-2 text-muted-foreground">{i + 1}</td>
                         <td className="py-1.5 px-2 font-medium">{cb.username}</td>

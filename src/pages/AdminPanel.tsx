@@ -267,17 +267,17 @@ const AdminPanel = () => {
 
   // Stat cards matching the reference image
   const statCards = [
-    { label: 'All users', value: stats.allUsers.toLocaleString(), icon: Users, color: 'text-primary' },
-    { label: 'Completed Offers', value: stats.completedOffers.toLocaleString(), icon: CheckCircle, color: 'text-primary' },
-    { label: 'Total Revenue', value: `$ ${stats.totalRevenue.toFixed(2)}`, icon: CheckCircle, color: 'text-primary' },
-    { label: 'Total pending Withdraw', value: `$ ${stats.totalPendingWithdraw.toFixed(0)}`, icon: CheckCircle, color: 'text-primary' },
+    { label: 'All users', value: stats.allUsers.toLocaleString(), icon: Users, color: 'text-primary', link: '/admin/users' },
+    { label: 'Completed Offers', value: stats.completedOffers.toLocaleString(), icon: CheckCircle, color: 'text-primary', link: '/admin/offers' },
+    { label: 'Total Revenue', value: `$ ${stats.totalRevenue.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', link: '/admin/offers' },
+    { label: 'Total pending Withdraw', value: `$ ${stats.totalPendingWithdraw.toFixed(0)}`, icon: CheckCircle, color: 'text-primary', link: '/admin/withdraw' },
   ];
 
   const statCards2 = [
-    { label: 'Total Withdrawn', value: `$ ${stats.totalWithdrawn.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', hasReset: true },
-    { label: 'Pending Withdraw', value: stats.pendingWithdrawCount.toLocaleString(), icon: ArrowDownCircle, color: 'text-primary' },
-    { label: 'All withdraw History', value: stats.allWithdrawHistory.toLocaleString(), icon: History, color: 'text-primary' },
-    { label: 'Chargeback', value: `$ ${stats.chargeback}`, icon: CheckCircle, color: 'text-primary' },
+    { label: 'Total Withdrawn', value: `$ ${stats.totalWithdrawn.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', hasReset: true, link: '/admin/withdraw' },
+    { label: 'Pending Withdraw', value: stats.pendingWithdrawCount.toLocaleString(), icon: ArrowDownCircle, color: 'text-primary', link: '/admin/withdraw' },
+    { label: 'All withdraw History', value: stats.allWithdrawHistory.toLocaleString(), icon: History, color: 'text-primary', link: '/admin/withdraw' },
+    { label: 'Chargeback', value: `$ ${stats.chargeback}`, icon: CheckCircle, color: 'text-primary', link: '/admin/withdraw' },
   ];
 
   const pendingCount = withdrawalRequests.length;
@@ -303,7 +303,7 @@ const AdminPanel = () => {
         {/* Stats Row 1 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%]">
           {statCards.map((stat, i) => (
-            <div key={i} className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+            <div key={i} onClick={() => navigate(stat.link)} className="p-4 rounded-xl cursor-pointer hover:bg-white/5 transition-colors" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
               <div className="text-[10px] text-muted-foreground mb-1">{stat.label}</div>
               <div className="text-lg font-bold text-foreground">{stat.value}</div>
               <div className="flex items-center gap-1 mt-1">
@@ -317,7 +317,7 @@ const AdminPanel = () => {
         {/* Stats Row 2 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%] pt-3">
           {statCards2.map((stat, i) => (
-            <div key={i} className="p-4 rounded-xl relative" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+            <div key={i} onClick={() => stat.link && navigate(stat.link)} className="p-4 rounded-xl relative cursor-pointer hover:bg-white/5 transition-colors" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
               <div className="text-[10px] text-muted-foreground mb-1">{stat.label}</div>
               <div className="text-lg font-bold text-foreground">{stat.value}</div>
               <div className="flex items-center gap-1 mt-1">

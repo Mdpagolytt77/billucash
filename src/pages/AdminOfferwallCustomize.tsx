@@ -75,6 +75,7 @@ const PROVIDER_OPTIONS = [
   { value: 'timewall', label: 'Timewall' },
   { value: 'bitlab', label: 'BitLab' },
   { value: 'pdavenue', label: 'PD Avenue' },
+  { value: 'playtimeads', label: 'PlaytimeAds' },
   { value: 'custom', label: 'Custom' },
 ];
 

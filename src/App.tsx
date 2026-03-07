@@ -31,6 +31,7 @@ const AdminFeaturedOffers = lazy(() => import("./pages/AdminFeaturedOffers"));
 const AdminPaymentMethods = lazy(() => import("./pages/AdminPaymentMethods"));
 const AdminHomepageImages = lazy(() => import("./pages/AdminHomepageImages"));
 const AdminNotikImport = lazy(() => import("./pages/AdminNotikImport"));
+const AdminChargeback = lazy(() => import("./pages/AdminChargeback"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Withdraw = lazy(() => import("./pages/Withdraw"));
@@ -72,6 +73,7 @@ const App = () => (
                   <Route path="/admin/payment-methods" element={<ProtectedRoute requireAdmin><AdminPaymentMethods /></ProtectedRoute>} />
                   <Route path="/admin/homepage-images" element={<ProtectedRoute requireAdmin><AdminHomepageImages /></ProtectedRoute>} />
                   <Route path="/admin/notik-import" element={<ProtectedRoute requireAdmin><AdminNotikImport /></ProtectedRoute>} />
+                  <Route path="/admin/chargeback" element={<ProtectedRoute requireAdmin><AdminChargeback /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                   <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
                   <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />

@@ -358,36 +358,8 @@ const AdminPanel = () => {
           ))}
         </div>
 
-        {/* All Settings Section */}
-        <div className="px-3 md:px-[5%] py-4">
-          <h3 className="text-sm font-bold text-primary mb-3">All settings</h3>
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={() => navigate('/admin/offerwall')}
-              className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-xs font-semibold transition-colors"
-            >
-              Offerwalls settings
-            </button>
-            <button 
-              onClick={() => navigate('/admin/withdraw')}
-              className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-colors"
-            >
-              Withdraw settings
-            </button>
-            <button 
-              onClick={() => navigate('/admin/roles')}
-              className="px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold transition-colors"
-            >
-              Admin Roles
-            </button>
-            <button 
-              onClick={() => navigate('/admin/live-tracker')}
-              className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-semibold transition-colors"
-            >
-              Live Tracker
-            </button>
-          </div>
-        </div>
+
+
 
         {/* Pending Withdrawals */}
         <div className="mx-3 md:mx-[5%] mb-4">

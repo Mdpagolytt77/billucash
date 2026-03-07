@@ -110,6 +110,19 @@ const AdminChargeback = () => {
             </div>
           </div>
 
+          {/* Search */}
+          <div className="mb-4 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by username, offerwall, offer, transaction ID..."
+              className="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-transparent border focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground"
+              style={{ background: '#111111', borderColor: '#1a1a1a' }}
+            />
+          </div>
+
           {/* Table */}
           <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <div className="overflow-x-auto">

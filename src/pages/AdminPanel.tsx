@@ -287,8 +287,8 @@ const AdminPanel = () => {
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, pageBg)}>
-        <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
+      <div className="min-h-screen" style={{ background: '#000000' }}>
+        <header className="sticky top-0 z-30 px-3 py-2 border-b flex items-center justify-between" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg"><Menu className="w-4 h-4" /></button>
             <SiteLogo size="sm" />
@@ -296,15 +296,20 @@ const AdminPanel = () => {
           <SnowToggle enabled={snowEnabled} onToggle={toggleSnow} />
         </header>
 
+        <div className="px-3 md:px-[5%] pt-4">
+          <h1 className="text-lg font-bold text-foreground mb-4">Dashboard</h1>
+        </div>
+
         {/* Stats Row 1 */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%] pt-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%]">
           {statCards.map((stat, i) => (
-            <div key={i} className="glass-card p-4 text-center rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-2">
-                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+            <div key={i} className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+              <div className="text-[10px] text-muted-foreground mb-1">{stat.label}</div>
+              <div className="text-lg font-bold text-foreground">{stat.value}</div>
+              <div className="flex items-center gap-1 mt-1">
+                <stat.icon className="w-3 h-3 text-primary" />
+                <span className="text-[9px] text-primary">{stat.label}</span>
               </div>
-              <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
-              <div className="text-lg font-bold text-primary">{stat.value}</div>
             </div>
           ))}
         </div>
@@ -312,12 +317,13 @@ const AdminPanel = () => {
         {/* Stats Row 2 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%] pt-3">
           {statCards2.map((stat, i) => (
-            <div key={i} className="glass-card p-4 text-center rounded-xl relative">
-              <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-2">
-                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+            <div key={i} className="p-4 rounded-xl relative" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+              <div className="text-[10px] text-muted-foreground mb-1">{stat.label}</div>
+              <div className="text-lg font-bold text-foreground">{stat.value}</div>
+              <div className="flex items-center gap-1 mt-1">
+                <stat.icon className="w-3 h-3 text-primary" />
+                <span className="text-[9px] text-primary">{stat.label}</span>
               </div>
-              <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
-              <div className="text-lg font-bold text-primary">{stat.value}</div>
               {stat.hasReset && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -385,14 +391,14 @@ const AdminPanel = () => {
 
         {/* Pending Withdrawals */}
         <div className="mx-3 md:mx-[5%] mb-4">
-          <div className="glass-card p-4">
-            <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-              <DollarSign className="w-4 h-4" /> Pending Withdrawals
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+            <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-primary" /> Pending Withdrawals
               <span className="text-xs text-muted-foreground">({pendingCount})</span>
               {isLoadingData && <RefreshCw className="w-3 h-3 animate-spin" />}
             </h2>
 
-            <div className="flex flex-wrap gap-2 mb-3 p-2 rounded-lg bg-muted/50 border border-border">
+            <div className="flex flex-wrap gap-2 mb-3 p-2 rounded-lg border" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
               <button onClick={handleApproveAll} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-500 text-white text-[10px] font-medium">
                 <CheckCircle className="w-3 h-3" /> Approve All
               </button>
@@ -410,14 +416,14 @@ const AdminPanel = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-[10px]">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">User</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Method</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Account</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Amount</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Date</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Status</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Actions</th>
+                  <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">User</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Method</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Account</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Amount</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Date</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Status</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -425,7 +431,7 @@ const AdminPanel = () => {
                     <tr><td colSpan={7} className="text-center py-6 text-muted-foreground"><CheckCircle className="w-8 h-8 mx-auto mb-1 opacity-50" />No pending</td></tr>
                   ) : (
                     withdrawalRequests.map(req => (
-                      <tr key={req.id} className="border-b border-border/50 hover:bg-muted/30">
+                      <tr key={req.id} style={{ borderBottom: '1px solid #1a1a1a' }} className="hover:bg-white/5">
                         <td className="py-1.5 px-2 font-medium">{req.username}</td>
                         <td className="py-1.5 px-2">{req.method}</td>
                         <td className="py-1.5 px-2 text-muted-foreground max-w-[80px] truncate">{req.account}</td>
@@ -449,26 +455,26 @@ const AdminPanel = () => {
 
         {/* Real-time Transactions Section */}
         <div className="mx-3 md:mx-[5%] mb-4">
-          <div className="glass-card p-4">
-            <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-              <Zap className="w-4 h-4" /> Real-time Transactions
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+            <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-primary" /> Real-time Transactions
               <span className="text-xs text-muted-foreground">(Last 50 postbacks)</span>
               {loadingTransactions && <RefreshCw className="w-3 h-3 animate-spin" />}
-              <button onClick={fetchRealtimeTransactions} disabled={loadingTransactions} className="ml-auto p-1.5 bg-primary/20 rounded-lg hover:bg-primary/30">
-                <RefreshCw className={`w-3 h-3 text-primary ${loadingTransactions ? 'animate-spin' : ''}`} />
+              <button onClick={fetchRealtimeTransactions} disabled={loadingTransactions} className="ml-auto p-1.5 rounded-lg hover:bg-white/5">
+                <RefreshCw className={`w-3 h-3 text-muted-foreground ${loadingTransactions ? 'animate-spin' : ''}`} />
               </button>
             </h2>
 
             <div className="overflow-x-auto max-h-64 overflow-y-auto">
               <table className="w-full text-[10px]">
-                <thead className="sticky top-0 bg-background">
-                  <tr className="border-b border-border">
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Timestamp</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Transaction ID</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">User</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Offerwall</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Offer</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Coins</th>
+                <thead className="sticky top-0" style={{ background: '#111111' }}>
+                  <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Timestamp</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Transaction ID</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">User</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Offerwall</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Offer</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Coins</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -478,7 +484,7 @@ const AdminPanel = () => {
                     </td></tr>
                   ) : (
                     realtimeTransactions.map(tx => (
-                      <tr key={tx.id} className="border-b border-border/50 hover:bg-muted/30">
+                      <tr key={tx.id} style={{ borderBottom: '1px solid #1a1a1a' }} className="hover:bg-white/5">
                         <td className="py-1.5 px-2 text-muted-foreground">
                           {new Date(tx.created_at).toLocaleString()}
                         </td>

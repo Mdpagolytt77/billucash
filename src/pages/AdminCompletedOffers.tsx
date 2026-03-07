@@ -339,11 +339,11 @@ const AdminCompletedOffers = () => {
           </AlertDialog>
 
           <div className="glass-card p-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-              <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4" /> Completed Offers <span className="text-[10px] text-muted-foreground">({filteredData.length})</span>
-              </h2>
-              <div className="flex gap-2 items-center">
+            <div className="flex flex-col gap-2 mb-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4" /> Completed Offers <span className="text-[10px] text-muted-foreground">({filteredData.length})</span>
+                </h2>
                 {isAdmin && selectedIds.size > 0 && (
                   <button
                     onClick={() => setShowDeleteDialog(true)}
@@ -353,14 +353,16 @@ const AdminCompletedOffers = () => {
                     Delete ({selectedIds.size})
                   </button>
                 )}
+              </div>
+              <div className="flex flex-wrap gap-1.5 items-center">
                 <div className="relative">
                   <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search user..." className="w-40 pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" />
+                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search user..." className="w-28 sm:w-40 pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]" />
                 </div>
                 <select 
                   value={selectedOfferwall} 
                   onChange={(e) => setSelectedOfferwall(e.target.value)} 
-                  className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] min-w-[100px]"
+                  className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px] max-w-[90px] sm:max-w-none sm:min-w-[100px]"
                 >
                   <option value="all">All Walls</option>
                   {offerwallList.map(wall => (
@@ -370,7 +372,7 @@ const AdminCompletedOffers = () => {
                 <select 
                   value={selectedCountry} 
                   onChange={(e) => setSelectedCountry(e.target.value)} 
-                  className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] min-w-[100px]"
+                  className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px] max-w-[90px] sm:max-w-none sm:min-w-[100px]"
                 >
                   <option value="all">All Countries</option>
                   {uniqueCountries.map(c => (
@@ -378,28 +380,22 @@ const AdminCompletedOffers = () => {
                   ))}
                 </select>
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground">From:</span>
-                  <div className="relative">
-                    <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                    <input 
-                      type="date" 
-                      value={dateFrom} 
-                      onChange={(e) => setDateFrom(e.target.value)} 
-                      className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-32"
-                    />
-                  </div>
+                  <span className="text-[10px] text-muted-foreground hidden sm:inline">From:</span>
+                  <input 
+                    type="date" 
+                    value={dateFrom} 
+                    onChange={(e) => setDateFrom(e.target.value)} 
+                    className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-[110px] sm:w-32"
+                  />
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground">To:</span>
-                  <div className="relative">
-                    <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                    <input 
-                      type="date" 
-                      value={dateTo} 
-                      onChange={(e) => setDateTo(e.target.value)} 
-                      className="pl-6 pr-2 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-32"
-                    />
-                  </div>
+                  <span className="text-[10px] text-muted-foreground hidden sm:inline">To:</span>
+                  <input 
+                    type="date" 
+                    value={dateTo} 
+                    onChange={(e) => setDateTo(e.target.value)} 
+                    className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px] w-[110px] sm:w-32"
+                  />
                 </div>
                 {(dateFrom || dateTo || selectedCountry !== 'all') && (
                   <button 
@@ -409,7 +405,7 @@ const AdminCompletedOffers = () => {
                     Clear
                   </button>
                 )}
-                <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="px-2 py-1.5 bg-muted border border-border rounded-lg text-[10px]">
+                <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="px-1.5 py-1.5 bg-muted border border-border rounded-lg text-[10px]">
                   {[10, 15, 25, 50].map(n => <option key={n} value={n}>{n} rows</option>)}
                 </select>
               </div>
@@ -427,7 +423,7 @@ const AdminCompletedOffers = () => {
             ) : (
               <>
                 <div className="overflow-auto max-h-[55vh] border border-border rounded-lg">
-                  <table className="w-full text-[9px] min-w-[1200px]">
+                  <table className="w-full text-[9px]">
                     <thead className="sticky top-0 bg-muted/90">
                       <tr>
                         {isAdmin && (
@@ -440,18 +436,17 @@ const AdminCompletedOffers = () => {
                             />
                           </th>
                         )}
-                        <th className="text-center p-1.5 text-muted-foreground w-10">#</th>
-                        <th className="text-left p-1.5 text-muted-foreground">User ID</th>
+                        <th className="text-center p-1.5 text-muted-foreground w-10 hidden sm:table-cell">#</th>
+                        <th className="text-left p-1.5 text-muted-foreground hidden lg:table-cell">User ID</th>
                         <th className="text-left p-1.5 text-muted-foreground">Username</th>
-                        <th className="text-left p-1.5 text-muted-foreground">Offerwall</th>
-                        <th className="text-left p-1.5 text-muted-foreground">Offer Name</th>
+                        <th className="text-left p-1.5 text-muted-foreground hidden sm:table-cell">Offerwall</th>
+                        <th className="text-left p-1.5 text-muted-foreground hidden md:table-cell">Offer Name</th>
                         <th className="text-center p-1.5 text-muted-foreground">Coin</th>
-                        {isAdmin && <th className="text-center p-1.5 text-muted-foreground">Amount</th>}
                         {isAdmin && <th className="text-center p-1.5 text-muted-foreground">Revenue</th>}
-                        <th className="text-left p-1.5 text-muted-foreground">Transaction ID</th>
-                        <th className="text-left p-1.5 text-muted-foreground">Country</th>
-                        <th className="text-left p-1.5 text-muted-foreground">Date Time</th>
-                        {isAdmin && <th className="text-center p-1.5 text-muted-foreground">Action</th>}
+                        <th className="text-left p-1.5 text-muted-foreground hidden lg:table-cell">Transaction ID</th>
+                        <th className="text-left p-1.5 text-muted-foreground hidden sm:table-cell">Country</th>
+                        <th className="text-left p-1.5 text-muted-foreground hidden md:table-cell">Date</th>
+                        {isAdmin && <th className="text-center p-1.5 text-muted-foreground w-8">Act</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -467,17 +462,16 @@ const AdminCompletedOffers = () => {
                               />
                             </td>
                           )}
-                          <td className="p-1.5 text-center text-muted-foreground font-medium">{startIndex + index + 1}</td>
-                          <td className="p-1.5 text-muted-foreground text-[8px] max-w-[80px] truncate" title={row.user_id}>{row.user_id.slice(0, 8)}...</td>
-                          <td className="p-1.5 font-medium">{row.username}</td>
-                          <td className="p-1.5 text-muted-foreground">{row.offerwall}</td>
-                          <td className="p-1.5 max-w-[150px] truncate" title={row.offer_name}>{row.offer_name}</td>
+                          <td className="p-1.5 text-center text-muted-foreground font-medium hidden sm:table-cell">{startIndex + index + 1}</td>
+                          <td className="p-1.5 text-muted-foreground text-[8px] max-w-[80px] truncate hidden lg:table-cell" title={row.user_id}>{row.user_id.slice(0, 8)}...</td>
+                          <td className="p-1.5 font-medium text-[9px] sm:text-[9px]">{row.username}</td>
+                          <td className="p-1.5 text-muted-foreground hidden sm:table-cell">{row.offerwall}</td>
+                          <td className="p-1.5 max-w-[150px] truncate hidden md:table-cell" title={row.offer_name}>{row.offer_name}</td>
                           <td className="p-1.5 text-center">{row.coin}</td>
-                          {isAdmin && <td className="p-1.5 text-center text-green-400">${calculateAmount(row.coin)}</td>}
-                          {isAdmin && <td className="p-1.5 text-center text-primary">${calculateRevenue(row.coin)}</td>}
-                          <td className="p-1.5 text-muted-foreground text-[8px] max-w-[120px] truncate" title={row.transaction_id || ''}>{row.transaction_id || '-'}</td>
-                          <td className="p-1.5 text-muted-foreground">{row.country || 'Unknown'}</td>
-                          <td className="p-1.5 text-muted-foreground whitespace-nowrap">{formatDate(row.created_at)}</td>
+                          {isAdmin && <td className="p-1.5 text-center text-green-400">${calculateRevenue(row.coin)}</td>}
+                          <td className="p-1.5 text-muted-foreground text-[8px] max-w-[120px] truncate hidden lg:table-cell" title={row.transaction_id || ''}>{row.transaction_id || '-'}</td>
+                          <td className="p-1.5 text-muted-foreground hidden sm:table-cell">{row.country || 'Unknown'}</td>
+                          <td className="p-1.5 text-muted-foreground whitespace-nowrap hidden md:table-cell">{formatDate(row.created_at)}</td>
                           {isAdmin && (
                             <td className="p-1.5 text-center">
                               <button

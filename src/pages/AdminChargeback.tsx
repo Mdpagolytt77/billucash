@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Menu, AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Menu, AlertCircle, RefreshCw, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
@@ -27,6 +27,18 @@ const AdminChargeback = () => {
   const [chargebacks, setChargebacks] = useState<ChargebackEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalChargeback, setTotalChargeback] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredChargebacks = useMemo(() => {
+    if (!searchQuery.trim()) return chargebacks;
+    const q = searchQuery.toLowerCase();
+    return chargebacks.filter(cb =>
+      cb.username.toLowerCase().includes(q) ||
+      cb.offerwall.toLowerCase().includes(q) ||
+      cb.offer_name.toLowerCase().includes(q) ||
+      (cb.transaction_id && cb.transaction_id.toLowerCase().includes(q))
+    );
+  }, [chargebacks, searchQuery]);
 
   const fetchChargebacks = async () => {
     setLoading(true);
@@ -98,6 +110,19 @@ const AdminChargeback = () => {
             </div>
           </div>
 
+          {/* Search */}
+          <div className="mb-4 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by username, offerwall, offer, transaction ID..."
+              className="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-transparent border focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground"
+              style={{ background: '#111111', borderColor: '#1a1a1a' }}
+            />
+          </div>
+
           {/* Table */}
           <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <div className="overflow-x-auto">
@@ -114,14 +139,14 @@ const AdminChargeback = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {chargebacks.length === 0 ? (
+                  {filteredChargebacks.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-muted-foreground">
-                        {loading ? 'Loading...' : 'No chargebacks found'}
+                        {loading ? 'Loading...' : searchQuery ? 'No results found' : 'No chargebacks found'}
                       </td>
                     </tr>
                   ) : (
-                    chargebacks.map((cb, i) => (
+                    filteredChargebacks.map((cb, i) => (
                       <tr key={cb.id} style={{ borderBottom: '1px solid #1a1a1a' }} className="hover:bg-white/5">
                         <td className="py-1.5 px-2 text-muted-foreground">{i + 1}</td>
                         <td className="py-1.5 px-2 font-medium">{cb.username}</td>

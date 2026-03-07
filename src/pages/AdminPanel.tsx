@@ -391,14 +391,14 @@ const AdminPanel = () => {
 
         {/* Pending Withdrawals */}
         <div className="mx-3 md:mx-[5%] mb-4">
-          <div className="glass-card p-4">
-            <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-              <DollarSign className="w-4 h-4" /> Pending Withdrawals
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+            <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-primary" /> Pending Withdrawals
               <span className="text-xs text-muted-foreground">({pendingCount})</span>
               {isLoadingData && <RefreshCw className="w-3 h-3 animate-spin" />}
             </h2>
 
-            <div className="flex flex-wrap gap-2 mb-3 p-2 rounded-lg bg-muted/50 border border-border">
+            <div className="flex flex-wrap gap-2 mb-3 p-2 rounded-lg border" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
               <button onClick={handleApproveAll} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-500 text-white text-[10px] font-medium">
                 <CheckCircle className="w-3 h-3" /> Approve All
               </button>
@@ -416,14 +416,14 @@ const AdminPanel = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-[10px]">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">User</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Method</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Account</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Amount</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Date</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Status</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Actions</th>
+                  <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">User</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Method</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Account</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Amount</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Date</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Status</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -431,7 +431,7 @@ const AdminPanel = () => {
                     <tr><td colSpan={7} className="text-center py-6 text-muted-foreground"><CheckCircle className="w-8 h-8 mx-auto mb-1 opacity-50" />No pending</td></tr>
                   ) : (
                     withdrawalRequests.map(req => (
-                      <tr key={req.id} className="border-b border-border/50 hover:bg-muted/30">
+                      <tr key={req.id} style={{ borderBottom: '1px solid #1a1a1a' }} className="hover:bg-white/5">
                         <td className="py-1.5 px-2 font-medium">{req.username}</td>
                         <td className="py-1.5 px-2">{req.method}</td>
                         <td className="py-1.5 px-2 text-muted-foreground max-w-[80px] truncate">{req.account}</td>

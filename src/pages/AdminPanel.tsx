@@ -455,26 +455,26 @@ const AdminPanel = () => {
 
         {/* Real-time Transactions Section */}
         <div className="mx-3 md:mx-[5%] mb-4">
-          <div className="glass-card p-4">
-            <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-              <Zap className="w-4 h-4" /> Real-time Transactions
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+            <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-primary" /> Real-time Transactions
               <span className="text-xs text-muted-foreground">(Last 50 postbacks)</span>
               {loadingTransactions && <RefreshCw className="w-3 h-3 animate-spin" />}
-              <button onClick={fetchRealtimeTransactions} disabled={loadingTransactions} className="ml-auto p-1.5 bg-primary/20 rounded-lg hover:bg-primary/30">
-                <RefreshCw className={`w-3 h-3 text-primary ${loadingTransactions ? 'animate-spin' : ''}`} />
+              <button onClick={fetchRealtimeTransactions} disabled={loadingTransactions} className="ml-auto p-1.5 rounded-lg hover:bg-white/5">
+                <RefreshCw className={`w-3 h-3 text-muted-foreground ${loadingTransactions ? 'animate-spin' : ''}`} />
               </button>
             </h2>
 
             <div className="overflow-x-auto max-h-64 overflow-y-auto">
               <table className="w-full text-[10px]">
-                <thead className="sticky top-0 bg-background">
-                  <tr className="border-b border-border">
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Timestamp</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Transaction ID</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">User</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Offerwall</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Offer</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Coins</th>
+                <thead className="sticky top-0" style={{ background: '#111111' }}>
+                  <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Timestamp</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Transaction ID</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">User</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Offerwall</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Offer</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Coins</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -484,7 +484,7 @@ const AdminPanel = () => {
                     </td></tr>
                   ) : (
                     realtimeTransactions.map(tx => (
-                      <tr key={tx.id} className="border-b border-border/50 hover:bg-muted/30">
+                      <tr key={tx.id} style={{ borderBottom: '1px solid #1a1a1a' }} className="hover:bg-white/5">
                         <td className="py-1.5 px-2 text-muted-foreground">
                           {new Date(tx.created_at).toLocaleString()}
                         </td>

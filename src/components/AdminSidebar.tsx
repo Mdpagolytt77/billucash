@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Users, Wallet, FileCheck, Palette, Layers, 
-  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2, Shield, Building2, Star, CreditCard, Activity, Upload 
+  Volume2, Image, Key, LogOut, X, ArrowLeft, Share2, Shield, Building2, Star, CreditCard, Activity, Upload, AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
@@ -41,6 +41,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Image, label: 'Background', path: '/admin/background' },
     { icon: Image, label: 'Homepage Images', path: '/admin/homepage-images' },
     { icon: Upload, label: 'Notik Import', path: '/admin/notik-import' },
+    { icon: AlertTriangle, label: 'Chargeback', path: '/admin/chargeback' },
     { icon: Key, label: 'Password', path: '/admin/password' },
   ];
 

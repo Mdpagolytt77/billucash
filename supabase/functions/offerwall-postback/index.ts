@@ -152,7 +152,17 @@ Deno.serve(async (req) => {
 
     let verified = false;
 
-    if (apiKey && secretToUse && apiKey === secretToUse) {
+    // PlaytimeAds uses SHA1: sha1(user_id + offer_id + event + APP_KEY + SECRET_KEY)
+    const isPlaytimeAds = matchedOfferwall?.name?.toLowerCase().includes('playtime');
+    
+    if (isPlaytimeAds && signature && matchedOfferwall?.apiKey && matchedOfferwall?.secretKey) {
+      const offerId = params.get('offer_id') || transactionId || '';
+      const sha1Payload = `${userId}${offerId}${event || ''}${matchedOfferwall.apiKey}${matchedOfferwall.secretKey}`;
+      const expectedSig = await sha1Hex(sha1Payload);
+      if (expectedSig === signature.toLowerCase()) {
+        verified = true;
+      }
+    } else if (apiKey && secretToUse && apiKey === secretToUse) {
       verified = true;
     } else if (signature && secretToUse) {
       const payloads = [

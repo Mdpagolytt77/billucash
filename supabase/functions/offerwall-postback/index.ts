@@ -10,6 +10,11 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+async function sha1Hex(data: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(data));
+  return bytesToHex(new Uint8Array(buf));
+}
+
 async function verifyHmacSha256(secret: string, payload: string, signature: string): Promise<boolean> {
   try {
     const encoder = new TextEncoder();

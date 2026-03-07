@@ -303,7 +303,7 @@ const AdminPanel = () => {
         {/* Stats Row 1 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-3 md:px-[5%]">
           {statCards.map((stat, i) => (
-            <div key={i} className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
+            <div key={i} onClick={() => navigate(stat.link)} className="p-4 rounded-xl cursor-pointer hover:bg-white/5 transition-colors" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
               <div className="text-[10px] text-muted-foreground mb-1">{stat.label}</div>
               <div className="text-lg font-bold text-foreground">{stat.value}</div>
               <div className="flex items-center gap-1 mt-1">

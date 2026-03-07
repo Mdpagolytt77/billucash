@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Menu, AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Menu, AlertCircle, RefreshCw, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';

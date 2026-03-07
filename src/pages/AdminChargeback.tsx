@@ -27,6 +27,18 @@ const AdminChargeback = () => {
   const [chargebacks, setChargebacks] = useState<ChargebackEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalChargeback, setTotalChargeback] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredChargebacks = useMemo(() => {
+    if (!searchQuery.trim()) return chargebacks;
+    const q = searchQuery.toLowerCase();
+    return chargebacks.filter(cb =>
+      cb.username.toLowerCase().includes(q) ||
+      cb.offerwall.toLowerCase().includes(q) ||
+      cb.offer_name.toLowerCase().includes(q) ||
+      (cb.transaction_id && cb.transaction_id.toLowerCase().includes(q))
+    );
+  }, [chargebacks, searchQuery]);
 
   const fetchChargebacks = async () => {
     setLoading(true);

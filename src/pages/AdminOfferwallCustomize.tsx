@@ -74,6 +74,7 @@ const PROVIDER_OPTIONS = [
   { value: 'tplayad', label: 'Tplayad' },
   { value: 'timewall', label: 'Timewall' },
   { value: 'bitlab', label: 'BitLab' },
+  { value: 'pdavenue', label: 'PD Avenue' },
   { value: 'custom', label: 'Custom' },
 ];
 
@@ -157,6 +158,10 @@ const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: st
   // BitLab uses uid (USER:ID), tx (TX), val (VALUE:CURRENCY), hash for verification
   bitlab: (baseUrl, wallName) => 
     `${baseUrl}?uid={USER:ID}&tx={TX}&val={VALUE:CURRENCY}&offer_name={OFFER:TASK:ID}&country={USER:COUNTRY}&hash={HASH}&offerwall=${wallName}`,
+
+  // PD Avenue uses user_id, offer_id, payout, amount, signature for HMAC verification
+  pdavenue: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={user_id}&offer_name={offer_name}&payout={payout}&amount={amount}&transaction_id={offer_id}&signature={signature}&event={event}&offerwall=${wallName}`,
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {

@@ -100,6 +100,8 @@ Deno.serve(async (req) => {
     // Find matching offerwall config
     let matchedOfferwall: OfferwallConfig | null = null;
     const normalizedName = offerwallName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    
+    // First try matching by name
     for (const ow of offerwalls) {
       const owName = ow.name.toLowerCase().replace(/[^a-z0-9]/g, '');
       if (ow.enabled && (owName === normalizedName || owName.includes(normalizedName) || normalizedName.includes(owName))) {
@@ -109,9 +111,39 @@ Deno.serve(async (req) => {
     }
 
     // Signature verification
-    const secretToUse = matchedOfferwall?.secretKey || matchedOfferwall?.apiKey || postbackSecret;
     const signature = params.get('sig') || params.get('signature') || params.get('hash') || req.headers.get('x-signature');
     const apiKey = params.get('api_key') || params.get('apikey') || req.headers.get('x-api-key');
+
+    // If no offerwall matched by name, try matching by secret key / api key
+    if (!matchedOfferwall && (apiKey || signature)) {
+      for (const ow of offerwalls) {
+        if (!ow.enabled) continue;
+        const owSecret = ow.secretKey || ow.apiKey;
+        if (!owSecret) continue;
+        // Match by api_key parameter
+        if (apiKey && apiKey === owSecret) {
+          matchedOfferwall = ow;
+          break;
+        }
+        // Match by HMAC signature
+        if (signature) {
+          const payloads = [
+            `${userId}${payout}${transactionId || ''}`,
+            `${owSecret}${userId}${transactionId}${payout}`,
+            `${owSecret}${userId}${payout}`,
+          ];
+          for (const p of payloads) {
+            if (await verifyHmacSha256(owSecret, p, signature)) {
+              matchedOfferwall = ow;
+              break;
+            }
+          }
+          if (matchedOfferwall) break;
+        }
+      }
+    }
+
+    const secretToUse = matchedOfferwall?.secretKey || matchedOfferwall?.apiKey || postbackSecret;
 
     let verified = false;
 

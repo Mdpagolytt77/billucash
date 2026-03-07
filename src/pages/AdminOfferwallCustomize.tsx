@@ -163,6 +163,10 @@ const PROVIDER_POSTBACK_TEMPLATES: Record<string, (baseUrl: string, wallName: st
   // PD Avenue uses user_id, offer_id, payout, amount, signature for HMAC verification
   pdavenue: (baseUrl, wallName) => 
     `${baseUrl}?user_id={user_id}&offer_name={offer_name}&payout={payout}&amount={amount}&transaction_id={offer_id}&signature={signature}&event={event}&offerwall=${wallName}`,
+
+  // PlaytimeAds uses user_id, offer_id, payout, offer_name, signature
+  playtimeads: (baseUrl, wallName) => 
+    `${baseUrl}?user_id={user_id}&offer_name={offer_name}&payout={payout}&amount={amount}&transaction_id={offer_id}&signature={signature}&event={event}&offerwall=${wallName}`,
 };
 
 const generatePostbackUrl = (wallName: string, provider: string) => {

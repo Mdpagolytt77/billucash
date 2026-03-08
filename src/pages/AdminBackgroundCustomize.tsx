@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { ImageIcon, Menu, Save, RotateCcw, Upload, LinkIcon } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo, useSiteSettings, getBackgroundStyle, BackgroundSettings, PageBackgrounds } from '@/contexts/SiteSettingsContext';
+import { SiteLogo, useSiteSettings, BackgroundSettings, PageBackgrounds } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 

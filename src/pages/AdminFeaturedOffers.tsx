@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Trash2, Save, GripVertical, Image, Link, ToggleLeft, ToggleRight, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import heroBg from '@/assets/hero-bg.jpg';
-import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Activity, Play, Pause, Gauge, Hand, ClipboardList, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Activity, Play, Pause, Gauge, Hand, ClipboardList, Eye, EyeOff, Menu } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -9,11 +9,9 @@ import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo, useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import heroBg from '@/assets/hero-bg.jpg';
-import { Menu } from 'lucide-react';
 
 interface TrackerSettings {
   enabled: boolean;

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
-import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { ArrowLeft, Plus, Trash2, Upload, Loader2, Image as ImageIcon, Menu } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import AdminSidebar from '@/components/AdminSidebar';
+import { toast } from 'sonner';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Layers, Menu, Save, RotateCcw, Plus, Trash2, X, Globe, Copy, Check, Zap, Upload, Loader2, Lock, Settings, Eye, EyeOff, Percent, Link2, Tag, ToggleLeft, ToggleRight } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo, useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';

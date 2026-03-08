@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Upload, Save, CreditCard, Image, Menu } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
-import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import AdminSidebar from '@/components/AdminSidebar';

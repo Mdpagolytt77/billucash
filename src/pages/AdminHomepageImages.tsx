@@ -145,7 +145,7 @@ const AdminHomepageImages = () => {
 
           <div className="space-y-4">
             {imageFields.map((field) => (
-              <div key={field.key} className="glass-card rounded-xl p-4">
+              <div key={field.key} className="rounded-xl p-4" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="text-sm font-bold">{field.label}</h3>

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
-import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { ArrowLeft, Plus, Trash2, Upload, Loader2, Image as ImageIcon, Menu } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/contexts/SiteSettingsContext';
+import AdminSidebar from '@/components/AdminSidebar';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +19,8 @@ interface ProviderLogo {
 const AdminProvidersCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
-  const { backgrounds } = useSiteSettings();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [providerLogos, setProviderLogos] = useState<ProviderLogo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -142,9 +142,9 @@ const AdminProvidersCustomize = () => {
   }
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
-      {/* Header */}
-      <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
+    <div className="min-h-screen" style={{ background: '#000000' }}>
+      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <header className="sticky top-0 z-30 px-3 py-2 border-b flex items-center justify-between" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
         <div className="flex items-center gap-2">
           <Link to="/admin" className="p-1.5 hover:bg-muted rounded-lg">
             <ArrowLeft className="w-4 h-4" />

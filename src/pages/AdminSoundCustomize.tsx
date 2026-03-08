@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Volume2, Menu, Save, RotateCcw, VolumeX, Play } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo, useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -22,7 +21,7 @@ const AdminSoundCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
-  const { backgrounds } = useSiteSettings();
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<SoundSettings>({ enabled: true, loginSound: true, signupSound: true, balanceSound: true, volume: 70 });
   const [isSaving, setIsSaving] = useState(false);
@@ -67,8 +66,8 @@ const AdminSoundCustomize = () => {
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
-        <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
+      <div className="min-h-screen" style={{ background: '#000000' }}>
+        <header className="sticky top-0 z-30 px-3 py-2 border-b flex items-center justify-between" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg"><Menu className="w-4 h-4" /></button>
             <SiteLogo size="sm" />
@@ -78,7 +77,7 @@ const AdminSoundCustomize = () => {
         </header>
 
         <main className="p-3 md:px-[5%] max-w-md mx-auto">
-          <div className="glass-card p-4">
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-4"><Volume2 className="w-4 h-4" /> Sound Customize</h2>
 
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border mb-4">

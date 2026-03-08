@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Activity, Play, Pause, Gauge, Hand, ClipboardList, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Activity, Play, Pause, Gauge, Hand, ClipboardList, Eye, EyeOff, Menu } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -9,11 +9,9 @@ import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
 import { useAuth } from '@/contexts/AuthContext';
-import { SiteLogo, useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import heroBg from '@/assets/hero-bg.jpg';
-import { Menu } from 'lucide-react';
 
 interface TrackerSettings {
   enabled: boolean;
@@ -28,7 +26,7 @@ const AdminLiveTrackerCustomize = () => {
   const canAccess = isAdmin || isModerator;
   const navigate = useNavigate();
   const { snowEnabled, toggleSnow } = useSnowEffect();
-  const { backgrounds } = useSiteSettings();
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<TrackerSettings>({
     enabled: true,
@@ -114,10 +112,10 @@ const AdminLiveTrackerCustomize = () => {
 
       <div 
         className="min-h-screen"
-        style={getBackgroundStyle(backgrounds.admin, heroBg)}
+        style={{ background: '#000000' }}
       >
         {/* Header */}
-        <header className="sticky top-0 z-30 px-3 py-2 bg-background/95 border-b border-border flex items-center justify-between">
+        <header className="sticky top-0 z-30 px-3 py-2 border-b flex items-center justify-between" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-muted rounded-lg">
               <Menu className="w-4 h-4" />
@@ -136,7 +134,7 @@ const AdminLiveTrackerCustomize = () => {
             <ArrowLeft className="w-4 h-4" /> Back to Admin Panel
           </button>
 
-          <div className="glass-card p-6 rounded-xl max-w-2xl mx-auto">
+          <div className="p-6 rounded-xl max-w-2xl mx-auto" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <h1 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
               <Activity className="w-5 h-5" /> Live Tracker Settings
             </h1>

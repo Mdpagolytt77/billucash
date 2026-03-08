@@ -3,12 +3,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Menu, Save } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
-import { useSiteSettings, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
 import AdminSidebar from '@/components/AdminSidebar';
 import SnowEffect from '@/components/SnowEffect';
 import SnowToggle from '@/components/SnowToggle';
 import { useSnowEffect } from '@/hooks/useSnowEffect';
+import { SiteLogo } from '@/contexts/SiteSettingsContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -35,7 +34,7 @@ const AdminSocialLinksCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
   const { snowEnabled, toggleSnow } = useSnowEffect();
-  const { backgrounds } = useSiteSettings();
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -136,12 +135,12 @@ const AdminSocialLinksCustomize = () => {
   }
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
+    <div className="min-h-screen" style={{ background: '#000000' }}>
       {snowEnabled && <SnowEffect />}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/90 backdrop-blur border-b border-border px-4 py-3">
+      <header className="sticky top-0 z-30 border-b px-4 py-3" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
             <button
@@ -158,7 +157,7 @@ const AdminSocialLinksCustomize = () => {
 
       {/* Content */}
       <main className="max-w-4xl mx-auto p-4 pb-20">
-        <div className="glass-card p-6 rounded-xl border border-border">
+        <div className="p-6 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
           <div className="space-y-4">
             {SOCIAL_PLATFORMS.map((platform) => (
               <div key={platform.key}>

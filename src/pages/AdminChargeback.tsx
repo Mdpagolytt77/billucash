@@ -99,14 +99,10 @@ const AdminChargeback = () => {
           </div>
 
           {/* Summary */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-1 gap-3 mb-4">
             <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
               <div className="text-[10px] text-muted-foreground mb-1">Total Chargebacks</div>
               <div className="text-lg font-bold text-red-400">{chargebacks.length}</div>
-            </div>
-            <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
-              <div className="text-[10px] text-muted-foreground mb-1">Total Amount</div>
-              <div className="text-lg font-bold text-red-400">$ {totalChargeback.toFixed(2)}</div>
             </div>
           </div>
 

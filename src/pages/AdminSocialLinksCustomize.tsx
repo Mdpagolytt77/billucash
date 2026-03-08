@@ -157,7 +157,7 @@ const AdminSocialLinksCustomize = () => {
 
       {/* Content */}
       <main className="max-w-4xl mx-auto p-4 pb-20">
-        <div className="glass-card p-6 rounded-xl border border-border">
+        <div className="p-6 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
           <div className="space-y-4">
             {SOCIAL_PLATFORMS.map((platform) => (
               <div key={platform.key}>

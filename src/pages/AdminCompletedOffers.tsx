@@ -337,7 +337,7 @@ const AdminCompletedOffers = () => {
             </AlertDialogContent>
           </AlertDialog>
 
-          <div className="glass-card p-3">
+          <div className="p-3 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <div className="flex flex-col gap-2 mb-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
@@ -507,7 +507,7 @@ const AdminCompletedOffers = () => {
           </div>
 
           {/* Total Summary */}
-          <div className="glass-card p-3 mt-3">
+          <div className="p-3 mt-3 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] text-muted-foreground">Total Offers</p>

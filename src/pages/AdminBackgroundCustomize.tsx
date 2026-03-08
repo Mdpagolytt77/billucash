@@ -140,7 +140,7 @@ const AdminBackgroundCustomize = () => {
         </header>
 
         <main className="p-3 md:px-[5%] max-w-md mx-auto">
-          <div className="glass-card p-4">
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-4"><ImageIcon className="w-4 h-4" /> Background Customize</h2>
 
             {/* Page Tabs */}

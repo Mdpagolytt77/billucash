@@ -230,7 +230,7 @@ const AdminRoleManagement = () => {
 
         <main className="p-3 md:px-[5%]">
           {/* Info Card */}
-          <div className="glass-card p-3 mb-3 border-l-4 border-primary">
+          <div className="p-3 mb-3 border-l-4 border-primary rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a', borderLeft: '4px solid hsl(var(--primary))' }}>
             <h3 className="text-xs font-bold text-primary mb-1">🔐 Admin & Moderator Management</h3>
             <p className="text-[10px] text-muted-foreground">
               1 জন Main Admin এবং সর্বোচ্চ 3 জন Moderator রাখতে পারবেন। Real-time আপডেট হয়।
@@ -258,7 +258,7 @@ const AdminRoleManagement = () => {
           </div>
 
           {/* Main Admin Section */}
-          <div className="glass-card p-3 mb-3 border border-yellow-500/30">
+          <div className="p-3 mb-3 rounded-xl" style={{ background: '#111111', border: '1px solid rgba(234,179,8,0.3)' }}>
             <h2 className="text-sm font-bold text-yellow-500 flex items-center gap-1.5 mb-3">
               <Crown className="w-4 h-4" /> Main Admin
               <span className="text-[10px] bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-full">
@@ -294,7 +294,7 @@ const AdminRoleManagement = () => {
           </div>
 
           {/* Moderators Section */}
-          <div className="glass-card p-3 mb-3 border border-blue-500/30">
+          <div className="p-3 mb-3 rounded-xl" style={{ background: '#111111', border: '1px solid rgba(59,130,246,0.3)' }}>
             <h2 className="text-sm font-bold text-blue-500 flex items-center gap-1.5 mb-3">
               <Shield className="w-4 h-4" /> Moderators
               <span className="text-[10px] bg-blue-500/20 text-blue-500 px-1.5 py-0.5 rounded-full">
@@ -330,7 +330,7 @@ const AdminRoleManagement = () => {
           </div>
 
           {/* Regular Users Section */}
-          <div className="glass-card p-3">
+          <div className="p-3 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5 mb-3">
               <Users className="w-4 h-4" /> Regular Users
               <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{regularUsers.length}</span>

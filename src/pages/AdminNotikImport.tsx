@@ -133,7 +133,7 @@ const AdminNotikImport = () => {
             নিচের "Fetch from API" বাটন চাপো — অটো JSON নিয়ে আসবে। যদি কাজ না করে, browser এ URL open করে manually paste করো।
           </p>
 
-          <div className="glass-card p-4 rounded-xl mb-4">
+          <div className="p-4 rounded-xl mb-4" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <button onClick={handleFetchFromAPI} disabled={fetching}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent hover:bg-accent/80 text-accent-foreground text-xs font-semibold disabled:opacity-50 transition-colors mb-3 w-full justify-center">
               {fetching ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
@@ -159,7 +159,7 @@ const AdminNotikImport = () => {
           </div>
 
           {lastResult && (
-            <div className="glass-card p-3 rounded-xl">
+            <div className="p-3 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
               <p className="text-xs font-medium text-primary">
                 ✅ {lastResult.synced} offers imported
                 {lastResult.errors > 0 && <span className="text-destructive ml-2">❌ {lastResult.errors} failed</span>}

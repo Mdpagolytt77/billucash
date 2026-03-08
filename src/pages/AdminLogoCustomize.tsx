@@ -275,7 +275,7 @@ const AdminLogoCustomize = () => {
 
         <main className="p-3 md:px-[5%] max-w-md mx-auto space-y-4">
           {/* Logo Customize */}
-          <div className="glass-card p-4">
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-4">
               <Palette className="w-4 h-4" /> Logo Customize
             </h2>
@@ -323,7 +323,7 @@ const AdminLogoCustomize = () => {
           </div>
 
           {/* Coin Icon Customize */}
-          <div className="glass-card p-4">
+          <div className="p-4 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <h2 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-4">
               <Coins className="w-4 h-4" /> Coin Icon Customize
             </h2>

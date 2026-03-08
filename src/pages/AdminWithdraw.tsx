@@ -96,7 +96,7 @@ const AdminWithdraw = () => {
         </header>
 
         <main className="p-3 md:px-[5%]">
-          <div className="glass-card p-3">
+          <div className="p-3 rounded-xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <h2 className="text-sm font-bold text-primary flex items-center gap-1.5">
                 <Wallet className="w-4 h-4" /> Withdrawals

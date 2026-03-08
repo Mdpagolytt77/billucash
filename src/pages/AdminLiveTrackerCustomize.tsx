@@ -134,7 +134,7 @@ const AdminLiveTrackerCustomize = () => {
             <ArrowLeft className="w-4 h-4" /> Back to Admin Panel
           </button>
 
-          <div className="glass-card p-6 rounded-xl max-w-2xl mx-auto">
+          <div className="p-6 rounded-xl max-w-2xl mx-auto" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
             <h1 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
               <Activity className="w-5 h-5" /> Live Tracker Settings
             </h1>

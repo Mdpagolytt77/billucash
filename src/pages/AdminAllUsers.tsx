@@ -467,11 +467,11 @@ const AdminAllUsers = () => {
                 ) : (
                   <table className="w-full text-[10px]">
                     <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-1 px-2 text-primary">Date</th>
-                        <th className="text-left py-1 px-2 text-primary">Offerwall</th>
-                        <th className="text-left py-1 px-2 text-primary">Offer</th>
-                        <th className="text-left py-1 px-2 text-primary">Coins</th>
+                      <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                        <th className="text-left py-1 px-2 text-muted-foreground">Date</th>
+                        <th className="text-left py-1 px-2 text-muted-foreground">Offerwall</th>
+                        <th className="text-left py-1 px-2 text-muted-foreground">Offer</th>
+                        <th className="text-left py-1 px-2 text-muted-foreground">Coins</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -605,15 +605,15 @@ const AdminAllUsers = () => {
             ) : (
               <div className="max-h-60 overflow-y-auto">
                 <table className="w-full text-[10px]">
-                  <thead className="sticky top-0 bg-muted">
-                    <tr className="border-b border-border">
-                      <th className="text-left py-1.5 px-2 text-primary font-semibold">Date/Time</th>
-                      <th className="text-left py-1.5 px-2 text-primary font-semibold">Offerwall</th>
-                      <th className="text-left py-1.5 px-2 text-primary font-semibold">Offer Name</th>
-                      <th className="text-left py-1.5 px-2 text-primary font-semibold">Coins</th>
-                      <th className="text-left py-1.5 px-2 text-primary font-semibold">Transaction ID</th>
-                      <th className="text-left py-1.5 px-2 text-primary font-semibold">Country</th>
-                      <th className="text-left py-1.5 px-2 text-primary font-semibold">IP</th>
+                  <thead className="sticky top-0" style={{ background: '#111111' }}>
+                    <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                      <th className="text-left py-1.5 px-2 text-muted-foreground">Date/Time</th>
+                      <th className="text-left py-1.5 px-2 text-muted-foreground">Offerwall</th>
+                      <th className="text-left py-1.5 px-2 text-muted-foreground">Offer Name</th>
+                      <th className="text-left py-1.5 px-2 text-muted-foreground">Coins</th>
+                      <th className="text-left py-1.5 px-2 text-muted-foreground">Transaction ID</th>
+                      <th className="text-left py-1.5 px-2 text-muted-foreground">Country</th>
+                      <th className="text-left py-1.5 px-2 text-muted-foreground">IP</th>
                     </tr>
                   </thead>
                   <tbody>

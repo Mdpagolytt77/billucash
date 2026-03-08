@@ -117,14 +117,14 @@ const AdminWithdraw = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-[10px]">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">User</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Method</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Account</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Amount</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Date</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Status</th>
-                    <th className="text-left py-1.5 px-2 text-primary bg-primary/10">Actions</th>
+                  <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">User</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Method</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Account</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Amount</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Date</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Status</th>
+                    <th className="text-left py-1.5 px-2 text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>

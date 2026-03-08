@@ -274,7 +274,7 @@ const AdminPanel = () => {
   ];
 
   const statCards2 = [
-    { label: 'Total Withdrawn', value: `$ ${stats.totalWithdrawn.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', hasReset: true, link: '/admin/withdraw' },
+    { label: 'Total Withdrawn', value: `$ ${stats.totalWithdrawn.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', link: '/admin/withdraw' },
     { label: 'Pending Withdraw', value: stats.pendingWithdrawCount.toLocaleString(), icon: ArrowDownCircle, color: 'text-primary', link: '/admin/withdraw' },
     { label: 'All withdraw History', value: stats.allWithdrawHistory.toLocaleString(), icon: History, color: 'text-primary', link: '/admin/withdraw' },
     { label: 'Chargeback', value: `$ ${stats.chargeback}`, icon: CheckCircle, color: 'text-primary', link: '/admin/chargeback' },

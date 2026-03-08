@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Users, DollarSign, AlertCircle, CheckCircle, Clock,
-  RefreshCw, Menu, X, Zap, Settings, CreditCard, History, ArrowDownCircle, RotateCcw
+  RefreshCw, Menu, X, Zap, Settings, CreditCard, History, ArrowDownCircle
 } from 'lucide-react';
 import {
   AlertDialog,

@@ -171,7 +171,7 @@ const AdminChargeback = () => {
 
           {/* Bottom Summary */}
           <div className="p-4 rounded-xl mt-4 mb-6" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-[10px] text-muted-foreground mb-1">Total Chargebacks</p>
                 <p className="text-lg font-bold text-red-400">{filteredChargebacks.length}</p>
@@ -179,18 +179,6 @@ const AdminChargeback = () => {
               <div>
                 <p className="text-[10px] text-muted-foreground mb-1">Total Coins</p>
                 <p className="text-lg font-bold text-red-400">{filteredChargebacks.reduce((sum, cb) => sum + Math.abs(cb.coin), 0).toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground mb-1">Total Amount</p>
-                <p className="text-lg font-bold text-red-400">$ {(filteredChargebacks.reduce((sum, cb) => sum + Math.abs(cb.coin), 0) / 500).toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground mb-1">Avg per Chargeback</p>
-                <p className="text-lg font-bold text-red-400">
-                  {filteredChargebacks.length > 0
-                    ? `$ ${(filteredChargebacks.reduce((sum, cb) => sum + Math.abs(cb.coin), 0) / 500 / filteredChargebacks.length).toFixed(2)}`
-                    : '$ 0.00'}
-                </p>
               </div>
             </div>
           </div>

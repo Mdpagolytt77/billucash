@@ -324,36 +324,6 @@ const AdminPanel = () => {
                 <stat.icon className="w-3 h-3 text-primary" />
                 <span className="text-[9px] text-primary">{stat.label}</span>
               </div>
-              {stat.hasReset && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button 
-                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-400 transition-colors"
-                      title="Reset Total Withdrawn"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Reset Total Withdrawn?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will delete all approved withdrawal records and reset the total withdrawn amount to $0. This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={handleResetTotalWithdrawn}
-                        disabled={isResettingWithdrawals}
-                        className="bg-red-500 hover:bg-red-600"
-                      >
-                        {isResettingWithdrawals ? 'Resetting...' : 'Reset'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
             </div>
           ))}
         </div>

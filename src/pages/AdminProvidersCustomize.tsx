@@ -19,7 +19,8 @@ interface ProviderLogo {
 const AdminProvidersCustomize = () => {
   const { isAdmin, isModerator } = useAuth();
   const canAccess = isAdmin || isModerator;
-  
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [providerLogos, setProviderLogos] = useState<ProviderLogo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

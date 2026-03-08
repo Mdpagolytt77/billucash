@@ -51,7 +51,7 @@ const gradientOptions = [
 
 const AdminPaymentMethods = () => {
   const navigate = useNavigate();
-  const { backgrounds } = useSiteSettings();
+  
   const { user, isLoading: authLoading, isAdmin: authIsAdmin, isModerator } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const canAccess = authIsAdmin || isModerator;
@@ -234,11 +234,11 @@ const AdminPaymentMethods = () => {
   const cashMethods = methods.filter(m => m.category === 'cash');
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
+    <div className="min-h-screen" style={{ background: '#000000' }}>
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       {/* Header */}
-      <header className="sticky top-0 z-30 px-4 py-3 bg-background/95 border-b border-border flex items-center justify-between">
+      <header className="sticky top-0 z-30 px-4 py-3 border-b flex items-center justify-between" style={{ background: '#0a0a0a', borderColor: '#1a1a1a' }}>
         <div className="flex items-center gap-3">
           <button onClick={() => setSidebarOpen(true)} className="p-2 hover:bg-muted rounded-lg">
             <Menu className="w-5 h-5" />

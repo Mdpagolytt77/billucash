@@ -3,7 +3,6 @@ import { ArrowLeft, Plus, Trash2, Save, GripVertical, Image, Link, ToggleLeft, T
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +24,7 @@ interface FeaturedOffer {
 
 const AdminFeaturedOffers = () => {
   const navigate = useNavigate();
-  const { backgrounds } = useSiteSettings();
+  
   const [offers, setOffers] = useState<FeaturedOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -167,7 +166,7 @@ const AdminFeaturedOffers = () => {
   };
 
   return (
-    <div className="min-h-screen" style={getBackgroundStyle(backgrounds.admin, heroBg)}>
+    <div className="min-h-screen" style={{ background: '#000000' }}>
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="p-4 md:p-6">

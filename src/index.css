@@ -471,20 +471,21 @@
 }
 
 .snake-glow-green::after {
-  background: conic-gradient(
-    from var(--snake-angle, 0deg),
-    #1DBF73 0deg,
-    #00FFCC 40deg,
-    #00C8FF 80deg,
-    #A855F7 130deg,
-    transparent 170deg,
-    transparent 310deg,
-    #1DBF73 360deg
-  );
-  animation: snakeRotate 6s linear infinite;
-  filter: blur(16px);
-  opacity: 0.5;
-}
+    background: conic-gradient(
+      from var(--snake-angle, 0deg),
+      #1DBF73 0deg,
+      #00FFCC 40deg,
+      #00C8FF 80deg,
+      #A855F7 130deg,
+      transparent 170deg,
+      transparent 310deg,
+      #1DBF73 360deg
+    );
+    animation: snakeRotate 6s linear infinite;
+    filter: blur(8px);
+    opacity: 0.3;
+    will-change: --snake-angle;
+  }
 
 /* White subtle light for live tracker items */
 .snake-glow-white {

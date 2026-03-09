@@ -418,21 +418,22 @@
 }
 
 .snake-glow-card::after {
-  background: conic-gradient(
-    from var(--snake-angle, 0deg),
-    #1DBF73 0deg,
-    #00FFCC 20deg,
-    #00C8FF 50deg,
-    #A855F7 90deg,
-    #FF6B35 120deg,
-    transparent 150deg,
-    transparent 345deg,
-    #1DBF73 360deg
-  );
-  animation: snakeRotate 6s linear infinite;
-  filter: blur(18px);
-  opacity: 0.7;
-}
+    background: conic-gradient(
+      from var(--snake-angle, 0deg),
+      #1DBF73 0deg,
+      #00FFCC 20deg,
+      #00C8FF 50deg,
+      #A855F7 90deg,
+      #FF6B35 120deg,
+      transparent 150deg,
+      transparent 345deg,
+      #1DBF73 360deg
+    );
+    animation: snakeRotate 6s linear infinite;
+    filter: blur(8px);
+    opacity: 0.4;
+    will-change: --snake-angle;
+  }
 
 /* Green + Cyan + Purple snake glow for section boxes */
 .snake-glow-green {

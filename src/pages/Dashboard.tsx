@@ -294,7 +294,7 @@ const Dashboard = () => {
                           allowFullScreen
                         />
                       ) : (
-                        <div className="h-52 rounded-xl flex items-center justify-center" style={{ background: '#142739', border: '1px dashed #1e3448' }}>
+                        <div className="h-52 rounded-xl flex items-center justify-center" style={{ background: '#111111', border: '1px dashed #1a1a1a' }}>
                           <div className="text-center">
                             <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" style={{ color: '#9DB2C7' }} />
                             <p className="text-sm" style={{ color: '#9DB2C7' }}>No offers available</p>

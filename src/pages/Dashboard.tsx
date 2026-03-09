@@ -238,7 +238,7 @@ const Dashboard = () => {
                 }}
                 onClick={e => e.stopPropagation()}
               >
-                <div className="flex items-center justify-between p-3" style={{ borderBottom: '1px solid #162638', borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
+                <div className="flex items-center justify-between p-3" style={{ borderBottom: '1px solid #1a1a1a', borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setSelectedOfferwall(null)}

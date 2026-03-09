@@ -45,7 +45,7 @@ interface Notification {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile, isAdmin, isModerator, signOut, isLoading, onBalanceIncrease } = useAuth();
-  const { backgrounds } = useSiteSettings();
+  const { } = useSiteSettings();
   const { playBalanceSound } = useSoundContext();
   
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);

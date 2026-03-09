@@ -199,12 +199,8 @@ const Dashboard = () => {
     <>
       <div 
         className="min-h-screen dashboard-theme relative"
-        style={{ background: '#0A0F1C' }}
+        style={{ background: '#000000' }}
       >
-        {/* Background effects */}
-        <div className="fixed inset-0 z-0">
-          <FloatingCoinsBackground density="high" showGlow={true} showBeams={true} />
-        </div>
 
         {/* Offerwall Popup */}
         {selectedOfferwall && (() => {

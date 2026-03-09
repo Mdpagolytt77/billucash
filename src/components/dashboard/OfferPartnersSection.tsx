@@ -91,17 +91,16 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
         popupHeight: partner.popupHeight,
         popupAnimation: partner.popupAnimation,
       })}
-      className="snake-glow-card flex-shrink-0 cursor-pointer group transition-all duration-300 overflow-visible"
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+      className="flex-shrink-0 cursor-pointer group transition-all duration-300 hover:scale-[1.03]"
     >
       <div 
-        className="relative z-10 overflow-hidden flex flex-col items-center justify-center p-2"
+        className="relative overflow-hidden flex flex-col items-center justify-center p-2"
         style={{
           width: '108px',
           height: '160px',
           borderRadius: '16px',
           background: getCardBackground(partner.name, partner.color),
+          border: '1px solid #1a1a1a',
         }}
       >
         {partner.badge && (
@@ -139,21 +138,21 @@ const OfferPartnersSection = ({ title, partners, onPartnerClick }: OfferPartners
     <section className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Layers className="w-5 h-5 fire-icon" />
-          <h3 className="font-bold text-lg text-rainbow">{title}</h3>
+          <Layers className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-lg text-foreground">{title}</h3>
         </div>
       </div>
       
       <div className="flex flex-col gap-4">
         {rows.map((row, idx) => (
           <div key={idx}>
-            <p className="text-sm font-semibold mb-1 ml-1" style={{ color: '#9DB2C7', fontFamily: "'Playfair Display', serif" }}>
+            <p className="text-sm font-semibold mb-1 ml-1 text-muted-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
               {rowLabels[idx]}
             </p>
-            <div className="h-[1px] mb-2" style={{ background: 'linear-gradient(90deg, #00C8FF, #00C8FF88, transparent)' }} />
+            <div className="h-[1px] mb-2" style={{ background: '#1a1a1a' }} />
             <div 
               className="rounded-2xl p-3"
-              style={{ background: '#0E1A27', border: '1px solid #162638' }}
+              style={{ background: '#111111', border: '1px solid #1a1a1a' }}
             >
               <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
                 {row.map(renderCard)}

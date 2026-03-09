@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ExternalLink, Coins, Globe, Smartphone } from 'lucide-react';
+import { ExternalLink, Coins, Smartphone } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -20,7 +20,6 @@ const NotikOffersSection = () => {
   const { user } = useAuth();
   const [offers, setOffers] = useState<NotikOffer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     loadOffers();
@@ -55,12 +54,12 @@ const NotikOffersSection = () => {
     return (
       <section className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <Coins className="w-5 h-5 fire-icon" />
-          <h3 className="font-bold text-lg text-rainbow">Notik Offers</h3>
+          <Coins className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-lg text-foreground">Notik Offers</h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-40 rounded-2xl animate-pulse" style={{ background: '#0E1A27' }} />
+            <div key={i} className="h-40 rounded-2xl animate-pulse" style={{ background: '#111111' }} />
           ))}
         </div>
       </section>
@@ -73,8 +72,8 @@ const NotikOffersSection = () => {
     <section className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Coins className="w-5 h-5 fire-icon" />
-          <h3 className="font-bold text-lg text-rainbow">Notik Offers</h3>
+          <Coins className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-lg text-foreground">Notik Offers</h3>
           <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: '#1DBF7333', color: '#1DBF73' }}>
             {offers.length}
           </span>
@@ -86,8 +85,8 @@ const NotikOffersSection = () => {
           <div
             key={offer.id}
             onClick={() => handleOfferClick(offer)}
-            className="cursor-pointer group rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-lg"
-            style={{ background: '#0E1A27', border: '1px solid #162638' }}
+            className="cursor-pointer group rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03]"
+            style={{ background: '#111111', border: '1px solid #1a1a1a' }}
           >
             {offer.image_url ? (
               <div className="w-full h-20 overflow-hidden">
@@ -108,7 +107,7 @@ const NotikOffersSection = () => {
               <h4 className="text-[11px] font-bold text-white truncate mb-1">{offer.name}</h4>
               
               {offer.description && (
-                <p className="text-[9px] text-white/50 line-clamp-2 mb-1.5">{offer.description}</p>
+                <p className="text-[9px] text-muted-foreground line-clamp-2 mb-1.5">{offer.description}</p>
               )}
 
               <div className="flex items-center justify-between">
@@ -117,9 +116,9 @@ const NotikOffersSection = () => {
                 </span>
                 <div className="flex gap-1 items-center">
                   {offer.platform && (
-                    <Smartphone className="w-2.5 h-2.5 text-white/30" />
+                    <Smartphone className="w-2.5 h-2.5 text-muted-foreground" />
                   )}
-                  <ExternalLink className="w-2.5 h-2.5 text-white/30 group-hover:text-white/60 transition-colors" />
+                  <ExternalLink className="w-2.5 h-2.5 text-muted-foreground group-hover:text-white/60 transition-colors" />
                 </div>
               </div>
             </div>

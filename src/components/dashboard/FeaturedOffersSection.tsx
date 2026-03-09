@@ -23,10 +23,10 @@ const OfferCard = ({ offer, onClick }: { offer: FeaturedOffer; onClick: () => vo
   return (
     <div
       onClick={onClick}
-      className="snake-glow-card flex-shrink-0 cursor-pointer group overflow-visible transition-all duration-300 hover:-translate-y-1.5"
+      className="flex-shrink-0 cursor-pointer group transition-all duration-300 hover:-translate-y-1.5"
       style={{ width: '108px' }}
     >
-      <div className="relative z-10 rounded-2xl overflow-hidden h-full" style={{ background: '#111C2D', border: '1px solid rgba(29,191,115,0.08)' }}>
+      <div className="relative overflow-hidden rounded-2xl h-full" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
         {/* Image area */}
         <div className="relative h-[72px] overflow-hidden">
           {offer.image_url ? (
@@ -47,11 +47,11 @@ const OfferCard = ({ offer, onClick }: { offer: FeaturedOffer; onClick: () => vo
             </div>
           )}
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111C2D] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent" />
           
           {/* Payout badge */}
           <div
-            className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[8px] font-bold text-white backdrop-blur-sm"
+            className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[8px] font-bold text-white"
             style={{ background: 'rgba(29,191,115,0.85)' }}
           >
             ${payout}
@@ -61,7 +61,7 @@ const OfferCard = ({ offer, onClick }: { offer: FeaturedOffer; onClick: () => vo
         {/* Info */}
         <div className="p-2 pt-1.5">
           <h4 className="text-[10px] font-bold text-white truncate leading-tight">{offer.name}</h4>
-          <p className="text-[8px] truncate mt-0.5 leading-tight" style={{ color: '#6B8299' }}>
+          <p className="text-[8px] truncate mt-0.5 leading-tight text-muted-foreground">
             {offer.description || 'Complete this offer'}
           </p>
           <div className="flex items-center justify-between mt-1.5">
@@ -69,7 +69,7 @@ const OfferCard = ({ offer, onClick }: { offer: FeaturedOffer; onClick: () => vo
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#1DBF73' }} />
               <span className="text-[7px] font-medium" style={{ color: '#1DBF73' }}>Active</span>
             </div>
-            <ExternalLink className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#6B8299' }} />
+            <ExternalLink className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
           </div>
         </div>
       </div>
@@ -127,12 +127,12 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     return (
       <section className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <Flame className="w-5 h-5 fire-icon" />
-          <h3 className="font-bold text-lg text-rainbow">Hot Offers</h3>
+          <Flame className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-lg text-foreground">Hot Offers</h3>
         </div>
         <div className="flex gap-3 overflow-hidden">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex-shrink-0 w-[108px] h-[140px] rounded-2xl animate-pulse" style={{ background: '#111C2D' }} />
+            <div key={i} className="flex-shrink-0 w-[108px] h-[140px] rounded-2xl animate-pulse" style={{ background: '#111111' }} />
           ))}
         </div>
       </section>
@@ -144,11 +144,11 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     return (
       <div
         className="rounded-2xl p-3 mb-3"
-        style={{ background: '#0C1520', border: '1px solid #15202E' }}
+        style={{ background: '#111111', border: '1px solid #1a1a1a' }}
       >
         <div className="flex items-center gap-1.5 mb-2">
           <div className="w-1 h-3 rounded-full" style={{ background: '#1DBF73' }} />
-          <span className="text-[10px] font-semibold tracking-wide uppercase" style={{ color: '#4A6A82' }}>{label}</span>
+          <span className="text-[10px] font-semibold tracking-wide uppercase text-muted-foreground">{label}</span>
         </div>
         <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
           {rowOffers.map((offer) => (
@@ -163,8 +163,8 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
     <section className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Flame className="w-5 h-5 fire-icon" />
-          <h3 className="font-bold text-lg text-rainbow">Hot Offers</h3>
+          <Flame className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-lg text-foreground">Hot Offers</h3>
           {allOffers.length > 0 && (
             <span
               className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
@@ -174,7 +174,7 @@ const FeaturedOffersSection = ({ onOfferClick }: FeaturedOffersSectionProps) => 
             </span>
           )}
         </div>
-        <button className="text-xs font-medium flex items-center gap-0.5 transition-colors hover:opacity-80" style={{ color: '#4A6A82' }}>
+        <button className="text-xs font-medium flex items-center gap-0.5 transition-colors hover:opacity-80 text-muted-foreground">
           View All <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>

@@ -3,19 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Gift, X, ArrowLeft, Loader2, CheckCircle
 } from 'lucide-react';
-import pageBg from '@/assets/page-bg.jpg';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
-import FloatingCoinsBackground from '@/components/FloatingCoinsBackground';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import NotikOffersSection from '@/components/dashboard/NotikOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { useSiteSettings, SiteLogo } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -47,7 +45,7 @@ interface Notification {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile, isAdmin, isModerator, signOut, isLoading, onBalanceIncrease } = useAuth();
-  const { backgrounds } = useSiteSettings();
+  const { } = useSiteSettings();
   const { playBalanceSound } = useSoundContext();
   
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
@@ -201,12 +199,8 @@ const Dashboard = () => {
     <>
       <div 
         className="min-h-screen dashboard-theme relative"
-        style={{ background: '#0A0F1C' }}
+        style={{ background: '#000000' }}
       >
-        {/* Background effects */}
-        <div className="fixed inset-0 z-0">
-          <FloatingCoinsBackground density="high" showGlow={true} showBeams={true} />
-        </div>
 
         {/* Offerwall Popup */}
         {selectedOfferwall && (() => {
@@ -237,14 +231,14 @@ const Dashboard = () => {
               <div 
                 className={`backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden shadow-2xl ${popupAnimation}`}
                 style={{ 
-                  background: '#0E1A27',
+                  background: '#111111',
                   borderWidth: `${borderWidth}px`,
-                  borderColor: `${borderColor}33`,
+                  borderColor: '#1a1a1a',
                   borderStyle: 'solid'
                 }}
                 onClick={e => e.stopPropagation()}
               >
-                <div className="flex items-center justify-between p-3" style={{ borderBottom: '1px solid #162638', borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
+                <div className="flex items-center justify-between p-3" style={{ borderBottom: '1px solid #1a1a1a', borderLeftColor: selectedOfferwall.color, borderLeftWidth: '4px' }}>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setSelectedOfferwall(null)}
@@ -300,7 +294,7 @@ const Dashboard = () => {
                           allowFullScreen
                         />
                       ) : (
-                        <div className="h-52 rounded-xl flex items-center justify-center" style={{ background: '#142739', border: '1px dashed #1e3448' }}>
+                        <div className="h-52 rounded-xl flex items-center justify-center" style={{ background: '#111111', border: '1px dashed #1a1a1a' }}>
                           <div className="text-center">
                             <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" style={{ color: '#9DB2C7' }} />
                             <p className="text-sm" style={{ color: '#9DB2C7' }}>No offers available</p>
@@ -335,7 +329,7 @@ const Dashboard = () => {
           {/* Welcome Notification Popup */}
           {showWelcomePopup && (
             <div className="fixed top-20 right-4 z-50 animate-fade-in">
-              <div className="px-4 py-3 rounded-2xl backdrop-blur-xl flex items-center gap-3 shadow-2xl" style={{ background: '#0E1A27', border: '1px solid rgba(29,191,115,0.3)' }}>
+              <div className="px-4 py-3 rounded-2xl flex items-center gap-3 shadow-2xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#1DBF73' }}>
                   <CheckCircle className="w-5 h-5 text-white" />
                 </div>

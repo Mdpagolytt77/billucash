@@ -39,14 +39,14 @@ const DashboardHeader = ({
     <header 
       className="sticky top-0 z-30 h-[60px] flex items-center justify-between px-4 md:px-6"
       style={{
-        background: '#0F1F2F',
-        borderBottom: '1px solid #162638',
+        background: '#0a0a0a',
+        borderBottom: '1px solid #1a1a1a',
       }}
     >
       {/* Left - hamburger for mobile */}
       <div className="flex items-center gap-3">
         <button onClick={onMenuClick} className="p-1.5 hover:bg-white/5 rounded-lg transition-colors active:scale-95">
-          <Menu className="w-5 h-5 text-[#9DB2C7]" />
+          <Menu className="w-5 h-5 text-muted-foreground" />
         </button>
         <SiteLogo size="sm" className="max-h-8" />
       </div>
@@ -57,7 +57,7 @@ const DashboardHeader = ({
         <button 
           onClick={() => setShowBalanceHistory(true)}
           className="flex items-center gap-2 px-4 py-1.5 rounded-full cursor-pointer hover:brightness-110 transition-all active:scale-95"
-          style={{ background: '#142739', border: '1px solid #1e3448' }}
+          style={{ background: '#111111', border: '1px solid #1a1a1a' }}
         >
           <CoinIcon className="w-4 h-4" />
           <span className="font-bold text-sm text-white">
@@ -81,19 +81,19 @@ const DashboardHeader = ({
           {showNotifications && (
             <div 
               className="absolute right-0 top-12 w-72 rounded-2xl shadow-2xl p-3 max-h-80 overflow-auto z-50"
-              style={{ background: '#0E1A27', border: '1px solid #162638' }}
+              style={{ background: '#111111', border: '1px solid #1a1a1a' }}
             >
-              <div className="flex justify-between items-center mb-3 pb-2" style={{ borderBottom: '1px solid #162638' }}>
+              <div className="flex justify-between items-center mb-3 pb-2" style={{ borderBottom: '1px solid #1a1a1a' }}>
                 <span className="font-bold text-sm" style={{ color: '#1DBF73' }}>Notifications</span>
                 <div className="flex gap-2 items-center">
                   <button onClick={onMarkAllRead} className="text-[10px] px-2 py-1 rounded-lg font-medium" style={{ background: 'rgba(29,191,115,0.15)', color: '#1DBF73' }}>Read All</button>
                   <button onClick={onClearNotifications} className="text-[10px] px-2 py-1 rounded-lg font-medium text-red-400" style={{ background: 'rgba(239,68,68,0.15)' }}>Clear</button>
-                  <button onClick={() => setShowNotifications(false)} className="text-[#9DB2C7] hover:text-white"><X className="w-4 h-4" /></button>
+                  <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-white"><X className="w-4 h-4" /></button>
                 </div>
               </div>
               <div className="space-y-2">
                 {notifications.length === 0 ? (
-                  <p className="text-center text-[#9DB2C7] py-6 text-sm">No notifications</p>
+                  <p className="text-center text-muted-foreground py-6 text-sm">No notifications</p>
                 ) : (
                   notifications.map(notif => (
                     <div key={notif.id} className="p-2.5 rounded-xl transition-all text-xs" style={{
@@ -101,7 +101,7 @@ const DashboardHeader = ({
                       borderLeft: notif.read ? 'none' : '2px solid #1DBF73',
                     }}>
                       <p className="font-medium text-white">{notif.message}</p>
-                      <span className="text-[10px] text-[#9DB2C7] mt-1 block">{notif.time}</span>
+                      <span className="text-[10px] text-muted-foreground mt-1 block">{notif.time}</span>
                     </div>
                   ))
                 )}
@@ -115,7 +115,7 @@ const DashboardHeader = ({
           <button 
             onClick={() => setShowUserMenu(!showUserMenu)} 
             className="flex items-center gap-1.5 px-1.5 py-1 rounded-full transition-colors hover:bg-white/5"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #1a1a1a' }}
           >
             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0" style={{ border: '2px solid rgba(29,191,115,0.4)' }}>
               <img 
@@ -132,14 +132,14 @@ const DashboardHeader = ({
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 top-12 w-44 rounded-2xl shadow-2xl py-2 z-50" style={{ background: '#0E1A27', border: '1px solid #162638' }}>
+            <div className="absolute right-0 top-12 w-44 rounded-2xl shadow-2xl py-2 z-50" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
               <button onClick={() => { navigate('/profile'); setShowUserMenu(false); }} className="w-full px-4 py-2.5 flex items-center gap-2 hover:bg-white/5 transition-all text-sm font-medium text-white">
                 Profile Settings
               </button>
               <button onClick={() => { navigate('/withdraw'); setShowUserMenu(false); }} className="w-full px-4 py-2.5 flex items-center gap-2 hover:bg-white/5 transition-all text-sm font-medium text-white">
                 Withdraw
               </button>
-              <hr className="my-1.5" style={{ borderColor: '#162638' }} />
+              <hr className="my-1.5" style={{ borderColor: '#1a1a1a' }} />
               <button onClick={onLogout} className="w-full px-4 py-2.5 flex items-center gap-2 hover:bg-red-500/10 transition-all text-sm font-medium text-red-400">
                 Logout
               </button>

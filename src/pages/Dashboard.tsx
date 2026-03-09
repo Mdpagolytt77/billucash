@@ -3,13 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Gift, X, ArrowLeft, Loader2, CheckCircle
 } from 'lucide-react';
-import pageBg from '@/assets/page-bg.jpg';
 import LoadingScreen from '@/components/LoadingScreen';
 import Footer from '@/components/Footer';
 import AppSidebar from '@/components/AppSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import FloatingChatButton from '@/components/dashboard/FloatingChatButton';
-import FloatingCoinsBackground from '@/components/FloatingCoinsBackground';
 import LiveEarningsTracker from '@/components/LiveEarningsTracker';
 import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection';
 import NotikOffersSection from '@/components/dashboard/NotikOffersSection';

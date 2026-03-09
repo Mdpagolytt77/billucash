@@ -13,7 +13,7 @@ import FeaturedOffersSection from '@/components/dashboard/FeaturedOffersSection'
 import NotikOffersSection from '@/components/dashboard/NotikOffersSection';
 import OfferPartnersSection from '@/components/dashboard/OfferPartnersSection';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSiteSettings, SiteLogo, getBackgroundStyle } from '@/contexts/SiteSettingsContext';
+import { useSiteSettings, SiteLogo } from '@/contexts/SiteSettingsContext';
 import { useSoundContext } from '@/contexts/SoundContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';

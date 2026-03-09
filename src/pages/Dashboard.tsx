@@ -329,7 +329,7 @@ const Dashboard = () => {
           {/* Welcome Notification Popup */}
           {showWelcomePopup && (
             <div className="fixed top-20 right-4 z-50 animate-fade-in">
-              <div className="px-4 py-3 rounded-2xl backdrop-blur-xl flex items-center gap-3 shadow-2xl" style={{ background: '#0E1A27', border: '1px solid rgba(29,191,115,0.3)' }}>
+              <div className="px-4 py-3 rounded-2xl flex items-center gap-3 shadow-2xl" style={{ background: '#111111', border: '1px solid #1a1a1a' }}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#1DBF73' }}>
                   <CheckCircle className="w-5 h-5 text-white" />
                 </div>

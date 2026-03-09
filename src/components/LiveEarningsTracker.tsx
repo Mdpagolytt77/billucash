@@ -91,23 +91,24 @@ const LiveEarningsTracker = ({ forceShow = false }: { forceShow?: boolean }) => 
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Detect user's country via IP geolocation (multiple fallbacks)
+  // Detect user's country via IP geolocation (cached in sessionStorage)
   useEffect(() => {
+    const cached = sessionStorage.getItem('user_country');
+    if (cached) {
+      setUserCountry(cached === 'unknown' ? null : cached);
+      return;
+    }
     const detectCountry = async () => {
-      const apis = [
-        () => fetch('https://ipapi.co/json/').then(r => r.json()).then(d => d?.country_code),
-        () => fetch('https://api.country.is/').then(r => r.json()).then(d => d?.country),
-        () => fetch('https://ipwho.is/').then(r => r.json()).then(d => d?.country_code),
-      ];
-      for (const api of apis) {
-        try {
-          const code = await api();
-          if (code && /^[A-Z]{2}$/.test(code)) {
-            setUserCountry(code);
-            return;
-          }
-        } catch {}
-      }
+      try {
+        const r = await fetch('https://api.country.is/');
+        const d = await r.json();
+        if (d?.country && /^[A-Z]{2}$/.test(d.country)) {
+          sessionStorage.setItem('user_country', d.country);
+          setUserCountry(d.country);
+          return;
+        }
+      } catch {}
+      sessionStorage.setItem('user_country', 'unknown');
       setUserCountry(null);
     };
     detectCountry();

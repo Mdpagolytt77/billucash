@@ -520,14 +520,15 @@
 }
 
 .snake-glow-white::after {
-  background: conic-gradient(
-    from var(--snake-angle, 0deg),
-    rgba(255,255,255,0.3) 0deg,
-    transparent 25deg,
-    transparent 335deg,
-    rgba(255,255,255,0.3) 360deg
-  );
-  animation: snakeRotate 6s linear infinite;
-  filter: blur(4px);
-  opacity: 0.12;
-}
+    background: conic-gradient(
+      from var(--snake-angle, 0deg),
+      rgba(255,255,255,0.3) 0deg,
+      transparent 25deg,
+      transparent 335deg,
+      rgba(255,255,255,0.3) 360deg
+    );
+    animation: snakeRotate 6s linear infinite;
+    filter: blur(2px);
+    opacity: 0.08;
+    will-change: --snake-angle;
+  }

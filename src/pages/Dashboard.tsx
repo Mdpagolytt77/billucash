@@ -231,9 +231,9 @@ const Dashboard = () => {
               <div 
                 className={`backdrop-blur-xl rounded-2xl w-full ${popupWidthClass} max-h-[90vh] overflow-hidden shadow-2xl ${popupAnimation}`}
                 style={{ 
-                  background: '#0E1A27',
+                  background: '#111111',
                   borderWidth: `${borderWidth}px`,
-                  borderColor: `${borderColor}33`,
+                  borderColor: '#1a1a1a',
                   borderStyle: 'solid'
                 }}
                 onClick={e => e.stopPropagation()}

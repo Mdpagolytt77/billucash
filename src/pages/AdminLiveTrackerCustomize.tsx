@@ -230,6 +230,22 @@ const AdminLiveTrackerCustomize = () => {
                   />
                 </div>
 
+                {/* My Offers Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border">
+                  <div className="flex items-center gap-3">
+                    <ClipboardList className="w-5 h-5 text-blue-500" />
+                    <div>
+                      <Label className="text-sm font-medium">My Offers Section</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Show/hide "My Offers" option for users in dashboard
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={settings.myOffersEnabled}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, myOffersEnabled: checked }))}
+                  />
+                </div>
 
                 {/* Save Button */}
                 <button

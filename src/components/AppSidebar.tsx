@@ -23,7 +23,6 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
 
   const navItems = [
     { icon: Home, label: 'Earn', path: '/dashboard' },
-    { icon: CheckCircle, label: 'My Offers', path: '/my-offers' },
     { icon: Wallet, label: 'Cashout', path: '/withdraw' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
     { icon: Award, label: 'Rewards', path: '/profile' },

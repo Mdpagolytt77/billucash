@@ -42,6 +42,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Image, label: 'Homepage Images', path: '/admin/homepage-images' },
     { icon: Upload, label: 'Notik Import', path: '/admin/notik-import' },
     { icon: AlertTriangle, label: 'Chargeback', path: '/admin/chargeback' },
+    { icon: FileCheck, label: 'Completed', path: '/admin/offers' },
     { icon: Key, label: 'Password', path: '/admin/password' },
   ];
 

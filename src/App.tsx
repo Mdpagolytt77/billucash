@@ -76,6 +76,8 @@ const App = () => (
                   <Route path="/admin/homepage-images" element={<ProtectedRoute requireAdmin><AdminHomepageImages /></ProtectedRoute>} />
                   <Route path="/admin/notik-import" element={<ProtectedRoute requireAdmin><AdminNotikImport /></ProtectedRoute>} />
                   <Route path="/admin/chargeback" element={<ProtectedRoute requireAdmin><AdminChargeback /></ProtectedRoute>} />
+                  <Route path="/admin/offers" element={<ProtectedRoute requireAdmin><AdminCompletedOffers /></ProtectedRoute>} />
+                  <Route path="/my-offers" element={<ProtectedRoute><UserCompletedOffers /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                   <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
                   <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />

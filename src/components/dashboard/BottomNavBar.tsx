@@ -9,7 +9,7 @@ const BottomNavBar = () => {
     { icon: Home, label: 'Home', path: '/dashboard' },
     { icon: Wallet, label: 'Cashout', path: '/withdraw' },
     { icon: Search, label: 'Explore', path: '/leaderboard', isCenter: true },
-    { icon: Award, label: 'Rewards', path: '/my-offers' },
+    { icon: Award, label: 'Rewards', path: '/profile' },
     { icon: MessageCircle, label: 'Chat', path: '/profile' },
   ];
 

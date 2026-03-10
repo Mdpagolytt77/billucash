@@ -30,7 +30,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Shield, label: 'Admin Roles', path: '/admin/roles' },
     { icon: Wallet, label: 'Withdraw', path: '/admin/withdraw' },
     { icon: CreditCard, label: 'Payment Methods', path: '/admin/payment-methods' },
-    { icon: FileCheck, label: 'Completed', path: '/admin/offers' },
+    
     { icon: Palette, label: 'Logo', path: '/admin/logo' },
     { icon: Layers, label: 'Offerwall', path: '/admin/offerwall' },
     { icon: Star, label: 'Featured Offers', path: '/admin/featured-offers' },
@@ -47,7 +47,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
 
   // Moderators can only see All Users and Completed Offers
   const navItems = isReadOnly
-    ? allNavItems.filter(item => ['/admin/users', '/admin/offers'].includes(item.path))
+    ? allNavItems.filter(item => ['/admin/users'].includes(item.path))
     : allNavItems;
 
   return (

@@ -36,6 +36,8 @@ const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Withdraw = lazy(() => import("./pages/Withdraw"));
 
+const UserCompletedOffers = lazy(() => import("./pages/UserCompletedOffers"));
+const AdminCompletedOffers = lazy(() => import("./pages/AdminCompletedOffers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OfferyPostbackProxy = lazy(() => import("./pages/OfferyPostbackProxy"));
 

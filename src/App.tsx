@@ -36,6 +36,8 @@ const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Withdraw = lazy(() => import("./pages/Withdraw"));
 
+const UserCompletedOffers = lazy(() => import("./pages/UserCompletedOffers"));
+const AdminCompletedOffers = lazy(() => import("./pages/AdminCompletedOffers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OfferyPostbackProxy = lazy(() => import("./pages/OfferyPostbackProxy"));
 
@@ -74,6 +76,8 @@ const App = () => (
                   <Route path="/admin/homepage-images" element={<ProtectedRoute requireAdmin><AdminHomepageImages /></ProtectedRoute>} />
                   <Route path="/admin/notik-import" element={<ProtectedRoute requireAdmin><AdminNotikImport /></ProtectedRoute>} />
                   <Route path="/admin/chargeback" element={<ProtectedRoute requireAdmin><AdminChargeback /></ProtectedRoute>} />
+                  <Route path="/admin/offers" element={<ProtectedRoute requireAdmin><AdminCompletedOffers /></ProtectedRoute>} />
+                  <Route path="/my-offers" element={<ProtectedRoute><UserCompletedOffers /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                   <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
                   <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />

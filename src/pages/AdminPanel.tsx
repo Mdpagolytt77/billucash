@@ -268,7 +268,8 @@ const AdminPanel = () => {
   // Stat cards matching the reference image
   const statCards = [
     { label: 'All users', value: stats.allUsers.toLocaleString(), icon: Users, color: 'text-primary', link: '/admin/users' },
-    { label: 'Total Revenue', value: `$ ${stats.totalRevenue.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', link: '/admin/withdraw' },
+    { label: 'Completed Offers', value: stats.completedOffers.toLocaleString(), icon: CheckCircle, color: 'text-primary', link: '/admin/offers' },
+    { label: 'Total Revenue', value: `$ ${stats.totalRevenue.toFixed(2)}`, icon: CheckCircle, color: 'text-primary', link: '/admin/offers' },
     { label: 'Total pending Withdraw', value: `$ ${stats.totalPendingWithdraw.toFixed(0)}`, icon: CheckCircle, color: 'text-primary', link: '/admin/withdraw' },
   ];
 

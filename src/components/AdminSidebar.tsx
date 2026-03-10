@@ -27,6 +27,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
   const allNavItems = [
     { icon: Home, label: 'Dashboard', path: '/admin' },
     { icon: Users, label: 'All Users', path: '/admin/users' },
+    { icon: FileCheck, label: 'Completed', path: '/admin/offers' },
     { icon: Shield, label: 'Admin Roles', path: '/admin/roles' },
     { icon: Wallet, label: 'Withdraw', path: '/admin/withdraw' },
     { icon: CreditCard, label: 'Payment Methods', path: '/admin/payment-methods' },
@@ -42,13 +43,12 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { icon: Image, label: 'Homepage Images', path: '/admin/homepage-images' },
     { icon: Upload, label: 'Notik Import', path: '/admin/notik-import' },
     { icon: AlertTriangle, label: 'Chargeback', path: '/admin/chargeback' },
-    { icon: FileCheck, label: 'Completed', path: '/admin/offers' },
     { icon: Key, label: 'Password', path: '/admin/password' },
   ];
 
   // Moderators can only see All Users and Completed Offers
   const navItems = isReadOnly
-    ? allNavItems.filter(item => ['/admin/users'].includes(item.path))
+    ? allNavItems.filter(item => ['/admin/users', '/admin/offers'].includes(item.path))
     : allNavItems;
 
   return (

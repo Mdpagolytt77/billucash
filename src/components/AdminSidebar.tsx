@@ -48,7 +48,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
 
   // Moderators can only see All Users and Completed Offers
   const navItems = isReadOnly
-    ? allNavItems.filter(item => ['/admin/users'].includes(item.path))
+    ? allNavItems.filter(item => ['/admin/users', '/admin/offers'].includes(item.path))
     : allNavItems;
 
   return (

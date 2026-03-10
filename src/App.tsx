@@ -19,7 +19,7 @@ const AdminAllUsers = lazy(() => import("./pages/AdminAllUsers"));
 const AdminWithdraw = lazy(() => import("./pages/AdminWithdraw"));
 const AdminPasswordReset = lazy(() => import("./pages/AdminPasswordReset"));
 const AdminLogoCustomize = lazy(() => import("./pages/AdminLogoCustomize"));
-const AdminCompletedOffers = lazy(() => import("./pages/AdminCompletedOffers"));
+
 const AdminOfferwallCustomize = lazy(() => import("./pages/AdminOfferwallCustomize"));
 const AdminSocialLinksCustomize = lazy(() => import("./pages/AdminSocialLinksCustomize"));
 const AdminSoundCustomize = lazy(() => import("./pages/AdminSoundCustomize"));

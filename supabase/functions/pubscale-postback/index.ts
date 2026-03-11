@@ -66,8 +66,12 @@ serve(async (req) => {
       }
     }
 
-    // Parse payout
-    const payoutUsd = parseFloat(payoutStr) || 0;
+    // Parse payout - PubScale sends revenue in their points system (configured as $1 = 1000 points)
+    // So we need to convert their points to USD first, then to our coins
+    // PubScale points -> USD: divide by 1000 (their configured rate)
+    // USD -> Our coins: multiply by 500 (our rate: 500 coins = $1)
+    const rawPayout = parseFloat(payoutStr) || 0;
+    const payoutUsd = rawPayout / 1000; // Convert PubScale points to USD
     let coinAmount = Math.round(payoutUsd * 500); // 500 coins = 1 USD
 
     if (coinAmount <= 0) {
